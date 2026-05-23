@@ -1,0 +1,427 @@
+# ─────────────────────────────────────────────────────────────────────────
+# Sveltia CMS configuration — what the editor sees and edits at /admin.
+# All field labels are written for a non-technical editor.
+# ─────────────────────────────────────────────────────────────────────────
+
+# Backend / auth ----------------------------------------------------------
+# Sveltia CMS uses GitHub directly (PKCE OAuth, no GitHub OAuth App setup needed).
+# Editors log in with their GitHub account — they must have write access to the repo.
+# IMPORTANT: replace `repo:` with the actual path before deploying.
+backend:
+  name: github
+  repo: YOUR-GITHUB-USERNAME/pctimes-site
+  branch: main
+
+# Local development: lets Sveltia write to the filesystem via a small proxy.
+# Start the proxy with:  npx @sveltia/cms-proxy-server
+local_backend: true
+
+publish_mode: simple                          # Direct publish, no editorial workflow
+site_url: https://pctimes.co.nz
+display_url: https://pctimes.co.nz
+logo_url: /assets/images/logo.png
+
+# Default media folder. Per-field overrides below for PDFs.
+media_folder: "src/assets/images"
+public_folder: "/assets/images"
+
+# ─────────────────────────────────────────────────────────────────────────
+# Collections
+# ─────────────────────────────────────────────────────────────────────────
+collections:
+
+  # 1) THIS WEEK'S PAPER ─────────────────────────────────────────────────
+  - name: "issue"
+    label: "📰 This week's paper"
+    description: "Everything that changes when you publish a new edition."
+    files:
+      - name: "latest"
+        label: "Current issue"
+        file: "src/_data/latest.yml"
+        format: "yml"
+        fields:
+          - label: "Issue number"
+            name: "issue_number"
+            widget: "number"
+            value_type: "int"
+            min: 1
+            hint: "Just the number — e.g. 1620"
+
+          - label: "Date of this issue"
+            name: "date"
+            widget: "datetime"
+            date_format: "YYYY-MM-DD"
+            time_format: false
+            picker_utc: false
+            hint: "The Friday it was published."
+
+          - label: "Title (optional)"
+            name: "title"
+            widget: "string"
+            required: false
+            default: ""
+            hint: "Leave blank to use the default 'Issue {number} — {date}' heading."
+
+          - label: "Short blurb (optional)"
+            name: "blurb"
+            widget: "string"
+            required: false
+            default: ""
+            hint: "One short sentence shown under the headline."
+
+          - label: "In this issue"
+            name: "in_this_issue"
+            widget: "list"
+            required: false
+            min: 0
+            max: 12
+            field:
+              label: "Headline"
+              name: "item"
+              widget: "string"
+            hint: "Type one headline per line — drag to reorder."
+
+          - label: "Upload this week's paper PDF"
+            name: "pdf"
+            widget: "file"
+            media_folder: "/src/files/issues"
+            public_folder: "/files/issues"
+            default: "/files/issues/latest-issue.pdf"
+            hint: "Upload the weekly PDF. This becomes the 'Read this week's issue' button."
+
+          - label: "Front page image (optional)"
+            name: "cover_image"
+            widget: "image"
+            required: false
+            default: ""
+            hint: "Optional. A photo or screenshot of the front page — shows next to the issue on the home page."
+
+          - label: "Read online (flipbook) URL — optional"
+            name: "flipbook_url"
+            widget: "string"
+            required: false
+            default: ""
+            hint: "Optional. If you have a flipbook viewer URL (Issuu, Yumpu, Flipsnack, etc.), paste it here. Leave blank to use the built-in PDF viewer."
+
+          - label: "Property Guide (monthly)"
+            name: "property_guide"
+            widget: "object"
+            collapsed: true
+            fields:
+              - { label: "Show the Property Guide on the site?", name: "available", widget: "boolean", default: true }
+              - { label: "Title", name: "title", widget: "string", default: "Coast & Country Property Guide" }
+              - { label: "Month / date label", name: "date", widget: "string", hint: "e.g. May 2026" }
+              - label: "Upload Property Guide PDF"
+                name: "pdf"
+                widget: "file"
+                media_folder: "/src/files/issues"
+                public_folder: "/files/issues"
+                required: false
+
+
+  # 2) PREVIOUS ISSUES ───────────────────────────────────────────────────
+  - name: "archive"
+    label: "🗂 Previous issues"
+    description: "The list of recent back issues shown on the Latest Issue page."
+    files:
+      - name: "archive"
+        label: "Back-issues list"
+        file: "src/_data/archive.yml"
+        format: "yml"
+        fields:
+          - label: "Recent issues"
+            name: "issues"
+            widget: "list"
+            summary: "Issue {{fields.number}} — {{fields.date}}"
+            fields:
+              - { label: "Issue number", name: "number", widget: "number", value_type: "int" }
+              - label: "Date"
+                name: "date"
+                widget: "datetime"
+                date_format: "YYYY-MM-DD"
+                time_format: false
+                picker_utc: false
+              - label: "PDF file"
+                name: "pdf"
+                widget: "file"
+                media_folder: "/src/files/issues"
+                public_folder: "/files/issues"
+
+          - label: "Older issues link (optional)"
+            name: "external_archive"
+            widget: "object"
+            collapsed: true
+            fields:
+              - { label: "Show an 'older issues' button?", name: "enabled", widget: "boolean", default: false }
+              - { label: "URL (e.g. Google Drive folder)", name: "url", widget: "string", required: false, default: "" }
+              - { label: "Button label", name: "label", widget: "string", default: "Older issues" }
+
+
+  # 3) ADVERTISING ──────────────────────────────────────────────────────
+  - name: "advertising"
+    label: "💼 Advertising"
+    description: "Rate card, rates and advertiser contact details."
+    files:
+      - name: "advertising"
+        label: "Advertising page"
+        file: "src/_data/advertising.yml"
+        format: "yml"
+        fields:
+          - { label: "Intro paragraph", name: "intro", widget: "text" }
+          - label: "Why advertise (bullet list)"
+            name: "benefits"
+            widget: "list"
+            field: { label: "Benefit", name: "item", widget: "string" }
+          - { label: "Classified rate", name: "classified_rate", widget: "string", hint: "e.g. $15 per 30 words" }
+          - { label: "Boxed-notice rate", name: "boxed_rate", widget: "string" }
+          - { label: "Note about display ad rates", name: "display_rate_note", widget: "string" }
+
+          - label: "Rate card"
+            name: "rate_card"
+            widget: "object"
+            fields:
+              - label: "Upload rate card PDF"
+                name: "pdf"
+                widget: "file"
+                media_folder: "/src/files/rate-card"
+                public_folder: "/files/rate-card"
+              - { label: "Last updated (e.g. 'May 2024')", name: "updated", widget: "string", required: false }
+
+          - label: "Publication deadlines"
+            name: "deadlines"
+            widget: "object"
+            collapsed: true
+            fields:
+              - label: "Deadlines PDF (optional)"
+                name: "pdf"
+                widget: "file"
+                media_folder: "/src/files/rate-card"
+                public_folder: "/files/rate-card"
+                required: false
+              - { label: "Button label", name: "note", widget: "string", default: "2026 publication dates and copy deadlines" }
+
+          - label: "Advertising manager"
+            name: "manager"
+            widget: "object"
+            fields:
+              - { label: "Name", name: "name", widget: "string" }
+              - { label: "Role", name: "role", widget: "string", default: "Advertising Manager" }
+              - { label: "Email", name: "email", widget: "string" }
+              - { label: "Phone", name: "phone", widget: "string" }
+
+          - label: "Audience demographics (optional)"
+            name: "demographics"
+            widget: "object"
+            collapsed: true
+            fields:
+              - { label: "Median household income", name: "median_income", widget: "string" }
+              - { label: "Tertiary-qualified share", name: "tertiary_qualified", widget: "string" }
+              - { label: "Audience description", name: "blurb", widget: "text" }
+
+
+  # 4) SITE SETTINGS ────────────────────────────────────────────────────
+  - name: "site"
+    label: "⚙️ Site settings"
+    description: "Tagline, contact details and footer info."
+    files:
+      - name: "site"
+        label: "General settings"
+        file: "src/_data/site.yml"
+        format: "yml"
+        fields:
+          - { label: "Newspaper name", name: "name", widget: "string" }
+          - { label: "Short name (used in browser tabs)", name: "short_name", widget: "string" }
+          - { label: "Tagline", name: "tagline", widget: "string" }
+          - { label: "Intro line", name: "intro", widget: "string" }
+          - { label: "Site description (for search & social)", name: "description", widget: "text" }
+          - { label: "Public URL", name: "url", widget: "string" }
+          - { label: "Publisher", name: "publisher", widget: "string" }
+
+          - label: "Editor"
+            name: "editor"
+            widget: "object"
+            fields:
+              - { label: "Name", name: "name", widget: "string" }
+              - { label: "Role", name: "role", widget: "string", default: "Editor" }
+
+          - label: "Contact details"
+            name: "contact"
+            widget: "object"
+            fields:
+              - { label: "Address — line 1", name: "address_line1", widget: "string" }
+              - { label: "Address — line 2", name: "address_line2", widget: "string" }
+              - { label: "City + postcode", name: "address_city", widget: "string" }
+              - { label: "Country", name: "address_country", widget: "string", default: "New Zealand" }
+              - { label: "News phone", name: "phone_news", widget: "string" }
+              - { label: "News phone label", name: "phone_news_label", widget: "string", default: "News line" }
+              - { label: "Advertising phone", name: "phone_advertising", widget: "string" }
+              - { label: "Advertising phone label", name: "phone_advertising_label", widget: "string", default: "Advertising" }
+              - { label: "News email", name: "email_news", widget: "string" }
+              - { label: "Advertising email", name: "email_advertising", widget: "string" }
+
+          - label: "Social"
+            name: "social"
+            widget: "object"
+            fields:
+              - { label: "Facebook page URL", name: "facebook", widget: "string", required: false }
+
+          - label: "Coverage area"
+            name: "coverage_area"
+            widget: "list"
+            field: { label: "Suburb / area", name: "item", widget: "string" }
+
+          - label: "Reach (numbers)"
+            name: "reach"
+            widget: "object"
+            collapsed: true
+            fields:
+              - { label: "Households", name: "households", widget: "number", value_type: "int" }
+              - { label: "Readers", name: "readers", widget: "number", value_type: "int" }
+
+          - label: "Footer credit"
+            name: "credit"
+            widget: "object"
+            collapsed: true
+            fields:
+              - { label: "Name", name: "name", widget: "string", default: "Corbyn Miller" }
+              - { label: "Email", name: "email", widget: "string" }
+
+
+  # 5) HOME PAGE ────────────────────────────────────────────────────────
+  - name: "home"
+    label: "🏠 Home page"
+    description: "Hero, photo gallery and the home-page intro band."
+    files:
+      - name: "home"
+        label: "Home page"
+        file: "src/_data/home.yml"
+        format: "yml"
+        fields:
+          - label: "Hero (big banner)"
+            name: "hero"
+            widget: "object"
+            fields:
+              - { label: "Headline", name: "headline", widget: "string" }
+              - { label: "Subhead", name: "subhead", widget: "string" }
+              - { label: "Background image", name: "image", widget: "image" }
+              - label: "Main button"
+                name: "primary_cta"
+                widget: "object"
+                fields:
+                  - { label: "Button label", name: "label", widget: "string", default: "Read this week's issue" }
+                  - { label: "Button link", name: "href", widget: "string", default: "/latest-issue/" }
+              - label: "Second button"
+                name: "secondary_cta"
+                widget: "object"
+                fields:
+                  - { label: "Button label", name: "label", widget: "string", default: "Advertise with us" }
+                  - { label: "Button link", name: "href", widget: "string", default: "/advertising/" }
+
+          - label: "About strip"
+            name: "about_strip"
+            widget: "object"
+            fields:
+              - { label: "Heading", name: "heading", widget: "string" }
+              - { label: "Body", name: "body", widget: "text" }
+
+          - label: "Photo gallery"
+            name: "gallery"
+            widget: "list"
+            summary: "{{fields.alt}}"
+            fields:
+              - { label: "Image", name: "src", widget: "image" }
+              - { label: "Caption / alt text", name: "alt", widget: "string", hint: "What's in the photo — for screen readers." }
+
+
+  # 6a) TEAM / OUR PEOPLE ────────────────────────────────────────────────
+  - name: "team"
+    label: "👥 Team / Our People"
+    description: "The team listed on the About page."
+    files:
+      - name: "team"
+        label: "Team"
+        file: "src/_data/team.yml"
+        format: "yml"
+        fields:
+          - { label: "Section heading", name: "heading", widget: "string", default: "Our people" }
+          - { label: "Intro paragraph (optional)", name: "intro", widget: "text", required: false }
+          - label: "Team members"
+            name: "members"
+            widget: "list"
+            summary: "{{fields.name}} — {{fields.role}}"
+            fields:
+              - { label: "Name", name: "name", widget: "string" }
+              - { label: "Role", name: "role", widget: "string" }
+              - { label: "Photo (optional)", name: "photo", widget: "image", required: false, default: "" }
+              - { label: "Bio (optional)", name: "bio", widget: "text", required: false }
+          - label: "Production partners (optional)"
+            name: "partners"
+            widget: "list"
+            required: false
+            summary: "{{fields.name}}"
+            fields:
+              - { label: "Name", name: "name", widget: "string" }
+              - { label: "Role", name: "role", widget: "string" }
+              - { label: "Blurb (optional)", name: "blurb", widget: "text", required: false }
+
+
+  # 6) ABOUT PAGE ───────────────────────────────────────────────────────
+  - name: "about"
+    label: "ℹ️ About page"
+    description: "About page content."
+    files:
+      - name: "about"
+        label: "About page"
+        file: "src/_data/about.yml"
+        format: "yml"
+        fields:
+          - { label: "Heading", name: "heading", widget: "string" }
+          - { label: "Intro sentence", name: "lede", widget: "string" }
+          - label: "Sections"
+            name: "sections"
+            widget: "list"
+            summary: "{{fields.heading}}"
+            fields:
+              - { label: "Section heading", name: "heading", widget: "string" }
+              - { label: "Section body", name: "body", widget: "markdown", hint: "Bold, links and basic formatting are supported." }
+          - { label: "Closing note (optional)", name: "team_note", widget: "text", required: false }
+
+
+  # 7) COMMUNITY CALENDAR ───────────────────────────────────────────────
+  - name: "community"
+    label: "📅 Community"
+    description: "Community calendar / events list."
+    files:
+      - name: "community"
+        label: "Community calendar"
+        file: "src/_data/community.yml"
+        format: "yml"
+        fields:
+          - { label: "Intro paragraph", name: "intro", widget: "text" }
+
+          - label: "External calendar (optional)"
+            name: "external"
+            widget: "object"
+            collapsed: true
+            fields:
+              - { label: "Use an external calendar?", name: "enabled", widget: "boolean", default: false }
+              - { label: "Calendar URL", name: "url", widget: "string", required: false }
+              - { label: "Button label", name: "label", widget: "string", default: "Open community calendar" }
+
+          - label: "Events list"
+            name: "events"
+            widget: "list"
+            summary: "{{fields.date}} — {{fields.title}}"
+            fields:
+              - { label: "Event title", name: "title", widget: "string" }
+              - label: "Date"
+                name: "date"
+                widget: "datetime"
+                date_format: "YYYY-MM-DD"
+                time_format: false
+                picker_utc: false
+              - { label: "Time (optional)", name: "time", widget: "string", required: false }
+              - { label: "Location (optional)", name: "location", widget: "string", required: false }
+              - { label: "Description (optional)", name: "description", widget: "text", required: false }
+
+          - { label: "Submit-event note", name: "submit_note", widget: "text" }

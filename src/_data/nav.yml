@@ -1,0 +1,9 @@
+# Primary site navigation. Order here = order in the header & footer nav.
+items:
+  - { label: "Home", href: "/" }
+  - { label: "Latest Issue", href: "/latest-issue/" }
+  - { label: "Advertising", href: "/advertising/" }
+  - { label: "Submit a Story", href: "/submit/" }
+  - { label: "Community", href: "/community/" }
+  - { label: "About", href: "/about/" }
+  - { label: "Contact", href: "/contact/" }

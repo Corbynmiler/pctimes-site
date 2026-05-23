@@ -1,0 +1,59 @@
+---
+layout: layouts/base.njk
+permalink: /contact/
+title: "Contact"
+description: "Contact the Pōhutukawa Coast Times — newsdesk, advertising, address, phone and email."
+bodyClass: "contact"
+---
+
+<section class="page-header section">
+  <div class="container">
+    <p class="eyebrow">Contact</p>
+    <h1>Get in touch.</h1>
+    <p class="page-header__lede">Newsdesk tips, advertising enquiries, community notices, or just want to say hello — we'd love to hear from you.</p>
+  </div>
+</section>
+
+<section class="contact-grid section">
+  <div class="container">
+    <div class="contact-grid__inner">
+
+      <div class="contact-card-tile">
+        <p class="eyebrow">Newsdesk</p>
+        <h2>{{ site.editor.name }}</h2>
+        <p class="muted">{{ site.editor.role }}</p>
+        <ul class="contact-card-tile__list" role="list">
+          <li><a class="btn btn--primary" href="tel:{{ site.contact.phone_news | replace(' ', '') }}">{{ site.contact.phone_news }}</a></li>
+          <li><a class="btn btn--ghost" href="mailto:{{ site.contact.email_news }}">{{ site.contact.email_news }}</a></li>
+        </ul>
+        <p><a href="/submit/">Or submit a story online →</a></p>
+      </div>
+
+      <div class="contact-card-tile">
+        <p class="eyebrow">Advertising</p>
+        <h2>{{ advertising.manager.name }}</h2>
+        <p class="muted">{{ advertising.manager.role }}</p>
+        <ul class="contact-card-tile__list" role="list">
+          <li><a class="btn btn--primary" href="tel:{{ advertising.manager.phone | replace(' ', '') }}">{{ advertising.manager.phone }}</a></li>
+          <li><a class="btn btn--ghost" href="mailto:{{ advertising.manager.email }}">{{ advertising.manager.email }}</a></li>
+        </ul>
+        <p><a href="/advertising/">See the rate card →</a></p>
+      </div>
+
+      <div class="contact-card-tile contact-card-tile--full">
+        <p class="eyebrow">Office</p>
+        <h2>Postal address</h2>
+        <address class="contact-card-tile__address">
+          {{ site.contact.address_line1 }}<br>
+          {{ site.contact.address_line2 }}<br>
+          {{ site.contact.address_city }}<br>
+          {{ site.contact.address_country }}
+        </address>
+        <p>
+          <a href="{{ site.social.facebook }}" rel="noopener">Follow on Facebook ↗</a>
+        </p>
+      </div>
+
+    </div>
+  </div>
+</section>

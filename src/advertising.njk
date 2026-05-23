@@ -1,0 +1,107 @@
+---
+layout: layouts/base.njk
+permalink: /advertising/
+title: "Advertising"
+description: "Advertise in the Pōhutukawa Coast Times — reach 6,800 households and 20,000 readers across south-east Auckland every Friday."
+bodyClass: "advertising"
+---
+
+<section class="page-header section">
+  <div class="container">
+    <p class="eyebrow">Advertising</p>
+    <h1>Reach the Pōhutukawa Coast.</h1>
+    <p class="page-header__lede">{{ advertising.intro }}</p>
+    <div class="pdf-actions">
+      <a class="btn btn--primary" href="{{ advertising.rate_card.pdf }}" target="_blank" rel="noopener">View rate card ↗</a>
+      <a class="btn btn--ghost" href="mailto:{{ advertising.manager.email }}?subject=Advertising%20enquiry%20—%20PC%20Times">Contact our ad manager</a>
+    </div>
+  </div>
+</section>
+
+<section class="reach-stats section section--cream">
+  <div class="container reach-stats__grid">
+    <div class="reach-stats__item">
+      <div class="reach-stats__num">6,800</div>
+      <div class="reach-stats__label">households &amp; businesses</div>
+    </div>
+    <div class="reach-stats__item">
+      <div class="reach-stats__num">~20,000</div>
+      <div class="reach-stats__label">readers each week</div>
+    </div>
+    <div class="reach-stats__item">
+      <div class="reach-stats__num">52×</div>
+      <div class="reach-stats__label">delivered every Friday</div>
+    </div>
+  </div>
+</section>
+
+<section class="benefits section">
+  <div class="container">
+    <h2>Why advertise with us</h2>
+    <ul class="benefits__list" role="list">
+      {% for benefit in advertising.benefits %}
+        <li class="benefits__item">{{ benefit }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+</section>
+
+<section class="rates section">
+  <div class="container">
+    <h2>Rates at a glance</h2>
+    <div class="rates__grid">
+      <div class="rates__card">
+        <p class="eyebrow">Classifieds</p>
+        <p class="rates__price">{{ advertising.classified_rate }}</p>
+      </div>
+      <div class="rates__card">
+        <p class="eyebrow">Boxed notices</p>
+        <p class="rates__price">{{ advertising.boxed_rate }}</p>
+      </div>
+      <div class="rates__card">
+        <p class="eyebrow">Display ads</p>
+        <p class="rates__price rates__price--note">{{ advertising.display_rate_note }}</p>
+      </div>
+    </div>
+
+    <div class="rates__downloads">
+      <a class="btn btn--primary" href="{{ advertising.rate_card.pdf }}" target="_blank" rel="noopener">
+        Download full rate card (PDF)
+      </a>
+      {% if advertising.deadlines.pdf %}
+        <a class="btn btn--link" href="{{ advertising.deadlines.pdf }}" target="_blank" rel="noopener">
+          {{ advertising.deadlines.note }} ↗
+        </a>
+      {% endif %}
+    </div>
+    {% if advertising.rate_card.updated %}
+      <p class="muted">Rate card last updated {{ advertising.rate_card.updated }}.</p>
+    {% endif %}
+  </div>
+</section>
+
+<section class="audience section section--cream">
+  <div class="container">
+    <h2>Our audience</h2>
+    <p>{{ advertising.demographics.blurb }}</p>
+    <ul class="audience__stats" role="list">
+      <li><strong>{{ advertising.demographics.median_income }}</strong> median household income</li>
+      <li><strong>{{ advertising.demographics.tertiary_qualified }}</strong> hold a bachelor's degree or higher</li>
+      <li>Predominantly professional, managerial and lifestyle households</li>
+    </ul>
+  </div>
+</section>
+
+<section class="contact-card section">
+  <div class="container contact-card__inner">
+    <div>
+      <p class="eyebrow">Get in touch</p>
+      <h2>{{ advertising.manager.name }} — {{ advertising.manager.role }}</h2>
+      <p>Happy to talk you through options, sizes, deadlines and combined print + online packages.</p>
+    </div>
+    <ul class="contact-card__list" role="list">
+      <li><a class="btn btn--primary" href="mailto:{{ advertising.manager.email }}">{{ advertising.manager.email }}</a></li>
+      <li><a class="btn btn--ghost" href="tel:{{ advertising.manager.phone | replace(' ', '') }}">{{ advertising.manager.phone }}</a></li>
+    </ul>
+  </div>
+</section>

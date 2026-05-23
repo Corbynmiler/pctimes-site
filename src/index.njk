@@ -1,0 +1,113 @@
+---
+layout: layouts/base.njk
+permalink: /
+title: ""
+description: "Independent local news for the Pōhutukawa Coast — delivered free every Friday to 6,800 homes and businesses across Beachlands, Maraetai, Whitford, Clevedon and the coast."
+bodyClass: "home"
+---
+
+<section class="hero">
+  <div class="hero__media" style="background-image: url('{{ home.hero.image }}');" aria-hidden="true"></div>
+  <div class="hero__overlay" aria-hidden="true"></div>
+  <div class="container hero__inner">
+    <p class="hero__eyebrow">The paper with the most for the Coast</p>
+    <h1 class="hero__headline">{{ home.hero.headline }}</h1>
+    <p class="hero__subhead">{{ home.hero.subhead }}</p>
+    <div class="hero__ctas">
+      <a class="btn btn--primary" href="{{ home.hero.primary_cta.href }}">{{ home.hero.primary_cta.label }}</a>
+      <a class="btn btn--ghost" href="{{ home.hero.secondary_cta.href }}">{{ home.hero.secondary_cta.label }}</a>
+    </div>
+  </div>
+</section>
+
+<section class="latest-card section">
+  <div class="container">
+    <div class="latest-card__grid">
+      <div class="latest-card__cover" aria-hidden="true">
+        {% if latest.cover_image %}
+          <img src="{{ latest.cover_image }}" alt="">
+        {% else %}
+          <div class="latest-card__cover-placeholder">
+            <span class="latest-card__cover-issue">Issue {{ latest.issue_number }}</span>
+            <span class="latest-card__cover-date">{{ latest.date | formatDate }}</span>
+          </div>
+        {% endif %}
+      </div>
+      <div class="latest-card__body">
+        <p class="eyebrow">This week</p>
+        <h2 class="latest-card__title">Issue {{ latest.issue_number }} — {{ latest.date | formatDate }}</h2>
+        {% if latest.blurb %}<p class="latest-card__blurb">{{ latest.blurb }}</p>{% endif %}
+
+        {% if latest.in_this_issue and latest.in_this_issue.length %}
+          <ul class="latest-card__list" role="list">
+            {% for item in latest.in_this_issue %}
+              <li>{{ item }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+
+        <div class="latest-card__actions">
+          <a class="btn btn--primary" href="/latest-issue/">Read this week's issue</a>
+          {% if latest.flipbook_url %}
+            <a class="btn btn--link" href="{{ latest.flipbook_url }}" target="_blank" rel="noopener">Read online ↗</a>
+          {% else %}
+            <a class="btn btn--link" href="{{ latest.pdf }}" target="_blank" rel="noopener">Open PDF ↗</a>
+          {% endif %}
+          <a class="btn btn--link" href="{{ latest.pdf }}" download>Download PDF</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="coverage section">
+  <div class="container">
+    <p class="eyebrow eyebrow--centered">Where we deliver</p>
+    <ul class="coverage__list" role="list">
+      {% for place in site.coverage_area %}
+        <li class="coverage__item">{{ place }}</li>
+      {% endfor %}
+    </ul>
+    <p class="coverage__stat">
+      <strong>{{ site.reach.households | thousands }}</strong> households &nbsp;·&nbsp;
+      <strong>~{{ site.reach.readers | thousands }}</strong> readers &nbsp;·&nbsp;
+      delivered every Friday
+    </p>
+  </div>
+</section>
+
+<section class="about-strip section section--cream">
+  <div class="container about-strip__inner">
+    <h2 class="about-strip__heading">{{ home.about_strip.heading }}</h2>
+    <p class="about-strip__body">{{ home.about_strip.body }}</p>
+    <a class="btn btn--ghost" href="/about/">More about us</a>
+  </div>
+</section>
+
+<section class="gallery section">
+  <div class="container">
+    <p class="eyebrow eyebrow--centered">The coast we cover</p>
+    <ul class="gallery__grid" role="list">
+      {% for img in home.gallery %}
+        <li class="gallery__item">
+          <img src="{{ img.src }}" alt="{{ img.alt }}" loading="lazy">
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+</section>
+
+<section class="cta-band section">
+  <div class="container cta-band__inner">
+    <div class="cta-band__col">
+      <h2 class="cta-band__heading">Got a story?</h2>
+      <p>Tip, photo, letter, community notice — we want to hear from you.</p>
+      <a class="btn btn--primary" href="/submit/">Submit a story</a>
+    </div>
+    <div class="cta-band__col">
+      <h2 class="cta-band__heading">Want to advertise?</h2>
+      <p>Reach 20,000 locals every Friday with full-colour print and online.</p>
+      <a class="btn btn--ghost" href="/advertising/">See our rate card</a>
+    </div>
+  </div>
+</section>

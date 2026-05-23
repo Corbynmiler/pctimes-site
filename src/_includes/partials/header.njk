@@ -1,0 +1,32 @@
+<header class="site-header" role="banner">
+  <div class="container site-header__inner">
+    <a href="/" class="site-header__brand" aria-label="{{ site.name }} — home">
+      <img src="/assets/images/logo.png" alt="{{ site.name }}" class="site-header__logo" width="420" height="86">
+    </a>
+
+    <button
+      class="nav-toggle"
+      type="button"
+      aria-expanded="false"
+      aria-controls="primary-nav"
+      aria-label="Open menu">
+      <span class="nav-toggle__bar"></span>
+      <span class="nav-toggle__bar"></span>
+      <span class="nav-toggle__bar"></span>
+      <span class="nav-toggle__label">Menu</span>
+    </button>
+
+    <nav id="primary-nav" class="site-nav" aria-label="Primary">
+      <ul class="site-nav__list">
+        {% for item in nav.items %}
+          <li class="site-nav__item">
+            <a
+              href="{{ item.href }}"
+              class="site-nav__link{% if page.url == item.href %} is-current{% endif %}"
+              {% if page.url == item.href %}aria-current="page"{% endif %}>{{ item.label }}</a>
+          </li>
+        {% endfor %}
+      </ul>
+    </nav>
+  </div>
+</header>

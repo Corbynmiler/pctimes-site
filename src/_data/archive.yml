@@ -1,0 +1,22 @@
+# Recent back issues. Edited via CMS in Phase 2.
+# Keep ~8 most recent here. Older issues live in an external archive.
+# These are PLACEHOLDER entries — replace once we have real PDFs.
+issues:
+  - number: 1619
+    date: 2026-05-15
+    pdf: "/files/issues/1619.pdf"
+  - number: 1618
+    date: 2026-05-08
+    pdf: "/files/issues/1618.pdf"
+  - number: 1617
+    date: 2026-05-01
+    pdf: "/files/issues/1617.pdf"
+  - number: 1616
+    date: 2026-04-24
+    pdf: "/files/issues/1616.pdf"
+
+# Long-term archive link (older than ~8 weeks)
+external_archive:
+  enabled: false
+  url: "" # e.g. Google Drive folder URL
+  label: "Older issues"

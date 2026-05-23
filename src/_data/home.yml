@@ -1,0 +1,21 @@
+# Homepage content. Edited via CMS in Phase 2.
+hero:
+  headline: "Independent local news for the Pōhutukawa Coast."
+  subhead: "Delivered free every Friday to 6,800 homes and businesses across the coast."
+  primary_cta:
+    label: "Read this week's issue"
+    href: "/latest-issue/"
+  secondary_cta:
+    label: "Advertise with us"
+    href: "/advertising/"
+  image: "/assets/images/IMG_5807.JPG" # coastal pier — replace if better hero shot available
+
+about_strip:
+  heading: "Local paper. Local news. Local people."
+  body: "The Pōhutukawa Coast Times has been keeping the coast informed for years. Locally owned and operated, we take pride in journalistic integrity and balanced reporting of community issues."
+
+gallery:
+  - { src: "/assets/images/IMG_5802.JPG", alt: "Sunset over the local pier with seagulls" }
+  - { src: "/assets/images/IMG_5805.JPG", alt: "View of Rangitoto from the coast" }
+  - { src: "/assets/images/IMG_5808.JPG", alt: "Beachlands jetty on a clear day" }
+  - { src: "/assets/images/IMG_5807.JPG", alt: "Beach umbrella on a summer day" }

@@ -1,0 +1,27 @@
+# Current weekly issue. Everything here is edited via the CMS at /admin.
+# Leanne's weekly workflow: update issue number + date, upload PDF + front-page image,
+# type the "In this issue" bullets, save.
+issue_number: 1620
+date: 2026-05-22
+title: "" # optional — leave blank to use "Issue {number} — {date}"
+
+# Short blurb shown on the home page latest card. Optional.
+blurb: ""
+
+# Bullet headlines for "In this issue…". Optional. Leanne fills these in each week.
+in_this_issue: []
+
+pdf: "/files/issues/Current-edition.pdf"
+cover_image: "" # optional front-page image (jpg/png) — Leanne uploads each week
+
+# Optional online flipbook viewer (e.g. Issuu, Yumpu, Flipsnack).
+# Leave blank to use the built-in PDF viewer/buttons.
+flipbook_url: ""
+
+# Property Guide — currently disabled. Set `available: true` and fill in fields
+# to bring it back. Structure preserved so it can be enabled at any time.
+property_guide:
+  available: false
+  title: "Coast & Country Property Guide"
+  date: ""
+  pdf: ""

@@ -1,0 +1,45 @@
+# Global site info. Edited via CMS in Phase 2.
+name: "Pōhutukawa Coast Times"
+short_name: "PC Times"
+tagline: "The paper with the most for the Coast"
+intro: "Independent local news for the Pōhutukawa Coast"
+description: "Independently owned community newspaper, delivered free every Friday to 6,800 homes and businesses across the Pōhutukawa Coast, Beachlands, Maraetai, Whitford, Clevedon, Brookby, Kawakawa Bay and surrounding south-east Auckland."
+url: "https://pctimes.co.nz"
+publisher: "Miller Media Limited"
+
+editor:
+  name: "Leanne Chamberlin"
+  role: "Editor"
+
+contact:
+  address_line1: "314 Twilight Road"
+  address_line2: "RD1 Manurewa"
+  address_city: "Auckland 2576"
+  address_country: "New Zealand"
+  phone_news: "021 426 207"
+  phone_news_label: "News line"
+  phone_advertising: "021 0261 4467"
+  phone_advertising_label: "Advertising"
+  email_news: "info@pctimes.co.nz"
+  email_advertising: "advertising@pctimes.co.nz"
+
+social:
+  facebook: "https://www.facebook.com/pctimes" # PLACEHOLDER — confirm correct URL
+
+coverage_area:
+  - "Beachlands"
+  - "Maraetai"
+  - "Whitford"
+  - "Clevedon"
+  - "Brookby"
+  - "Kawakawa Bay"
+  - "Pōhutukawa Coast"
+
+reach:
+  households: 6800
+  readers: 20000
+
+# Footer credit
+credit:
+  name: "Corbyn Miller"
+  email: "you@example.com" # PLACEHOLDER — replace with your real email

@@ -1,0 +1,86 @@
+---
+layout: layouts/base.njk
+permalink: /about/
+title: "About"
+description: "About the Pōhutukawa Coast Times — an independently owned community newspaper serving south-east Auckland."
+bodyClass: "about"
+---
+
+<section class="page-header section">
+  <div class="container">
+    <p class="eyebrow">About</p>
+    <h1>{{ about.heading }}</h1>
+    <p class="page-header__lede">{{ about.lede }}</p>
+  </div>
+</section>
+
+<section class="prose section">
+  <div class="container container--narrow">
+    {% for section in about.sections %}
+      <h2>{{ section.heading }}</h2>
+      <div class="prose__body">{{ section.body | markdown | safe }}</div>
+    {% endfor %}
+
+    {% if about.team_note %}
+      <div class="callout">
+        <p>{{ about.team_note }}</p>
+        <a class="btn btn--ghost" href="/contact/">Get in touch</a>
+      </div>
+    {% endif %}
+  </div>
+</section>
+
+{% if team and team.members and team.members.length %}
+<section class="team section">
+  <div class="container">
+    <h2>{{ team.heading }}</h2>
+    {% if team.intro %}<p class="team__intro">{{ team.intro }}</p>{% endif %}
+    <ul class="team__grid" role="list">
+      {% for member in team.members %}
+        <li class="team__card">
+          {% if member.photo %}
+            <img class="team__photo" src="{{ member.photo }}" alt="{{ member.name }}" loading="lazy" width="160" height="160">
+          {% else %}
+            <div class="team__photo team__photo--placeholder" aria-hidden="true">{{ member.name | first }}</div>
+          {% endif %}
+          <h3 class="team__name">{{ member.name | safe }}</h3>
+          <p class="team__role">{{ member.role }}</p>
+          {% if member.bio %}<p class="team__bio">{{ member.bio }}</p>{% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+
+    {% if team.partners and team.partners.length %}
+      <h3 class="team__partners-heading">Production partners</h3>
+      <ul class="team__partners" role="list">
+        {% for p in team.partners %}
+          <li class="team__partner">
+            <strong>{{ p.name }}</strong> <span class="muted">— {{ p.role }}</span>
+            {% if p.blurb %}<p>{{ p.blurb }}</p>{% endif %}
+          </li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  </div>
+</section>
+{% endif %}
+
+<section class="about-meta section section--cream">
+  <div class="container container--narrow about-meta__grid">
+    <div>
+      <p class="eyebrow">Editor</p>
+      <p class="about-meta__name">{{ site.editor.name }}</p>
+      <p class="muted">{{ site.editor.role }}</p>
+    </div>
+    <div>
+      <p class="eyebrow">Published by</p>
+      <p class="about-meta__name">{{ site.publisher }}</p>
+      <p class="muted">{{ site.contact.address_city }}</p>
+    </div>
+    <div>
+      <p class="eyebrow">Reach</p>
+      <p class="about-meta__name">{{ site.reach.households | thousands }} households</p>
+      <p class="muted">~{{ site.reach.readers | thousands }} readers</p>
+    </div>
+  </div>
+</section>

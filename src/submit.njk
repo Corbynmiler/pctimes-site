@@ -1,0 +1,82 @@
+---
+layout: layouts/base.njk
+permalink: /submit/
+title: "Submit a Story"
+description: "Got a story tip, photo, letter to the editor or community notice? Submit it to the Pōhutukawa Coast Times."
+bodyClass: "submit"
+---
+
+<section class="page-header section">
+  <div class="container">
+    <p class="eyebrow">Submit</p>
+    <h1>Got a story for the coast?</h1>
+    <p class="page-header__lede">Story tips, photos, letters to the editor, lost-and-found, community notices — we love hearing from readers. Fill the form below, or get in touch directly.</p>
+  </div>
+</section>
+
+<section class="submit-form section">
+  <div class="container submit-form__grid">
+
+    <form
+      class="form"
+      name="story-submission"
+      method="POST"
+      action="/submit/thanks/"
+      data-netlify="true"
+      netlify-honeypot="bot-field">
+      <p class="form__hp" aria-hidden="true">
+        <label>Don't fill this out: <input name="bot-field"></label>
+      </p>
+
+      <div class="form__row">
+        <label class="form__label" for="name">Your name</label>
+        <input class="form__input" type="text" id="name" name="name" required>
+      </div>
+
+      <div class="form__row">
+        <label class="form__label" for="email">Email</label>
+        <input class="form__input" type="email" id="email" name="email" required>
+      </div>
+
+      <div class="form__row">
+        <label class="form__label" for="phone">Phone <span class="muted">(optional)</span></label>
+        <input class="form__input" type="tel" id="phone" name="phone">
+      </div>
+
+      <div class="form__row">
+        <label class="form__label" for="type">What's this about?</label>
+        <select class="form__input" id="type" name="type">
+          <option>Story tip</option>
+          <option>Letter to the editor</option>
+          <option>Community notice / event</option>
+          <option>Photo submission</option>
+          <option>Correction</option>
+          <option>Something else</option>
+        </select>
+      </div>
+
+      <div class="form__row">
+        <label class="form__label" for="message">Your story or message</label>
+        <textarea class="form__input" id="message" name="message" rows="8" required></textarea>
+      </div>
+
+      <p class="form__note muted">
+        Photos and large files? Mention it in your message — we'll reply with an email address you can send them to.
+      </p>
+
+      <button class="btn btn--primary form__submit" type="submit">Send to the newsdesk</button>
+    </form>
+
+    <aside class="submit-form__aside">
+      <h2>Prefer to call?</h2>
+      <p>Phone the newsdesk on <a href="tel:{{ site.contact.phone_news | replace(' ', '') }}">{{ site.contact.phone_news }}</a>.</p>
+
+      <h2>Prefer email?</h2>
+      <p><a href="mailto:{{ site.contact.email_news }}">{{ site.contact.email_news }}</a></p>
+
+      <h2>Deadlines</h2>
+      <p>We publish every Friday. Story tips are most helpful when received by <strong>Monday afternoon</strong> for that week's edition.</p>
+    </aside>
+
+  </div>
+</section>

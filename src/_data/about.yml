@@ -1,0 +1,26 @@
+# About page content. Edited via CMS in Phase 2.
+heading: "About the Pōhutukawa Coast Times"
+lede: "Locally owned, independently produced, and delivered free to your letterbox every Friday."
+
+sections:
+  - heading: "Our story"
+    body: |
+      The Pōhutukawa Coast Times is an independently owned community newspaper serving
+      the coastal and rural communities of south-east Auckland — Beachlands, Maraetai,
+      Whitford, Clevedon, Brookby, Kawakawa Bay and the surrounding Pōhutukawa Coast.
+
+      We're proudly local. Our team takes pride in journalistic integrity and balanced
+      reporting of local issues. We really are 'the paper with the most for the Coast'.
+
+  - heading: "What we cover"
+    body: |
+      Local news, community events, council updates, school news, sport, profiles of
+      coast locals, lost-and-found notices, and the businesses that keep the coast
+      ticking. If it matters to the coast, you'll find it in the Times.
+
+  - heading: "How to get involved"
+    body: |
+      Have a story tip, photo, letter to the editor, or community notice?
+      [Submit a story](/submit/) or get in touch — we love hearing from readers.
+
+team_note: "Want to help deliver the paper? We're always looking for delivery team members across the coast — get in touch."

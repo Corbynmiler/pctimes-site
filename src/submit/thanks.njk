@@ -1,0 +1,19 @@
+---
+layout: layouts/base.njk
+permalink: /submit/thanks/
+title: "Thanks for getting in touch"
+description: "Thanks for your submission to the Pōhutukawa Coast Times."
+bodyClass: "submit-thanks"
+---
+
+<section class="page-header section">
+  <div class="container container--narrow">
+    <p class="eyebrow">Thanks!</p>
+    <h1>Your message has been sent.</h1>
+    <p class="page-header__lede">We'll be in touch soon. If it's urgent, give the newsdesk a call on <a href="tel:{{ site.contact.phone_news | replace(' ', '') }}">{{ site.contact.phone_news }}</a>.</p>
+    <div class="pdf-actions">
+      <a class="btn btn--primary" href="/">Back to home</a>
+      <a class="btn btn--ghost" href="/latest-issue/">Read this week's issue</a>
+    </div>
+  </div>
+</section>

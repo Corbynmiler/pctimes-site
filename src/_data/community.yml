@@ -1,0 +1,28 @@
+# Community Calendar page. Edited via CMS in Phase 2.
+intro: "Local events, club meetings, fundraisers and community happenings on the Pōhutukawa Coast."
+
+# Option A: external calendar link (e.g. Google Calendar embed, or existing URL)
+external:
+  enabled: false
+  url: "" # PLACEHOLDER — paste calendar URL/iframe here if used
+  label: "Open community calendar"
+
+# Option B: simple list of upcoming events, editable in CMS
+events:
+  - title: "Beachlands Maraetai Lions Quiz Night"
+    date: 2026-06-07
+    time: "7:00 PM"
+    location: "Beachlands Maraetai RSA"
+    description: "Monthly quiz fundraiser — teams of 4, $10 per person."
+  - title: "Maraetai Saturday Market"
+    date: 2026-06-14
+    time: "9:00 AM – 1:00 PM"
+    location: "Maraetai Beach Reserve"
+    description: "Local makers, fresh produce, food trucks."
+  - title: "Pōhutukawa Coast Lions Community BBQ"
+    date: 2026-06-21
+    time: "11:00 AM"
+    location: "Sunkist Bay Reserve"
+    description: "Free family event."
+
+submit_note: "Got an event for the calendar? Email us at info@pctimes.co.nz with the details."

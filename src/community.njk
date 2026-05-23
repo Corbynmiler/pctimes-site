@@ -1,0 +1,49 @@
+---
+layout: layouts/base.njk
+permalink: /community/
+title: "Community Calendar"
+description: "Local events, club meetings, fundraisers and community happenings on the Pōhutukawa Coast."
+bodyClass: "community"
+---
+
+<section class="page-header section">
+  <div class="container">
+    <p class="eyebrow">Community</p>
+    <h1>What's on, on the coast.</h1>
+    <p class="page-header__lede">{{ community.intro }}</p>
+    {% if community.external.enabled %}
+      <div class="pdf-actions">
+        <a class="btn btn--primary" href="{{ community.external.url }}" target="_blank" rel="noopener">{{ community.external.label }} ↗</a>
+      </div>
+    {% endif %}
+  </div>
+</section>
+
+<section class="events section">
+  <div class="container">
+    <h2 class="vh">Upcoming events</h2>
+    <ul class="events__list" role="list">
+      {% for event in community.events %}
+        <li class="event">
+          <div class="event__date">
+            <span class="event__day">{{ event.date | formatDate }}</span>
+            {% if event.time %}<span class="event__time">{{ event.time }}</span>{% endif %}
+          </div>
+          <div class="event__body">
+            <h3 class="event__title">{{ event.title }}</h3>
+            {% if event.location %}<p class="event__location">📍 {{ event.location }}</p>{% endif %}
+            {% if event.description %}<p class="event__desc">{{ event.description }}</p>{% endif %}
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+</section>
+
+<section class="community-submit section section--cream">
+  <div class="container">
+    <h2>Got an event for the calendar?</h2>
+    <p>{{ community.submit_note }}</p>
+    <a class="btn btn--primary" href="/submit/">Submit your event</a>
+  </div>
+</section>

@@ -1,0 +1,32 @@
+# Netlify config — used when this repo is connected to Netlify.
+# Phase 2 is local-only; this file is ready for Phase 3 deploy.
+
+[build]
+  publish = "_site"
+  command = "npm run build"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+# Pretty 404 for unmatched routes
+[[redirects]]
+  from = "/*"
+  to   = "/404.html"
+  status = 404
+
+# Long-cache headers for static assets (immutable hashed paths will go in /assets)
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/files/*"
+  [headers.values]
+    Cache-Control = "public, max-age=3600"
+
+# Don't index the admin
+[[headers]]
+  for = "/admin/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
