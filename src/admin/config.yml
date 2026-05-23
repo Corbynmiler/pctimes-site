@@ -16,8 +16,8 @@ backend:
   # Site configuration → Access & security → OAuth → Install provider → GitHub.
 
 publish_mode: simple                          # Direct publish, no editorial workflow
-site_url: https://pctimes.co.nz
-display_url: https://pctimes.co.nz
+site_url: https://pctimes.netlify.app
+display_url: https://pctimes.netlify.app
 logo_url: /assets/images/logo.png
 
 # Default media folder. Per-field overrides below for PDFs.
@@ -131,7 +131,7 @@ collections:
           - label: "Recent issues"
             name: "issues"
             widget: "list"
-            summary: "Issue {{fields.number}} — {{fields.date}}"
+            summary: 'Issue {{fields.number}} — {{fields.date | date("D MMM YYYY")}}'
             fields:
               - { label: "Issue number", name: "number", widget: "number", value_type: "int" }
               - label: "Date"
@@ -410,7 +410,7 @@ collections:
           - label: "Events list"
             name: "events"
             widget: "list"
-            summary: "{{fields.date}} — {{fields.title}}"
+            summary: '{{fields.date | date("D MMM YYYY")}} — {{fields.title}}'
             fields:
               - { label: "Event title", name: "title", widget: "string" }
               - label: "Date"
