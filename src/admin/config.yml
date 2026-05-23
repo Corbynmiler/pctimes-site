@@ -11,10 +11,9 @@ backend:
   name: github
   repo: Corbynmiler/pctimes-site
   branch: main
-
-# Local development: lets Sveltia write to the filesystem via a small proxy.
-# Start the proxy with:  npx @sveltia/cms-proxy-server
-local_backend: true
+  # OAuth is handled by Netlify's auth endpoint (the default).
+  # Set up a GitHub OAuth App and register it in Netlify:
+  # Site configuration → Access & security → OAuth → Install provider → GitHub.
 
 publish_mode: simple                          # Direct publish, no editorial workflow
 site_url: https://pctimes.co.nz
