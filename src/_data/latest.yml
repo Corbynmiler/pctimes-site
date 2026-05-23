@@ -12,7 +12,7 @@ blurb: ""
 in_this_issue: []
 
 pdf: "/files/issues/Current-edition.pdf"
-cover_image: "" # optional front-page image (jpg/png) — Leanne uploads each week
+cover_image: "/assets/images/current-edition-cover.jpg" # Leanne replaces each week via CMS
 
 # Optional online flipbook viewer (e.g. Issuu, Yumpu, Flipsnack).
 # Leave blank to use the built-in PDF viewer/buttons.
