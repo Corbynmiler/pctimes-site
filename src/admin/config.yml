@@ -117,6 +117,13 @@ collections:
                 public_folder: "/files/issues"
                 required: false
 
+          - label: "Notes for editors"
+            name: "editor_notes"
+            widget: "markdown"
+            required: false
+            collapsed: true
+            hint: "Visible to anyone editing the site in /admin. Never shown on the public website."
+
 
   # 2) PREVIOUS ISSUES ───────────────────────────────────────────────────
   - name: "archive"
@@ -154,6 +161,13 @@ collections:
               - { label: "Show an 'older issues' button?", name: "enabled", widget: "boolean", default: false }
               - { label: "URL (e.g. Google Drive folder)", name: "url", widget: "string", required: false, default: "" }
               - { label: "Button label", name: "label", widget: "string", default: "Older issues" }
+
+          - label: "Notes for editors"
+            name: "editor_notes"
+            widget: "markdown"
+            required: false
+            collapsed: true
+            hint: "Visible to anyone editing the site in /admin. Never shown on the public website."
 
 
   # 3) ADVERTISING ──────────────────────────────────────────────────────
@@ -216,6 +230,13 @@ collections:
               - { label: "Median household income", name: "median_income", widget: "string" }
               - { label: "Tertiary-qualified share", name: "tertiary_qualified", widget: "string" }
               - { label: "Audience description", name: "blurb", widget: "text" }
+
+          - label: "Notes for editors"
+            name: "editor_notes"
+            widget: "markdown"
+            required: false
+            collapsed: true
+            hint: "Visible to anyone editing the site in /admin. Never shown on the public website."
 
 
   # 4) SITE SETTINGS ────────────────────────────────────────────────────
@@ -285,6 +306,13 @@ collections:
               - { label: "Name", name: "name", widget: "string", default: "Corbyn Miller" }
               - { label: "Email", name: "email", widget: "string" }
 
+          - label: "Notes for editors"
+            name: "editor_notes"
+            widget: "markdown"
+            required: false
+            collapsed: true
+            hint: "Visible to anyone editing the site in /admin. Never shown on the public website."
+
 
   # 5) HOME PAGE ────────────────────────────────────────────────────────
   - name: "home"
@@ -331,6 +359,13 @@ collections:
               - { label: "Image", name: "src", widget: "image" }
               - { label: "Caption / alt text", name: "alt", widget: "string", hint: "What's in the photo — for screen readers." }
 
+          - label: "Notes for editors"
+            name: "editor_notes"
+            widget: "markdown"
+            required: false
+            collapsed: true
+            hint: "Visible to anyone editing the site in /admin. Never shown on the public website."
+
 
   # 6a) TEAM / OUR PEOPLE ────────────────────────────────────────────────
   - name: "team"
@@ -363,6 +398,13 @@ collections:
               - { label: "Role", name: "role", widget: "string" }
               - { label: "Blurb (optional)", name: "blurb", widget: "text", required: false }
 
+          - label: "Notes for editors"
+            name: "editor_notes"
+            widget: "markdown"
+            required: false
+            collapsed: true
+            hint: "Visible to anyone editing the site in /admin. Never shown on the public website."
+
 
   # 6) ABOUT PAGE ───────────────────────────────────────────────────────
   - name: "about"
@@ -385,22 +427,12 @@ collections:
               - { label: "Section body", name: "body", widget: "markdown", hint: "Bold, links and basic formatting are supported." }
           - { label: "Closing note (optional)", name: "team_note", widget: "text", required: false }
 
-
-  # 8) MY NOTES (private scratchpad — never rendered publicly) ──────────
-  - name: "notes"
-    label: "📝 My notes"
-    description: "A private scratchpad just for you. Nothing here appears on the public website."
-    files:
-      - name: "notes"
-        label: "My notes"
-        file: "content/notes.yml"
-        format: "yml"
-        fields:
-          - { label: "Title", name: "title", widget: "string", default: "My notes" }
-          - label: "Notes"
-            name: "body"
+          - label: "Notes for editors"
+            name: "editor_notes"
             widget: "markdown"
-            hint: "Whatever you like — story leads, contacts to chase up, reminders for next week."
+            required: false
+            collapsed: true
+            hint: "Visible to anyone editing the site in /admin. Never shown on the public website."
 
 
   # 7) COMMUNITY CALENDAR ───────────────────────────────────────────────
@@ -441,3 +473,10 @@ collections:
               - { label: "Description (optional)", name: "description", widget: "text", required: false }
 
           - { label: "Submit-event note", name: "submit_note", widget: "text" }
+
+          - label: "Notes for editors"
+            name: "editor_notes"
+            widget: "markdown"
+            required: false
+            collapsed: true
+            hint: "Visible to anyone editing the site in /admin. Never shown on the public website."

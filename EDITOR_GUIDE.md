@@ -144,12 +144,16 @@ No. Anything marked *(optional)* can be left blank. The site handles missing thi
 
 ---
 
-## Your private scratchpad
+## Leaving notes for other editors
 
-Open **📝 My notes** in the admin. It's a single page for whatever you want —
-story leads, contacts to chase, reminders for next week, ideas to come back to.
+At the bottom of every section in the admin you'll find a collapsed
+**Notes for editors** box. Click to expand. Whatever you type there is
+visible to anyone editing the site in `/admin` but **never** shown on the
+public website.
 
-**Nothing typed in here appears on the public website.** It's just yours.
+Use it for things like *"Melody, this rate card is out of date — please
+upload May 2026 version"* or *"remember the deadlines PDF needs updating
+every January"*. Handy if Leanne ever invites collaborators.
 
 ---
 
