@@ -9,7 +9,7 @@
 # IMPORTANT: replace `repo:` with the actual path before deploying.
 backend:
   name: github
-  repo: YOUR-GITHUB-USERNAME/pctimes-site
+  repo: Corbynmiler/pctimes-site
   branch: main
 
 # Local development: lets Sveltia write to the filesystem via a small proxy.
