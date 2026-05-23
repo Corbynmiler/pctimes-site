@@ -386,6 +386,23 @@ collections:
           - { label: "Closing note (optional)", name: "team_note", widget: "text", required: false }
 
 
+  # 8) MY NOTES (private scratchpad — never rendered publicly) ──────────
+  - name: "notes"
+    label: "📝 My notes"
+    description: "A private scratchpad just for you. Nothing here appears on the public website."
+    files:
+      - name: "notes"
+        label: "My notes"
+        file: "content/notes.yml"
+        format: "yml"
+        fields:
+          - { label: "Title", name: "title", widget: "string", default: "My notes" }
+          - label: "Notes"
+            name: "body"
+            widget: "markdown"
+            hint: "Whatever you like — story leads, contacts to chase up, reminders for next week."
+
+
   # 7) COMMUNITY CALENDAR ───────────────────────────────────────────────
   - name: "community"
     label: "📅 Community"

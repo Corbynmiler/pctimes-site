@@ -144,6 +144,15 @@ No. Anything marked *(optional)* can be left blank. The site handles missing thi
 
 ---
 
+## Your private scratchpad
+
+Open **📝 My notes** in the admin. It's a single page for whatever you want —
+story leads, contacts to chase, reminders for next week, ideas to come back to.
+
+**Nothing typed in here appears on the public website.** It's just yours.
+
+---
+
 ## If something looks broken
 
 Don't panic — nothing you do in `/admin` can break the site permanently. Ring Corbyn.
