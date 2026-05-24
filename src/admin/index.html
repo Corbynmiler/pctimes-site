@@ -12,6 +12,8 @@
     so security/feature releases land automatically without breaking changes.
     Config is in /admin/config.yml.
   -->
-  <script src="https://unpkg.com/@sveltia/cms@0/dist/sveltia-cms.js"></script>
+  <!-- The query string is a cache-buster — bump it when the CMS config changes
+       structurally so editors don't run on stale config from localStorage. -->
+  <script src="https://unpkg.com/@sveltia/cms@0/dist/sveltia-cms.js?v=2"></script>
 </body>
 </html>
