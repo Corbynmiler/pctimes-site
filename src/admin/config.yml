@@ -29,157 +29,93 @@ public_folder: "/assets/images"
 # ─────────────────────────────────────────────────────────────────────────
 collections:
 
-  # 1) THIS WEEK'S PAPER ─────────────────────────────────────────────────
-  - name: "issue"
-    label: "📰 This week's paper"
-    description: "Everything that changes when you publish a new edition."
-    files:
-      - name: "latest"
-        label: "Current issue"
-        file: "src/_data/latest.yml"
-        format: "yml"
-        fields:
-          - label: "Issue number"
-            name: "issue_number"
-            widget: "number"
-            value_type: "int"
-            min: 1
-            hint: "Just the number — e.g. 1620"
+  # 1) ISSUES (current + archive in ONE place) ──────────────────────────
+  # The newest issue (by date) is automatically "this week's paper" on the
+  # home page. Older issues become the Previous Issues archive. No need
+  # to manually move things around — just add a new issue each week.
+  - name: "issues"
+    label: "📰 Issues"
+    description: "Every weekly edition. The newest by date is automatically 'this week's paper' on the home page; older ones show in the Previous Issues archive."
+    folder: "src/_data/issues"
+    extension: "yml"
+    format: "yml"
+    create: true
+    slug: "{{issue_number}}"
+    identifier_field: "issue_number"
+    summary: 'Issue {{fields.issue_number}} — {{fields.date | date("D MMM YYYY")}}'
+    sortable_fields: ["issue_number", "date"]
+    view_filters:
+      - { label: "This year", field: "date", pattern: "2026" }
+      - { label: "Last year", field: "date", pattern: "2025" }
+    fields:
+      - label: "Issue number"
+        name: "issue_number"
+        widget: "number"
+        value_type: "int"
+        min: 1
+        hint: "Just the number — e.g. 1620. Used as the filename."
 
-          - label: "Date of this issue"
-            name: "date"
-            widget: "datetime"
-            date_format: "YYYY-MM-DD"
-            time_format: false
-            picker_utc: false
-            hint: "The Friday it was published."
+      - label: "Date of this issue"
+        name: "date"
+        widget: "datetime"
+        date_format: "YYYY-MM-DD"
+        time_format: false
+        picker_utc: false
+        hint: "The Friday it was published. Determines which issue is 'this week'."
 
-          - label: "Title (optional)"
-            name: "title"
-            widget: "string"
-            required: false
-            default: ""
-            hint: "Leave blank to use the default 'Issue {number} — {date}' heading."
+      - label: "Title (optional)"
+        name: "title"
+        widget: "string"
+        required: false
+        default: ""
+        hint: "Leave blank to use the default 'Issue {number} — {date}' heading."
 
-          - label: "Short blurb (optional)"
-            name: "blurb"
-            widget: "string"
-            required: false
-            default: ""
-            hint: "One short sentence shown under the headline."
+      - label: "Short blurb (optional)"
+        name: "blurb"
+        widget: "string"
+        required: false
+        default: ""
+        hint: "One short sentence shown under the headline."
 
-          - label: "In this issue"
-            name: "in_this_issue"
-            widget: "list"
-            required: false
-            min: 0
-            max: 12
-            field:
-              label: "Headline"
-              name: "item"
-              widget: "string"
-            hint: "Type one headline per line — drag to reorder."
+      - label: "In this issue"
+        name: "in_this_issue"
+        widget: "list"
+        required: false
+        min: 0
+        max: 12
+        field:
+          label: "Headline"
+          name: "item"
+          widget: "string"
+        hint: "Type one headline per line — drag to reorder."
 
-          - label: "Upload this week's paper PDF"
-            name: "pdf"
-            widget: "file"
-            media_folder: "/src/files/issues"
-            public_folder: "/files/issues"
-            default: "/files/issues/latest-issue.pdf"
-            hint: "Upload the weekly PDF. This becomes the 'Read this week's issue' button."
+      - label: "Upload paper PDF"
+        name: "pdf"
+        widget: "file"
+        media_folder: "/src/files/issues"
+        public_folder: "/files/issues"
+        hint: "Upload the weekly PDF."
 
-          - label: "Front page image (optional)"
-            name: "cover_image"
-            widget: "image"
-            required: false
-            default: ""
-            hint: "Optional. A photo or screenshot of the front page — shows next to the issue on the home page."
+      - label: "Front page image (optional)"
+        name: "cover_image"
+        widget: "image"
+        required: false
+        default: ""
+        hint: "Optional. A photo or screenshot of the front page — used as the thumbnail."
 
-          - label: "Read online (flipbook) URL — optional"
-            name: "flipbook_url"
-            widget: "string"
-            required: false
-            default: ""
-            hint: "Optional. If you have a flipbook viewer URL (Issuu, Yumpu, Flipsnack, etc.), paste it here. Leave blank to use the built-in PDF viewer."
+      - label: "Read online (flipbook) URL — optional"
+        name: "flipbook_url"
+        widget: "string"
+        required: false
+        default: ""
+        hint: "Optional. Issuu / Yumpu / Flipsnack URL. If set, shows 'Read online' instead of 'Open PDF'."
 
-          - label: "Property Guide (monthly)"
-            name: "property_guide"
-            widget: "object"
-            collapsed: true
-            fields:
-              - { label: "Show the Property Guide on the site?", name: "available", widget: "boolean", default: true }
-              - { label: "Title", name: "title", widget: "string", default: "Coast & Country Property Guide" }
-              - { label: "Month / date label", name: "date", widget: "string", hint: "e.g. May 2026" }
-              - label: "Upload Property Guide PDF"
-                name: "pdf"
-                widget: "file"
-                media_folder: "/src/files/issues"
-                public_folder: "/files/issues"
-                required: false
-
-          - label: "Notes for editors"
-            name: "editor_notes"
-            widget: "markdown"
-            required: false
-            collapsed: true
-            hint: "Visible to anyone editing the site in /admin. Never shown on the public website."
-
-
-  # 2) PREVIOUS ISSUES ───────────────────────────────────────────────────
-  - name: "archive"
-    label: "🗂 Previous issues"
-    description: "The list of recent back issues shown on the Latest Issue page."
-    files:
-      - name: "archive"
-        label: "Back-issues list"
-        file: "src/_data/archive.yml"
-        format: "yml"
-        fields:
-          - label: "Recent issues"
-            name: "issues"
-            widget: "list"
-            summary: 'Issue {{fields.number}} — {{fields.date | date("D MMM YYYY")}}'
-            fields:
-              - { label: "Issue number", name: "number", widget: "number", value_type: "int" }
-              - label: "Date"
-                name: "date"
-                widget: "datetime"
-                date_format: "YYYY-MM-DD"
-                time_format: false
-                picker_utc: false
-              - label: "PDF file"
-                name: "pdf"
-                widget: "file"
-                media_folder: "/src/files/issues"
-                public_folder: "/files/issues"
-              - label: "Cover image (optional)"
-                name: "cover_image"
-                widget: "image"
-                required: false
-                default: ""
-                hint: "Optional thumbnail of the front page. A placeholder is used if blank."
-              - label: "Read online (flipbook) URL — optional"
-                name: "flipbook_url"
-                widget: "string"
-                required: false
-                default: ""
-                hint: "Optional. Issuu / Yumpu / Flipsnack URL. If set, shows 'Read online' instead of 'Open PDF'."
-
-          - label: "Older issues link (optional)"
-            name: "external_archive"
-            widget: "object"
-            collapsed: true
-            fields:
-              - { label: "Show an 'older issues' button?", name: "enabled", widget: "boolean", default: false }
-              - { label: "URL (e.g. Google Drive folder)", name: "url", widget: "string", required: false, default: "" }
-              - { label: "Button label", name: "label", widget: "string", default: "Older issues" }
-
-          - label: "Notes for editors"
-            name: "editor_notes"
-            widget: "markdown"
-            required: false
-            collapsed: true
-            hint: "Visible to anyone editing the site in /admin. Never shown on the public website."
+      - label: "Notes for editors"
+        name: "editor_notes"
+        widget: "markdown"
+        required: false
+        collapsed: true
+        hint: "Visible to anyone editing the site in /admin. Never shown on the public website."
 
 
   # 3) ADVERTISING ──────────────────────────────────────────────────────
@@ -280,10 +216,6 @@ collections:
             name: "contact"
             widget: "object"
             fields:
-              - { label: "Address — line 1", name: "address_line1", widget: "string" }
-              - { label: "Address — line 2", name: "address_line2", widget: "string" }
-              - { label: "City + postcode", name: "address_city", widget: "string" }
-              - { label: "Country", name: "address_country", widget: "string", default: "New Zealand" }
               - { label: "News phone", name: "phone_news", widget: "string" }
               - { label: "News phone label", name: "phone_news_label", widget: "string", default: "News line" }
               - { label: "Advertising phone", name: "phone_advertising", widget: "string" }
@@ -471,16 +403,22 @@ collections:
           - label: "Events list"
             name: "events"
             widget: "list"
-            summary: '{{fields.date | date("D MMM YYYY")}} — {{fields.title}}'
+            summary: '{{fields.title}}{{fields.date | date(" — D MMM YYYY")}}'
             fields:
-              - { label: "Event title", name: "title", widget: "string" }
-              - label: "Date"
+              - label: "Event title"
+                name: "title"
+                widget: "string"
+                hint: "The only required field. Everything else is optional — leave blank if you don't have it."
+              - label: "Date (optional)"
                 name: "date"
                 widget: "datetime"
                 date_format: "YYYY-MM-DD"
                 time_format: false
                 picker_utc: false
-              - { label: "Time (optional)", name: "time", widget: "string", required: false }
+                required: false
+                default: ""
+                hint: "Leave blank if there's no fixed date (e.g. 'Coming soon')."
+              - { label: "Time (optional)", name: "time", widget: "string", required: false, hint: "Free text — e.g. '7:00 PM' or '10am – 1pm'." }
               - { label: "Location (optional)", name: "location", widget: "string", required: false }
               - { label: "Description (optional)", name: "description", widget: "text", required: false }
 

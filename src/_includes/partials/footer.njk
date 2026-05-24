@@ -18,11 +18,6 @@
     <div class="site-footer__col">
       <h2 class="site-footer__heading">Contact</h2>
       <address class="site-footer__address">
-        {{ site.contact.address_line1 }}<br>
-        {{ site.contact.address_line2 }}<br>
-        {{ site.contact.address_city }}<br>
-        {{ site.contact.address_country }}<br>
-        <br>
         <a href="tel:{{ site.contact.phone_news | replace(' ', '') }}">{{ site.contact.phone_news }}</a> <span class="muted">({{ site.contact.phone_news_label | lower }})</span><br>
         <a href="tel:{{ site.contact.phone_advertising | replace(' ', '') }}">{{ site.contact.phone_advertising }}</a> <span class="muted">({{ site.contact.phone_advertising_label | lower }})</span><br>
         <br>

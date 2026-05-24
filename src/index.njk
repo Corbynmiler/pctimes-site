@@ -20,6 +20,8 @@ bodyClass: "home"
   </div>
 </section>
 
+{% set latest = issuesList.latest %}
+{% if latest %}
 <section class="latest-card section">
   <div class="container">
     <div class="latest-card__grid">
@@ -59,6 +61,7 @@ bodyClass: "home"
     </div>
   </div>
 </section>
+{% endif %}
 
 <section class="coverage section">
   <div class="container">

@@ -5,22 +5,22 @@ intro: Independent local news
 description: Independently owned community newspaper, delivered free each week to 6,800 homes and businesses in coastal and rural south-east Auckland.
 url: https://pctimes.co.nz
 publisher: Miller Media Limited
+
 editor:
   name: Leanne Chamberlin
   role: Editor
+
 contact:
-  address_line1: 314 Twilight Road
-  address_line2: RD1 Manurewa
-  address_city: Auckland 2576
-  address_country: New Zealand
   phone_news: 021 426 207
   phone_news_label: News line
   phone_advertising: 021 0261 4467
   phone_advertising_label: Advertising
   email_news: info@pctimes.co.nz
   email_advertising: advertising@pctimes.co.nz
+
 social:
   facebook: https://www.facebook.com/pctimes
+
 coverage_area:
   - Beachlands
   - Maraetai
@@ -33,10 +33,13 @@ coverage_area:
   - Ardmore
   - Alfriston
   - Paparimu
+
 reach:
   households: 6800
   readers: 20000
+
 credit:
   name: Corbyn Miller
   email: corbyn.miller2000@gmail.com
+
 editor_notes: ''

@@ -6,6 +6,9 @@ description: "Read this week's Pōhutukawa Coast Times online — free PDF of th
 bodyClass: "latest"
 ---
 
+{% set latest = issuesList.latest %}
+
+{% if latest %}
 <section class="page-header section">
   <div class="container">
     <p class="eyebrow">PC Times Online</p>
@@ -41,13 +44,11 @@ bodyClass: "latest"
 <section class="pdf-viewer section">
   <div class="container">
     {% if latest.flipbook_url %}
-      {# Flipbook embed — show the online viewer in an iframe #}
       <div class="flipbook-embed" aria-label="Online flipbook viewer for this week's issue">
         <iframe src="{{ latest.flipbook_url }}" title="This week's issue — online viewer" loading="lazy" allowfullscreen></iframe>
       </div>
       <p class="pdf-viewer__hint muted">Prefer the PDF? Use <strong>Open PDF</strong> above.</p>
     {% else %}
-      {# Desktop: inline PDF embed. Mobile: hidden via CSS — buttons above handle it. #}
       <div class="pdf-embed" aria-label="PDF viewer for this week's issue">
         <object data="{{ latest.pdf }}#view=FitH" type="application/pdf" class="pdf-embed__object">
           <div class="pdf-embed__fallback">
@@ -60,42 +61,30 @@ bodyClass: "latest"
     {% endif %}
   </div>
 </section>
-
-{% if latest.property_guide.available %}
-<section class="property-guide section section--cream">
-  <div class="container">
-    <p class="eyebrow">Also out now</p>
-    <h2>{{ latest.property_guide.title }} — {{ latest.property_guide.date }}</h2>
-    <p>Our monthly Coast &amp; Country Property Guide, featuring local real-estate listings and lifestyle property news from across the coast.</p>
-    <div class="pdf-actions">
-      <a class="btn btn--primary" href="{{ latest.property_guide.pdf }}" target="_blank" rel="noopener">Read the Property Guide ↗</a>
-      <a class="btn btn--link" href="{{ latest.property_guide.pdf }}" download>Download PDF</a>
-    </div>
-  </div>
-</section>
 {% endif %}
 
+{% if issuesList.previous.length %}
 <section class="archive section">
   <div class="container">
     <h2>Previous issues</h2>
-    <p class="muted">A few weeks back — for older editions, get in touch.</p>
+    <p class="muted">{{ issuesList.previous.length }} back issues — click a cover to open.</p>
 
     <ul class="archive__grid" role="list">
-      {% for issue in archive.issues %}
+      {% for issue in issuesList.previous %}
         {% set primary_url = issue.flipbook_url or issue.pdf %}
         <li class="archive-card">
-          <a class="archive-card__cover" href="{{ primary_url }}" target="_blank" rel="noopener" aria-label="Open Issue {{ issue.number }}">
+          <a class="archive-card__cover" href="{{ primary_url }}" target="_blank" rel="noopener" aria-label="Open Issue {{ issue.issue_number }}">
             {% if issue.cover_image %}
               <img src="{{ issue.cover_image }}" alt="" loading="lazy">
             {% else %}
               <div class="archive-card__cover-placeholder">
-                <span class="archive-card__cover-issue">Issue {{ issue.number }}</span>
+                <span class="archive-card__cover-issue">Issue {{ issue.issue_number }}</span>
                 <span class="archive-card__cover-date">{{ issue.date | formatDate }}</span>
               </div>
             {% endif %}
           </a>
           <div class="archive-card__body">
-            <p class="archive-card__num">Issue {{ issue.number }}</p>
+            <p class="archive-card__num">Issue {{ issue.issue_number }}</p>
             <p class="archive-card__date">{{ issue.date | formatDate }}</p>
             <div class="archive-card__actions">
               {% if issue.flipbook_url %}
@@ -109,11 +98,6 @@ bodyClass: "latest"
         </li>
       {% endfor %}
     </ul>
-
-    {% if archive.external_archive.enabled %}
-      <p class="archive__external">
-        <a class="btn btn--ghost" href="{{ archive.external_archive.url }}" target="_blank" rel="noopener">{{ archive.external_archive.label }} ↗</a>
-      </p>
-    {% endif %}
   </div>
 </section>
+{% endif %}

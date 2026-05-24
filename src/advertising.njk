@@ -89,6 +89,12 @@ bodyClass: "advertising"
       <li><strong>{{ advertising.demographics.tertiary_qualified }}</strong> hold a bachelor's degree or higher</li>
       <li>Predominantly professional, managerial and lifestyle households</li>
     </ul>
+
+    <h3 class="audience__coverage-heading">Where we reach</h3>
+    <p>
+      Distributed weekly across
+      {% for place in site.coverage_area %}{% if loop.last and not loop.first %} and {% elif not loop.first %}, {% endif %}{{ place }}{% endfor %}.
+    </p>
   </div>
 </section>
 

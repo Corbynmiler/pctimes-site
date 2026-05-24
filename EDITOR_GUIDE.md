@@ -25,46 +25,38 @@ GitHub is. It's just the service that quietly stores your website.
 
 ## Publishing the weekly paper (the one you'll do every Friday)
 
-This is the only thing you need to do most weeks.
+This is the only thing you need to do most weeks. **No need to move the old one
+to the archive** — the newest issue is automatically "this week's paper" and the
+previous one drops into "Previous issues" by itself.
 
-1. Open **📰 This week's paper → Current issue**.
-2. Update **Issue number** (e.g. 1620 → 1621).
-3. Update **Date of this issue** (the Friday it goes out).
-4. Click **Upload this week's paper PDF** → choose the new PDF on your computer.
-5. (Optional) Click **Front page image** → upload a photo or screenshot of the front page.
-6. Under **In this issue**, type a few headlines — one per line. Drag the ≡ icon to reorder.
-7. Click the **Save** / **Publish** button at the top.
+1. Open **📰 Issues** in the sidebar.
+2. Click **+ New Issue** at the top of the list.
+3. **Issue number** — e.g. 1621.
+4. **Date of this issue** — the Friday it goes out.
+5. **Upload paper PDF** — choose the new PDF on your computer.
+6. (Optional) **Front page image** — upload a photo or screenshot of page 1.
+7. **In this issue** — type a few headlines, one per line. Drag the ≡ to reorder.
+8. Click **Save** / **Publish** at the top.
 
-That's it. The site rebuilds in about 30–60 seconds. Refresh `pctimes.co.nz/latest-issue/` and you'll see the new edition.
+That's it. The site rebuilds in about 30–60 seconds. Refresh `pctimes.co.nz` and
+the new edition is the headline; the previous one slides into Previous Issues.
 
 ### About the "Read online" flipbook field
 
-If you ever set up a flipbook (Issuu, Yumpu, Flipsnack etc.), paste its URL into the **Read online (flipbook) URL** field. The site will automatically add a "Read online" button alongside the PDF.
+If you ever set up a flipbook (Issuu, Yumpu, Flipsnack etc.), paste its URL
+into the **Read online (flipbook) URL** field. The site adds a "Read online"
+button alongside the PDF. Leave the field empty and the site uses the standard
+PDF viewer.
 
-Leave the field empty and the site just uses the standard PDF viewer — exactly like now.
+### Editing a past issue
 
----
+In **📰 Issues**, click any issue in the list to edit its details. The "Previous
+issues" archive on the public site updates immediately when you save.
 
-## Moving last week's issue into the back-issues list
+### Removing an issue
 
-Optional — only if you want it to show in *Previous issues*:
-
-1. Open **🗂 Previous issues → Back-issues list**.
-2. Click **+ Add Recent issue** at the top of the list.
-3. Type the issue number, date, and click the PDF picker to upload (or select) the PDF.
-4. Save.
-
-You can drag items in the list to reorder. To remove the oldest one, click the **×** next to it.
-
----
-
-## Updating the Property Guide
-
-In **📰 This week's paper**, scroll to the **Property Guide** section at the bottom:
-
-- Tick / untick **Show the Property Guide on the site?**
-- Update the **Month / date label** (e.g. "May 2026")
-- Upload the new PDF
+Open the issue → click **Delete** (top right of the editor). The card disappears
+from the archive next time the site rebuilds.
 
 ---
 

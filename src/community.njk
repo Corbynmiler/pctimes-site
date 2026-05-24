@@ -24,11 +24,13 @@ bodyClass: "community"
     <h2 class="vh">Upcoming events</h2>
     <ul class="events__list" role="list">
       {% for event in community.events %}
-        <li class="event">
-          <div class="event__date">
-            <span class="event__day">{{ event.date | formatDate }}</span>
-            {% if event.time %}<span class="event__time">{{ event.time }}</span>{% endif %}
-          </div>
+        <li class="event{% if not event.date and not event.time %} event--no-date{% endif %}">
+          {% if event.date or event.time %}
+            <div class="event__date">
+              {% if event.date %}<span class="event__day">{{ event.date | formatDate }}</span>{% endif %}
+              {% if event.time %}<span class="event__time">{{ event.time }}</span>{% endif %}
+            </div>
+          {% endif %}
           <div class="event__body">
             <h3 class="event__title">{{ event.title }}</h3>
             {% if event.location %}<p class="event__location">📍 {{ event.location }}</p>{% endif %}

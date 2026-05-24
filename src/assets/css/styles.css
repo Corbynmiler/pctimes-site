@@ -629,6 +629,7 @@ ul { padding: 0; margin: 0; list-style: none; }
   border-radius: var(--radius);
   padding: 1rem;
 }
+.audience__coverage-heading { font-size: 1.25rem; margin-top: 2rem; }
 
 /* -----  Contact tiles  --------------------------------------------------- */
 .contact-grid__inner {
@@ -739,6 +740,7 @@ ul { padding: 0; margin: 0; list-style: none; }
 }
 @media (min-width: 600px) {
   .event { grid-template-columns: minmax(0, 12rem) 1fr; gap: 1.5rem; align-items: start; }
+  .event--no-date { grid-template-columns: 1fr; }
 }
 .event__date {
   display: flex; flex-direction: column; gap: 0.15rem;
