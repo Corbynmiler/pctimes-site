@@ -404,11 +404,12 @@ collections:
             name: "events"
             widget: "list"
             summary: '{{fields.title}}{{fields.date | date(" — D MMM YYYY")}}'
+            hint: "Two ways to use this: (A) one-off event with a date — fill in date/time/location. (B) recurring weekday group (e.g. 'Mondays', 'Saturdays') — leave date/time/location blank, type each activity on its own line starting with • in the description."
             fields:
               - label: "Event title"
                 name: "title"
                 widget: "string"
-                hint: "The only required field. Everything else is optional — leave blank if you don't have it."
+                hint: "The only required field. For a one-off, e.g. 'Beachlands Lions Quiz Night'. For a recurring weekday group, e.g. 'Mondays'."
               - label: "Date (optional)"
                 name: "date"
                 widget: "datetime"
@@ -417,10 +418,15 @@ collections:
                 picker_utc: false
                 required: false
                 default: ""
-                hint: "Leave blank if there's no fixed date (e.g. 'Coming soon')."
-              - { label: "Time (optional)", name: "time", widget: "string", required: false, hint: "Free text — e.g. '7:00 PM' or '10am – 1pm'." }
-              - { label: "Location (optional)", name: "location", widget: "string", required: false }
-              - { label: "Description (optional)", name: "description", widget: "text", required: false }
+                hint: "Leave blank for recurring weekday groups."
+              - { label: "Time (optional)", name: "time", widget: "string", required: false, default: "", hint: "Free text — e.g. '7:00 PM' or '10am – 1pm'. Leave blank for recurring groups." }
+              - { label: "Location (optional)", name: "location", widget: "string", required: false, default: "" }
+              - label: "Description (optional)"
+                name: "description"
+                widget: "text"
+                required: false
+                default: ""
+                hint: "For recurring groups, type one activity per line starting with • — the • lines become a tidy bullet list on the public site."
 
           - { label: "Submit-event note", name: "submit_note", widget: "text" }
 

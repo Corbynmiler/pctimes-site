@@ -48,6 +48,16 @@ module.exports = function (eleventyConfig) {
     return md.render(String(value));
   });
 
+  // Split a multi-line "• item 1\n\n• item 2" string into a clean string[]
+  // — used for the community page's recurring weekday activity lists.
+  eleventyConfig.addFilter("bulletList", (value) => {
+    if (!value) return [];
+    return String(value)
+      .split(/(?:^|\n)\s*[•*-]\s+/)   // bullet/dash/asterisk separators
+      .map((s) => s.replace(/\s+/g, " ").trim())
+      .filter(Boolean);
+  });
+
   return {
     dir: {
       input: "src",

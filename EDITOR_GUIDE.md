@@ -92,12 +92,27 @@ Open **⚙️ Site settings → General settings**, scroll to **Contact details*
 
 ## Adding a community event
 
+There are two patterns:
+
+**A) One-off event** (a date in the future, like a quiz night or fundraiser)
 1. Open **📅 Community → Community calendar**.
-2. Click **+ Add Event** at the top of the *Events list*.
-3. Fill in title, date, optional time / location / description.
+2. Click **+ Add Event**.
+3. Fill in **title**, **date** (and optionally time / location / description).
 4. Save.
 
-To remove an old event, click its **×**.
+**B) Recurring weekly group** (Mondays / Tuesdays / Saturdays / etc.)
+1. Click **+ Add Event**.
+2. Set the **title** to the weekday (e.g. *Mondays*).
+3. **Leave date, time and location blank.**
+4. In **description**, type each activity on its own line starting with a `•`:
+   ```
+   • CASUAL BADMINTON: 7.30-9pm, Te Puru Centre, $7.
+
+   • COASTAL PLAYGROUP, 5 Jacobs Way, Maraetai. 9am–12pm.
+   ```
+5. Save. The site turns those `•` lines into a clean bullet list automatically.
+
+To remove an item, click its **×**.
 
 ---
 

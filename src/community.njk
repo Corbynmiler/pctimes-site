@@ -21,22 +21,50 @@ bodyClass: "community"
 
 <section class="events section">
   <div class="container">
-    <h2 class="vh">Upcoming events</h2>
+    <h2 class="vh">Events &amp; what's on</h2>
     <ul class="events__list" role="list">
       {% for event in community.events %}
-        <li class="event{% if not event.date and not event.time %} event--no-date{% endif %}">
-          {% if event.date or event.time %}
+        {# A "recurring" event has no date — used for "Mondays" / "Tuesdays" /
+           regular weekly activity groups. They render as a full-width card
+           with a bullet list rather than a left-column date strip. #}
+        {% set isRecurring = not event.date and not event.time %}
+        {% set activities = event.description | bulletList %}
+
+        {% if isRecurring %}
+          <li class="recurring-card">
+            <h3 class="recurring-card__title">{{ event.title }}</h3>
+            {% if event.location %}<p class="recurring-card__location muted">📍 {{ event.location }}</p>{% endif %}
+            {% if activities.length %}
+              <ul class="recurring-card__list" role="list">
+                {% for item in activities %}
+                  <li>{{ item }}</li>
+                {% endfor %}
+              </ul>
+            {% elif event.description %}
+              <p class="recurring-card__body">{{ event.description }}</p>
+            {% endif %}
+          </li>
+        {% else %}
+          <li class="event">
             <div class="event__date">
               {% if event.date %}<span class="event__day">{{ event.date | formatDate }}</span>{% endif %}
               {% if event.time %}<span class="event__time">{{ event.time }}</span>{% endif %}
             </div>
-          {% endif %}
-          <div class="event__body">
-            <h3 class="event__title">{{ event.title }}</h3>
-            {% if event.location %}<p class="event__location">📍 {{ event.location }}</p>{% endif %}
-            {% if event.description %}<p class="event__desc">{{ event.description }}</p>{% endif %}
-          </div>
-        </li>
+            <div class="event__body">
+              <h3 class="event__title">{{ event.title }}</h3>
+              {% if event.location %}<p class="event__location">📍 {{ event.location }}</p>{% endif %}
+              {% if activities.length %}
+                <ul class="event__list" role="list">
+                  {% for item in activities %}
+                    <li>{{ item }}</li>
+                  {% endfor %}
+                </ul>
+              {% elif event.description %}
+                <p class="event__desc">{{ event.description }}</p>
+              {% endif %}
+            </div>
+          </li>
+        {% endif %}
       {% endfor %}
     </ul>
   </div>
