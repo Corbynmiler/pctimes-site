@@ -1,32 +1,26 @@
-# Advertising page content. Edited via CMS in Phase 2.
-intro: "Your local audience, straight to their letterbox. The Pōhutukawa Coast Times reaches more than 6,800 households and businesses — about 20,000 readers — every Friday across the coastal and rural communities of south-east Auckland."
-
+intro: The Pōhutukawa Coast Times reaches more than 6,800 households and businesses — about 20,000 people — within the coastal and rural communities of south-east Auckland each week.
 benefits:
-  - "Reaches over 6,800 households and businesses across the Pōhutukawa Coast"
-  - "Hyper-local focus — high readership and recall"
-  - "Full-colour printing at no extra cost"
-  - "Flexible options, from classifieds to full-page display ads"
-  - "Discounted rates for ongoing real-estate commitments in the Property Guide"
-
-classified_rate: "$15 per 30 words"
-boxed_rate: "$8 + GST per column centimetre (boxed notices)"
-display_rate_note: "Display ad rates vary by size, placement and duration — see rate card."
-
+  - Reaches over 6,800 households and businesses across the Pōhutukawa Coast
+  - Hyper-local focus — high readership and recall
+  - Full-colour printing at no extra cost
+  - Flexible options, from classifieds to full-page display ads
+  - Eyes linger longer on print!
+classified_rate: $15 per 30 words
+boxed_rate: $8 + GST per column centimetre - email your ad to us for pricing
+display_rate_note: Display ad rates vary by size, placement and duration — see rate card.
 rate_card:
-  pdf: "/files/rate-card/rate-card.pdf" # PLACEHOLDER — replace with current rate card
-  updated: "May 2024" # PLACEHOLDER — update date when new card uploaded
-
+  pdf: /files/rate-card/PC Times rate card low res.pdf
+  updated: ''
 deadlines:
-  pdf: "/files/rate-card/publication-deadlines-2026.pdf" # PLACEHOLDER
-  note: "2026 publication dates and copy deadlines"
-
+  pdf: /files/rate-card/publication-deadlines-2026.pdf
+  note: 2026 publication dates and copy deadlines
 manager:
-  name: "Melody Cutfield"
-  role: "Advertising Manager"
-  email: "advertising@pctimes.co.nz"
-  phone: "021 0261 4467"
-
+  name: Melody Cutfield
+  role: Advertising Manager
+  email: advertising@pctimes.co.nz
+  phone: 021 0261 4467
 demographics:
-  median_income: "$58,260"
-  tertiary_qualified: "31.6%"
-  blurb: "A predominantly professional and managerial demographic — strong purchasing power, engaged readers, and a community-first mindset."
+  median_income: $58,260
+  tertiary_qualified: 31.6%
+  blurb: Our readers are a predominantly professional and managerial demographic with strong purchasing power, engaged readers, and a community-first mindset.
+editor_notes: ''
