@@ -37,9 +37,9 @@
 
   <div class="container site-footer__base">
     <p class="site-footer__copyright">© {% year %} {{ site.publisher }}. All rights reserved.</p>
-    <p class="site-footer__credit">
-      Site by <a href="{{ site.credit.url }}" target="_blank" rel="noopener">{{ site.credit.name }}</a>
-      <span aria-hidden="true">→</span>
-    </p>
+    <a class="site-footer__pill" href="{{ site.credit.url }}" target="_blank" rel="noopener">
+      <span class="site-footer__pill-pitch">Need a site for your business?</span>
+      <span class="site-footer__pill-credit">Built by {{ site.credit.name }} <span aria-hidden="true">→</span></span>
+    </a>
   </div>
 </footer>

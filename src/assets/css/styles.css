@@ -991,5 +991,39 @@ textarea.form__input { min-height: 8rem; line-height: 1.5; resize: vertical; }
   font-size: 0.875rem;
   color: rgba(255,255,255,0.7);
 }
-.site-footer__credit a { text-decoration: none; border-bottom: 1px solid rgba(255,255,255,0.4); }
-.site-footer__credit a:hover { border-bottom-color: var(--color-teal); }
+
+/* "Need a site for your business?" pill in the footer base */
+.site-footer__pill {
+  display: inline-flex; align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.25);
+  background: rgba(255,255,255,0.04);
+  color: #fff;
+  text-decoration: none;
+  font-size: 0.85rem;
+  line-height: 1.2;
+  transition: background 150ms ease, border-color 150ms ease, transform 150ms ease;
+  max-width: 100%;
+}
+.site-footer__pill:hover {
+  background: rgba(91, 192, 222, 0.12);
+  border-color: var(--color-teal);
+  color: #fff;
+  transform: translateY(-1px);
+}
+.site-footer__pill-pitch {
+  color: rgba(255,255,255,0.7);
+}
+.site-footer__pill-credit {
+  font-weight: 600;
+  padding-left: 0.75rem;
+  border-left: 1px solid rgba(255,255,255,0.25);
+  white-space: nowrap;
+}
+@media (max-width: 460px) {
+  /* On really narrow phones, drop the divider so the pill can wrap onto two lines */
+  .site-footer__pill { flex-wrap: wrap; gap: 0.4rem; padding: 0.55rem 0.9rem; }
+  .site-footer__pill-credit { padding-left: 0; border-left: 0; }
+}
