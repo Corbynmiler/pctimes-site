@@ -248,7 +248,7 @@ collections:
             collapsed: true
             fields:
               - { label: "Name", name: "name", widget: "string", default: "Corbyn Miller" }
-              - { label: "Email", name: "email", widget: "string" }
+              - { label: "Website / link", name: "url", widget: "string", hint: "Where the footer credit links to. Can be a website URL or 'mailto:you@example.com'." }
 
           - label: "Notes for editors"
             name: "editor_notes"
