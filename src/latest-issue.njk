@@ -79,16 +79,32 @@ bodyClass: "latest"
   <div class="container">
     <h2>Previous issues</h2>
     <p class="muted">A few weeks back — for older editions, get in touch.</p>
-    <ul class="archive__list" role="list">
+
+    <ul class="archive__grid" role="list">
       {% for issue in archive.issues %}
-        <li class="archive__item">
-          <div class="archive__meta">
-            <span class="archive__num">Issue {{ issue.number }}</span>
-            <span class="archive__date">{{ issue.date | formatDate }}</span>
-          </div>
-          <div class="archive__actions">
-            <a class="btn btn--link" href="{{ issue.pdf }}" target="_blank" rel="noopener">Open ↗</a>
-            <a class="btn btn--link" href="{{ issue.pdf }}" download>Download</a>
+        {% set primary_url = issue.flipbook_url or issue.pdf %}
+        <li class="archive-card">
+          <a class="archive-card__cover" href="{{ primary_url }}" target="_blank" rel="noopener" aria-label="Open Issue {{ issue.number }}">
+            {% if issue.cover_image %}
+              <img src="{{ issue.cover_image }}" alt="" loading="lazy">
+            {% else %}
+              <div class="archive-card__cover-placeholder">
+                <span class="archive-card__cover-issue">Issue {{ issue.number }}</span>
+                <span class="archive-card__cover-date">{{ issue.date | formatDate }}</span>
+              </div>
+            {% endif %}
+          </a>
+          <div class="archive-card__body">
+            <p class="archive-card__num">Issue {{ issue.number }}</p>
+            <p class="archive-card__date">{{ issue.date | formatDate }}</p>
+            <div class="archive-card__actions">
+              {% if issue.flipbook_url %}
+                <a class="btn btn--link" href="{{ issue.flipbook_url }}" target="_blank" rel="noopener">Read online ↗</a>
+              {% else %}
+                <a class="btn btn--link" href="{{ issue.pdf }}" target="_blank" rel="noopener">Open PDF ↗</a>
+              {% endif %}
+              <a class="btn btn--link" href="{{ issue.pdf }}" download>Download</a>
+            </div>
           </div>
         </li>
       {% endfor %}

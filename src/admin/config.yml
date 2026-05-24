@@ -152,6 +152,18 @@ collections:
                 widget: "file"
                 media_folder: "/src/files/issues"
                 public_folder: "/files/issues"
+              - label: "Cover image (optional)"
+                name: "cover_image"
+                widget: "image"
+                required: false
+                default: ""
+                hint: "Optional thumbnail of the front page. A placeholder is used if blank."
+              - label: "Read online (flipbook) URL — optional"
+                name: "flipbook_url"
+                widget: "string"
+                required: false
+                default: ""
+                hint: "Optional. Issuu / Yumpu / Flipsnack URL. If set, shows 'Read online' instead of 'Open PDF'."
 
           - label: "Older issues link (optional)"
             name: "external_archive"
