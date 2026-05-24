@@ -115,7 +115,7 @@ collections:
         widget: "markdown"
         required: false
         collapsed: true
-        hint: "Visible to anyone editing the site in /admin. Never shown on the public website."
+        hint: "Visible to anyone editing the site in /admin. Not shown on the public website — but the project is on a public GitHub repo, so don't put anything truly private (passwords, home addresses, etc.) here."
 
 
   # 3) ADVERTISING ──────────────────────────────────────────────────────
@@ -184,7 +184,7 @@ collections:
             widget: "markdown"
             required: false
             collapsed: true
-            hint: "Visible to anyone editing the site in /admin. Never shown on the public website."
+            hint: "Visible to anyone editing the site in /admin. Not shown on the public website — but the project is on a public GitHub repo, so don't put anything truly private (passwords, home addresses, etc.) here."
 
 
   # 4) SITE SETTINGS ────────────────────────────────────────────────────
@@ -255,7 +255,7 @@ collections:
             widget: "markdown"
             required: false
             collapsed: true
-            hint: "Visible to anyone editing the site in /admin. Never shown on the public website."
+            hint: "Visible to anyone editing the site in /admin. Not shown on the public website — but the project is on a public GitHub repo, so don't put anything truly private (passwords, home addresses, etc.) here."
 
 
   # 5) HOME PAGE ────────────────────────────────────────────────────────
@@ -308,7 +308,7 @@ collections:
             widget: "markdown"
             required: false
             collapsed: true
-            hint: "Visible to anyone editing the site in /admin. Never shown on the public website."
+            hint: "Visible to anyone editing the site in /admin. Not shown on the public website — but the project is on a public GitHub repo, so don't put anything truly private (passwords, home addresses, etc.) here."
 
 
   # 6a) TEAM / OUR PEOPLE ────────────────────────────────────────────────
@@ -347,7 +347,7 @@ collections:
             widget: "markdown"
             required: false
             collapsed: true
-            hint: "Visible to anyone editing the site in /admin. Never shown on the public website."
+            hint: "Visible to anyone editing the site in /admin. Not shown on the public website — but the project is on a public GitHub repo, so don't put anything truly private (passwords, home addresses, etc.) here."
 
 
   # 6) ABOUT PAGE ───────────────────────────────────────────────────────
@@ -376,7 +376,7 @@ collections:
             widget: "markdown"
             required: false
             collapsed: true
-            hint: "Visible to anyone editing the site in /admin. Never shown on the public website."
+            hint: "Visible to anyone editing the site in /admin. Not shown on the public website — but the project is on a public GitHub repo, so don't put anything truly private (passwords, home addresses, etc.) here."
 
 
   # 7) COMMUNITY CALENDAR ───────────────────────────────────────────────
@@ -429,4 +429,4 @@ collections:
             widget: "markdown"
             required: false
             collapsed: true
-            hint: "Visible to anyone editing the site in /admin. Never shown on the public website."
+            hint: "Visible to anyone editing the site in /admin. Not shown on the public website — but the project is on a public GitHub repo, so don't put anything truly private (passwords, home addresses, etc.) here."

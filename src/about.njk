@@ -30,6 +30,43 @@ bodyClass: "about"
   </div>
 </section>
 
+<section class="media-kit section section--cream">
+  <div class="container">
+    <p class="eyebrow">Media kit</p>
+    <h2>The Pōhutukawa Coast Times in numbers</h2>
+
+    <ul class="media-kit__stats" role="list">
+      <li>
+        <span class="media-kit__num">{{ site.reach.households | thousands }}</span>
+        <span class="media-kit__label">households &amp; businesses</span>
+      </li>
+      <li>
+        <span class="media-kit__num">~{{ site.reach.readers | thousands }}</span>
+        <span class="media-kit__label">readers each week</span>
+      </li>
+      <li>
+        <span class="media-kit__num">{{ site.coverage_area.length }}</span>
+        <span class="media-kit__label">coast &amp; rural communities</span>
+      </li>
+    </ul>
+
+    <h3>Where we reach</h3>
+    <p>{% for place in site.coverage_area %}{% if loop.last and not loop.first %} and {% elif not loop.first %}, {% endif %}{{ place }}{% endfor %}.</p>
+
+    <h3>Our readers</h3>
+    <p>{{ advertising.demographics.blurb }}</p>
+    <ul class="media-kit__mini" role="list">
+      <li><strong>{{ advertising.demographics.median_income }}</strong> median household income</li>
+      <li><strong>{{ advertising.demographics.tertiary_qualified }}</strong> hold a bachelor's degree or higher</li>
+    </ul>
+
+    <div class="media-kit__cta">
+      <a class="btn btn--primary" href="{{ advertising.rate_card.pdf }}" target="_blank" rel="noopener">Download the rate card (PDF) ↗</a>
+      <a class="btn btn--ghost" href="/advertising/">See full advertising info</a>
+    </div>
+  </div>
+</section>
+
 {% if team and team.members and team.members.length %}
 <section class="team section">
   <div class="container">

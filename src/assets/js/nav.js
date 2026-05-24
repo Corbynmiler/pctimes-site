@@ -1,3 +1,27 @@
+// Archive "Show all / Show less" toggle.
+(function () {
+  const toggle = document.querySelector("[data-archive-toggle]");
+  const list = document.querySelector("[data-archive-list]");
+  if (!toggle || !list) return;
+  let expanded = false;
+  const more = toggle.dataset.moreLabel || "Show more";
+  const less = toggle.dataset.lessLabel || "Show less";
+  toggle.addEventListener("click", () => {
+    expanded = !expanded;
+    list.querySelectorAll(".archive-card.is-hidden, .archive-card.is-revealed").forEach((el) => {
+      el.classList.toggle("is-revealed", expanded);
+    });
+    // Toggle the hidden state on every card past the initial count
+    const initial = parseInt(list.dataset.initial, 10) || 10;
+    const cards = list.querySelectorAll(".archive-card");
+    cards.forEach((card, i) => {
+      if (i >= initial) card.classList.toggle("is-hidden", !expanded);
+    });
+    toggle.textContent = expanded ? less : more;
+    if (!expanded) toggle.scrollIntoView({ behavior: "smooth", block: "center" });
+  });
+})();
+
 // Mobile nav toggle — minimal, no framework.
 (function () {
   const toggle = document.querySelector(".nav-toggle");

@@ -64,15 +64,16 @@ bodyClass: "latest"
 {% endif %}
 
 {% if issuesList.previous.length %}
+{% set initialCount = 10 %}
 <section class="archive section">
   <div class="container">
     <h2>Previous issues</h2>
-    <p class="muted">{{ issuesList.previous.length }} back issues — click a cover to open.</p>
+    <p class="muted">{{ issuesList.previous.length }} back issues available — click a cover to open.</p>
 
-    <ul class="archive__grid" role="list">
+    <ul class="archive__list" role="list" data-archive-list data-initial="{{ initialCount }}">
       {% for issue in issuesList.previous %}
         {% set primary_url = issue.flipbook_url or issue.pdf %}
-        <li class="archive-card">
+        <li class="archive-card{% if loop.index > initialCount %} is-hidden{% endif %}">
           <a class="archive-card__cover" href="{{ primary_url }}" target="_blank" rel="noopener" aria-label="Open Issue {{ issue.issue_number }}">
             {% if issue.cover_image %}
               <img src="{{ issue.cover_image }}" alt="" loading="lazy">
@@ -84,20 +85,38 @@ bodyClass: "latest"
             {% endif %}
           </a>
           <div class="archive-card__body">
-            <p class="archive-card__num">Issue {{ issue.issue_number }}</p>
-            <p class="archive-card__date">{{ issue.date | formatDate }}</p>
+            <p class="archive-card__num">Issue {{ issue.issue_number }} <span class="archive-card__date">— {{ issue.date | formatDate }}</span></p>
+            {% if issue.in_this_issue and issue.in_this_issue.length %}
+              <p class="archive-card__heading">In this issue</p>
+              <ul class="archive-card__bullets" role="list">
+                {% for item in issue.in_this_issue %}
+                  <li>{{ item }}</li>
+                {% endfor %}
+              </ul>
+            {% elif issue.blurb %}
+              <p class="archive-card__blurb">{{ issue.blurb }}</p>
+            {% endif %}
             <div class="archive-card__actions">
               {% if issue.flipbook_url %}
                 <a class="btn btn--link" href="{{ issue.flipbook_url }}" target="_blank" rel="noopener">Read online ↗</a>
-              {% else %}
-                <a class="btn btn--link" href="{{ issue.pdf }}" target="_blank" rel="noopener">Open PDF ↗</a>
               {% endif %}
-              <a class="btn btn--link" href="{{ issue.pdf }}" download>Download</a>
+              {% if issue.pdf %}
+                <a class="btn btn--link" href="{{ issue.pdf }}" target="_blank" rel="noopener">Open PDF ↗</a>
+                <a class="btn btn--link" href="{{ issue.pdf }}" download>Download</a>
+              {% endif %}
             </div>
           </div>
         </li>
       {% endfor %}
     </ul>
+
+    {% if issuesList.previous.length > initialCount %}
+      <div class="archive__more">
+        <button type="button" class="btn btn--ghost" data-archive-toggle data-more-label="Show all {{ issuesList.previous.length }} issues" data-less-label="Show less">
+          Show all {{ issuesList.previous.length }} issues
+        </button>
+      </div>
+    {% endif %}
   </div>
 </section>
 {% endif %}
