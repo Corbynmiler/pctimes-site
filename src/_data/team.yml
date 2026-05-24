@@ -5,31 +5,25 @@ members:
     role: Owner / Editor
     photo: /assets/images/leanne.jpg
     bio: |-
-      After reporting for the PC Times for two years, Leanne stepped into the role
-      of owner/editor in 2018 when the previous owners retired after 22 years.
-      Her background spans communications across corporate, nonprofit, healthcare
-      and education.
+      After reporting for the PC Times for two years, Leanne stepped into the role of owner/editor in 2018 when the previous owners retired after 22 years.
+      Leanne's background spans communications across corporate, nonprofit, healthcare and education sectors.
   - name: Melody Cutfield
     role: Advertising
     photo: ''
-    bio: |-
-      Melody brings extensive newspaper advertising expertise and is always
-      happy to advise on the right approach for your advertising budget.
+    bio: Melody brings extensive newspaper advertising expertise and is always happy to advise on the right approach for your advertising budget.
   - name: Pam Rutherford
     role: Accounts
     photo: ''
-    bio: Pam has very capably managed the PC Times accounts for many years.
-  - name: Terry &amp; Nicola Gibson
-    role: Distribution managers
+    bio: ''
+  - name: Andrea Matson - The Content Room
+    role: Graphic Design
     photo: ''
-    bio: |-
-      Terry and Nicola live in Beachlands and coordinate delivery of the
-      Pōhutukawa Coast Times each week, overseeing a team of 26 delivery
-      people across the coast.
+    bio: ''
 partners:
   - name: The Content Room
     role: Graphic design
     blurb: Beachlands-based design studio that lays out the paper each week.
   - name: NZME
-    role: Printing
-    blurb: Prints the paper for delivery to the coast every Friday.
+    role: Printers
+    blurb: The Pōhutukawa Coast Times is printed by NZME.
+editor_notes: ''
