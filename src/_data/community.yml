@@ -1,28 +1,177 @@
-# Community Calendar page. Edited via CMS in Phase 2.
-intro: "Local events, club meetings, fundraisers and community happenings on the Pōhutukawa Coast."
-
-# Option A: external calendar link (e.g. Google Calendar embed, or existing URL)
+intro: Local events, club meetings, fundraisers and community happenings on the Pōhutukawa Coast.
 external:
   enabled: false
-  url: "" # PLACEHOLDER — paste calendar URL/iframe here if used
-  label: "Open community calendar"
-
-# Option B: simple list of upcoming events, editable in CMS
+  url: ''
+  label: Open community calendar
 events:
-  - title: "Beachlands Maraetai Lions Quiz Night"
+  - title: Mondays
     date: 2026-06-07
-    time: "7:00 PM"
-    location: "Beachlands Maraetai RSA"
-    description: "Monthly quiz fundraiser — teams of 4, $10 per person."
-  - title: "Maraetai Saturday Market"
-    date: 2026-06-14
-    time: "9:00 AM – 1:00 PM"
-    location: "Maraetai Beach Reserve"
-    description: "Local makers, fresh produce, food trucks."
-  - title: "Pōhutukawa Coast Lions Community BBQ"
-    date: 2026-06-21
-    time: "11:00 AM"
-    location: "Sunkist Bay Reserve"
-    description: "Free family event."
+    time: 7:00 PM
+    location: Beachlands Maraetai RSA
+    description: |-
+      • CASUAL BADMINTON: 7.30-9pm, Te Puru Centre, $7. Ph:536 5360.
 
-submit_note: "Got an event for the calendar? Email us at info@pctimes.co.nz with the details."
+      • COASTAL PLAYGROUP 5 Jacobs Way, Maraetai. 9am-12pm. Bubs till 5 yrs. Sarah 022 082 6432.
+
+      • ST JOHNS YOUTH: 6-7.30pm, St Hilda’s Church, Wakelin Road.
+
+      • CASUAL TABLE TENNIS and BADMINTON: 7.30-9pm. Te Puru, $7.
+
+      • SOCIAL TENNIS: Adults beginners/intermediate 7-9pm Te Puru. Stephen 021 217 7587.
+
+      • KEAS: scouts for ages 6-8 - 5:30-6:30 Te Puru Scout Hall, tepuru@group.scouts.nz
+
+      • CUBS: scouts for ages 8-11 - 5:30-6:30 Te Puru Scout Hall, tepuru@group.scouts.nz
+
+      • SENIOR CIRCUIT: 9:00-10:00 Te Puru Community Centre, $6
+
+      • JUMPING JUNIORS GYMNATICS: ages 1-4 - 11.00-11.45, Te Puru Community Centre, $14
+
+      • ZUMBA WITH JAZAM: 9.30-10.30am, 49 Wakelin Road, Beachlands, $10. Amy 021 163 4828.
+
+      • MAHJONG: 1-3pm, Te Puru Centre, $2.
+  - title: Tuesdsays
+    date: 2026-06-14
+    time: ''
+    location: ''
+    description: |-
+      • COASTAL PLAYGROUP 5 Jacobs Way, Maraetai. 9am-12pm. Bubs till 5 yrs. Sarah 022 082 6432.
+
+      • LINE DANCING FOR BEGINNERS, 11am-12pm, Te Puru Community Centre, ph Ezabelle Els 021 0843 9334
+
+      • LINE DANCING - FEVER LINE DANCE.- STOMP IT OUT, 7-8pm at The Franklin
+
+      • KOKAKO VOLUNTEER DAY: 8.15am–3.30pm, Northern Hunua Ranges. Ruth 021 950 915.
+
+      • RUMMIKUB 1-4pm, Te Puru Centre $2. Bernadette 021 170 9350.
+
+      • NATTER N STITCH 12-3pm, Log Cabin, Sunkist Bay. Gill 021 204 6647
+
+      • MARAETAI (LAWN) BOWLING CLUB: 1pm, Te Pene Road. Tues, Thurs, Sat. Derek 536 4626.
+
+      • CASUAL BADMINTON: 9:00-10:30am, Te Puru Centre, FREE.
+
+      • TABLE TENNIS - 1:30pm-3:30pm, Te Puru Centre - Free
+
+      • BASKETBALL: All ages, 4:00-8:00pm, Te Puru Centre. Email sport@tepuru.co.nz, 027 775 5320.
+
+      • MEN’S AND INTERMEDIATE/ADVANCED LADIES TENNIS: 7-9pm, Te Puru. Stephen 021 217 7587
+
+      • HOUSIE/BINGO 7.30pm, Beachlands Chartered Club, $15. Ph: 536 6233.
+
+      • POHUTUKAWA COAST COMMUNITY CHOIR: 7.15 - 8.45pm. Email pcsings@hotmail.com
+
+      • THE GOOD KNIGHTS SOCIAL CHESS 7:00 - 8:30pm. Beachlands Baptist Church, 59 Third View Ave. Runs fortnightly (usually 1st & 3rd Tues of the month). All ages and skill levels welcome. Contact 022 656 1154 for more info.
+
+      • SENIOR STRENGTH & BALANCE: 9:30-10:30 Te Puru Community Centre, $10
+  - title: Wednesdays
+    date: 2026-06-21
+    time: ''
+    location: ''
+    description: |-
+      • JP SERVICE: 5.00-6.30pm, Beachlands Library.
+
+      • JP SERVICE: 2-4pm at the Clevedon District Centre
+
+      • COMMUNITY CONNECTIONS: 9.00am-3.00pm, Te Puru Centre, $10. Amy 021 163 4828.
+
+      • PICKLEBALL, 12.15-2.15pm, Te Puru Community Centre, FREE, all welcome.
+
+      • COASTAL MAINLY MUSIC 9am-12pm, for 0-5yrs, 5 Jacobs Way, Maraetai. Sarah 022 082 6432.
+
+      • SENIOR CIRCUIT: 9.00-10.00am, $6 Te Puru Centre. First Wednesday of the month BYO plate for coffee after.
+
+      • CASUAL BADMINTON: 10am-12pm, Te Puru Centre. All welcome. FREE.
+
+      • SENIOR STRETCH & STRENGTH: 9-10am, Beachlands Memorial Hall, $12 per month (8 sessions).
+
+      • PEST CONTROL DAY: Southern Hunua Ranges, Ruth 021 950 915.
+
+      • MASTERS SWIMMING: Wed/Sat, carpool from Bchlnds-Mtai. president@manukaumasters.co.nz.
+
+      • CLEVEDON FIRESIDE BRIDGE CLUB: 10.15am, Clevedon Anglican. Lessons avail. Pauline 299 7433.
+
+      • MAHJONG: 10am-12pm, Te Puru, $2.
+
+      • QUIZ NIGHT: 7.30pm. Teams of up to 6, $5pp Every second week Beachlands Chartered Club 536 6233
+
+      • BADMINTON GAMES: 8pm, Clevedon Hall, BYO racquet, shuttlecocks provided, $3. Rebecca 021 1109 675
+
+      • WORN AGAIN OP SHOP, 9.30am-12pm, The Cottage, 5 K Bay-Orere Rd, Kawakawa Bay.
+
+      • COASTAL TREASURES Open Wednesday - Saturday, 10am-4pm, 41 Third View Ave, Beachlands. Donations welcome Monday, Wednesday and Saturday before 7pm at 25 Liberty Crescent (unless raining) or phone Tania on 021 644 722 for appointment.
+
+      • ZUMBA WITH JAZAM: 7-8pm, 49 Wakelin Road, Beachlands, $10. Amy 021 163 4828.
+  - title: Thursdays
+    date: 2026-05-24
+    time: ''
+    location: ''
+    description: |-
+      • MAINLY MUSIC. 9.30am, Beachlands Baptist. Morning tea provided. 021 385 535.
+
+      • GENTLE EXCERCISE FUN & FRIENDSHIP FOR SENIORS 65YRS+: $5 per session 10am-12.00pm St Hilda’s Church Hall, Wakelin Road, Beachlands. Contact Christine Bruinsma 021 133 5283.
+
+      • LINE DANCING: 10-11am, Beachlands Hall. Karen 021 213 6020.
+
+      • TOY LIBRARY: 10am-12pm, 59 Third View Ave. Can view & reserve toys online. Contact Betty Wilkings 021 492 325.
+
+      • SCOUTS - AGES 11-15 - 6:30-8:30 Te Puru Scout Hall, tepuru@group.scouts.nz.
+
+      • TWICE LOVED OP SHOP: Open 10am-3pm, 104 Maraetai Drive, Maraetai.
+
+      • S.A.Y.G.O. “STEADY AS YOU GO” Balance and coordination class. 10.30am. Kawakawa Bay Hall. $2 Fee for Hall Hire and donations to Age Concern and Community. Friendly, gentle exercises. Contact Ans Bloem 021 202 8371.
+
+      • LINE DANCING, Beachlands Memorial Hall, 6.30pm for Country Swing class, 7pm for beginners, 7.30pm for intermediates. Ph Ezabelle Els 021 0843 9334. 
+
+      • COASTAL UKES (UKELLE CLUB) 1:30 - 2:30pm, at Log Cabin, contact Val 027 393 4999 or Jean 021 023 09043.
+
+      • 261 FEARLESS - SOCIAL WOMEN’S RUNNING GROUP: 5pm, all ages and abilities welcome. Te Puru Sports Fields by the playground. Term time only. Anna 021 428 971.
+
+      • U3A BEACHLANDS-MARAETAI Fourth Thursday of each month, 10am at Presbyterian Church, Jacobs Way, Maraetai. Monthly speakers, plus special interest groups. Brenda 021 777 171.
+
+      • JUMPING JUNIORS GYMNASTICS: ages 1-4 - 9:15-10:00 Te Puru Community Centre, $14 • CLUB NIGHT: Open to everyone 5:30-9.30pm, Te Puru Community Centre
+
+      • POHUTUKAWA COAST FRIENDSHIP CLUB (formerly Probus): Every second Thursday of the month at the Presbyterian Church, 5 Jacobs Way, Maraetai. Secretary: Rhonda Pike 021909724
+
+      • STRENGTH AND BALANCE: 10.30-11.30am, Te Puru, $10.
+
+      • CLUB NIGHT: 6.00pm-9.00pm, Te Puru (kitchen open)
+  - title: Fridays
+    date: 2026-05-24
+    time: ''
+    location: ''
+    description: |-
+      • SENIOR CIRCUIT: 9-10am Te Puru Centre, $7 casual, $60 concession card (10 sessions) Ph 536 5360.
+
+      • SENIOR STRETCH & STRENGTH: 9-10am, Beachlands Memorial Hall, $12 per month (8 sessions).
+
+      • PICKLEBALL: 10.30am-12pm, Te Puru, $7. 
+
+
+      • COTTAGE CAFE 10am-12pm, K Bay, 1st and 3rd Fridays of each month, free coffee + food, company.
+
+      • WORN AGAIN OP SHOP, 9.30am-12pm, The Cottage, 5 K Bay-Orere Rd, Kawakawa Bay.
+
+      • TWICE LOVED OP SHOP: Open 10am-3pm, 104 Maraetai Drive, Maraetai.
+
+      • COAST YOUTH: 6:30-8:30pm, Beachlands Baptist Church, 59 Third View Ave. Anyone in intermediate or high school welcome. Contact Majella 021 079 3117 for more info.
+
+      • CLEVEDON ART GROUP: Meets weekly 10-12 noon. Clevedon Sports Centre, 65 Monument Road. New members, beginners or advanced most welcome. Phone Marian 027 296 3827 or Gerri 022 414 0449.
+
+      • FOOD TOGETHER POP-UP SHOP 2pm – 4pm, Beachlands Baptist Church, 59 Third View Ave. Grab a $15 bag of seasonal, fresh fruit & veg at this community pop-up. We’d love to see you there. Preorder at foodtogether.co.nz or pop in to pick your own. Contact Meg 021 887 902 for more info.
+  - title: Weekends
+    date: 2026-05-24
+    time: ''
+    location: ''
+    description: |-
+      SATURDAY
+
+      • WORN AGAIN OP SHOP, 9.30am-12pm, The Cottage, 5 K Bay-Orere Rd, Kawakawa Bay.
+
+      • TWICE LOVED OP SHOP: Open 10am-3pm, 104 Maraetai Drive, Maraetai.
+
+      SUNDAY
+
+      • TOY LIBRARY: 12pm-1pm, 59 Third View Ave, Beachlands. Can view & reserve toys online. Contact Betty Wilkings 021 492 325.
+submit_note: Got an event for the calendar? Email us at info@pctimes.co.nz with the details.
+editor_notes: ''
