@@ -2,7 +2,7 @@
   <div class="container site-footer__grid">
 
     <div class="site-footer__brand">
-      <img src="/assets/images/logo.png" alt="{{ site.name }}" class="site-footer__logo" width="320" height="65">
+      <p class="site-footer__name">{{ site.name }}</p>
       <p class="site-footer__tagline">{{ site.tagline }}</p>
     </div>
 
@@ -29,7 +29,8 @@
     <div class="site-footer__col">
       <h2 class="site-footer__heading">Follow</h2>
       <ul class="site-footer__list">
-        <li><a href="{{ site.social.facebook }}" rel="noopener">Facebook</a></li>
+        {% if site.social.facebook %}<li><a href="{{ site.social.facebook }}" target="_blank" rel="noopener">Facebook</a></li>{% endif %}
+        {% if site.social.instagram %}<li><a href="{{ site.social.instagram }}" target="_blank" rel="noopener">Instagram</a></li>{% endif %}
       </ul>
     </div>
 

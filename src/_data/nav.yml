@@ -1,9 +1,10 @@
 # Primary site navigation. Order here = order in the header & footer nav.
+# URLs stay the same so existing bookmarks / shared links still resolve.
 items:
   - { label: "Home", href: "/" }
-  - { label: "Latest Issue", href: "/latest-issue/" }
+  - { label: "Read online", href: "/latest-issue/" }
   - { label: "Advertising", href: "/advertising/" }
-  - { label: "Submit a Story", href: "/submit/" }
-  - { label: "Community", href: "/community/" }
+  - { label: "Submit a story", href: "/submit/" }
+  - { label: "What's On", href: "/community/" }
   - { label: "About", href: "/about/" }
   - { label: "Contact", href: "/contact/" }

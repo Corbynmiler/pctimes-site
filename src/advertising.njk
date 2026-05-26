@@ -13,7 +13,11 @@ bodyClass: "advertising"
     <p class="page-header__lede">{{ advertising.intro }}</p>
     <div class="pdf-actions">
       <a class="btn btn--primary" href="{{ advertising.rate_card.pdf }}" target="_blank" rel="noopener">View rate card ↗</a>
-      <a class="btn btn--ghost" href="mailto:{{ advertising.manager.email }}?subject=Advertising%20enquiry%20—%20PC%20Times">Contact our ad manager</a>
+      <a class="btn btn--ghost" href="mailto:{{ advertising.manager.email }}?subject=Advertising%20enquiry%20-%20PC%20Times">Enquire now</a>
+      {% set mediaKit = advertising.media_kit_url or advertising.rate_card.pdf %}
+      {% if mediaKit %}
+        <a class="btn btn--ghost" href="{{ mediaKit }}" target="_blank" rel="noopener">Media Kit ↗</a>
+      {% endif %}
     </div>
   </div>
 </section>
@@ -63,30 +67,12 @@ bodyClass: "advertising"
   </div>
 </section>
 
-<section class="audience section section--cream">
-  <div class="container">
-    <h2>Our audience</h2>
-    <p>{{ advertising.demographics.blurb }}</p>
-    <ul class="audience__stats" role="list">
-      <li><strong>{{ advertising.demographics.median_income }}</strong> median household income</li>
-      <li><strong>{{ advertising.demographics.tertiary_qualified }}</strong> hold a bachelor's degree or higher</li>
-      <li>Predominantly professional, managerial and lifestyle households</li>
-    </ul>
-
-    <h3 class="audience__coverage-heading">Where we reach</h3>
-    <p>
-      Distributed weekly across
-      {% for place in site.coverage_area %}{% if loop.last and not loop.first %} and {% elif not loop.first %}, {% endif %}{{ place }}{% endfor %}.
-    </p>
-  </div>
-</section>
-
 <section class="contact-card section">
   <div class="container contact-card__inner">
     <div>
       <p class="eyebrow">Get in touch</p>
-      <h2>{{ advertising.manager.name }} — {{ advertising.manager.role }}</h2>
-      <p>Happy to talk you through options, sizes, deadlines and combined print + online packages.</p>
+      <h2>{{ advertising.manager.name }} - {{ advertising.manager.role }}</h2>
+      <p>Happy to talk you through options, sizes, deadlines and package deals.</p>
     </div>
     <ul class="contact-card__list" role="list">
       <li><a class="btn btn--primary" href="mailto:{{ advertising.manager.email }}">{{ advertising.manager.email }}</a></li>

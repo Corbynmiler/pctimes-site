@@ -18,11 +18,10 @@ bodyClass: "latest"
     <div class="pdf-actions">
       {% if latest.flipbook_url %}
         <a class="btn btn--primary" href="{{ latest.flipbook_url }}" target="_blank" rel="noopener">Read online ↗</a>
-        <a class="btn btn--ghost" href="{{ latest.pdf }}" target="_blank" rel="noopener">Open PDF ↗</a>
         <a class="btn btn--link" href="{{ latest.pdf }}" download>Download PDF</a>
       {% else %}
-        <a class="btn btn--primary" href="{{ latest.pdf }}" target="_blank" rel="noopener">Open PDF ↗</a>
-        <a class="btn btn--ghost" href="{{ latest.pdf }}" download>Download PDF</a>
+        <a class="btn btn--primary" href="{{ latest.pdf }}" target="_blank" rel="noopener">Read this week's issue</a>
+        <a class="btn btn--link" href="{{ latest.pdf }}" download>Download PDF</a>
       {% endif %}
     </div>
   </div>
@@ -65,7 +64,7 @@ bodyClass: "latest"
 
 {% if issuesList.previous.length %}
 {% set initialCount = 10 %}
-<section class="archive section">
+<section class="archive section" id="archive">
   <div class="container">
     <h2>Previous issues</h2>
     <p class="muted">{{ issuesList.previous.length }} back issues available — click a cover to open.</p>

@@ -118,26 +118,40 @@ ul { padding: 0; margin: 0; list-style: none; }
 .section--cream { background: var(--color-cream); }
 
 /* -----  Header / nav  ---------------------------------------------------- */
+/* Logo on top, nav row below. Top-right reserved for future ad slot. */
 .site-header {
   background: var(--color-paper);
   border-bottom: 1px solid var(--color-rule);
   position: sticky; top: 0; z-index: 50;
 }
-.site-header__inner {
+.site-header__top {
   display: flex; align-items: center; justify-content: space-between;
   gap: 1rem;
-  padding-top: 0.75rem; padding-bottom: 0.75rem;
+  padding-top: 0.85rem; padding-bottom: 0.85rem;
 }
 .site-header__brand {
   display: inline-flex; align-items: center;
   text-decoration: none;
+  flex: 0 0 auto;
 }
 .site-header__logo {
-  height: 44px; width: auto;
+  height: 56px; width: auto;
   display: block;
 }
-@media (min-width: 720px) {
-  .site-header__logo { height: 56px; }
+@media (min-width: 720px) { .site-header__logo { height: 80px; } }
+@media (min-width: 1024px) { .site-header__logo { height: 96px; } }
+
+/* Top-right ad slot (only renders when site.top_ad.image is set in CMS) */
+.site-header__ad {
+  display: none;
+  margin-left: auto;
+}
+@media (min-width: 900px) {
+  .site-header__ad {
+    display: block;
+    max-width: 340px;
+  }
+  .site-header__ad img { max-height: 90px; width: auto; }
 }
 
 /* Mobile-first: hamburger visible, nav hidden until toggled */
@@ -156,6 +170,7 @@ ul { padding: 0; margin: 0; list-style: none; }
 .nav-toggle__bar + .nav-toggle__bar { margin-top: 4px; }
 .nav-toggle__label { font-size: 0.95rem; }
 
+/* Mobile: nav is a dropdown that hangs below the header when toggled. */
 .site-nav {
   position: absolute;
   inset: 100% 0 auto 0;
@@ -182,23 +197,29 @@ ul { padding: 0; margin: 0; list-style: none; }
 .site-nav__link:hover { color: var(--color-red); }
 .site-nav__link.is-current { color: var(--color-red); }
 
+/* Desktop: nav becomes a horizontal row sitting *below* the logo. */
 @media (min-width: 900px) {
   .nav-toggle { display: none; }
   .site-nav {
-    position: static; max-height: none; overflow: visible;
-    border: 0; box-shadow: none; background: transparent;
+    position: static;
+    max-height: none; overflow: visible;
+    border-top: 1px solid var(--color-rule);
+    border-bottom: 0; box-shadow: none;
+    background: transparent;
   }
   .site-nav__list {
-    flex-direction: row; gap: 0.25rem; padding: 0;
+    flex-direction: row; gap: 0.25rem;
+    padding: 0.4rem var(--gutter);
+    justify-content: center;
+    width: 100%; max-width: var(--container);
+    margin: 0 auto;
   }
   .site-nav__link {
-    padding: 0.5rem 0.875rem;
+    padding: 0.55rem 0.95rem;
     border-bottom: 2px solid transparent;
     border-radius: var(--radius);
   }
-  .site-nav__link:hover {
-    background: var(--color-cream);
-  }
+  .site-nav__link:hover { background: var(--color-cream); }
   .site-nav__link.is-current {
     color: var(--color-red);
     border-bottom-color: var(--color-red);
@@ -738,6 +759,26 @@ ul { padding: 0; margin: 0; list-style: none; }
 .contact-card-tile__list { display: flex; flex-direction: column; gap: 0.5rem; margin: 1rem 0; }
 .contact-card-tile--full { grid-column: 1 / -1; }
 .contact-card-tile__address { font-style: normal; margin: 0.5rem 0 1rem; line-height: 1.7; }
+.contact-card-tile__socials { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+
+/* -----  Delivery roles card (Contact page)  ----------------------------- */
+.delivery h2 { margin-bottom: 0.5rem; }
+.delivery__details {
+  display: flex; flex-direction: column;
+  gap: 0.4rem;
+  margin: 1rem 0 0; padding-left: 0;
+  list-style: none;
+}
+.delivery__details li {
+  position: relative;
+  padding-left: 1rem;
+  font-size: 1rem;
+}
+.delivery__details li::before {
+  content: "•";
+  position: absolute; left: 0;
+  color: var(--color-red); font-weight: 700;
+}
 
 /* -----  Contact card on advertising  ----------------------------------- */
 .contact-card__inner {
@@ -946,15 +987,18 @@ textarea.form__input { min-height: 8rem; line-height: 1.5; resize: vertical; }
 @media (min-width: 720px) {
   .site-footer__grid { grid-template-columns: 1.5fr 1fr 1.5fr 1fr; }
 }
-.site-footer__logo {
-  height: 48px; width: auto;
-  filter: brightness(0) invert(1) drop-shadow(0 0 1px rgba(0,0,0,0.3));
-  margin-bottom: 0.75rem;
+.site-footer__name {
+  font-family: var(--font-serif);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 0.4rem;
+  line-height: 1.15;
 }
 .site-footer__tagline {
   font-family: var(--font-serif);
   font-style: italic;
-  color: rgba(255,255,255,0.8);
+  color: rgba(255,255,255,0.75);
   margin: 0;
 }
 .site-footer__heading {

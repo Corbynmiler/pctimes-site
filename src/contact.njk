@@ -2,15 +2,15 @@
 layout: layouts/base.njk
 permalink: /contact/
 title: "Contact"
-description: "Contact the Pōhutukawa Coast Times — newsdesk, advertising, address, phone and email."
+description: "Contact the Pōhutukawa Coast Times — newsdesk, advertising, delivery roles and social."
 bodyClass: "contact"
 ---
 
 <section class="page-header section">
   <div class="container">
     <p class="eyebrow">Contact</p>
-    <h1>Get in touch.</h1>
-    <p class="page-header__lede">Newsdesk tips, advertising enquiries, community notices, or just want to say hello — we'd love to hear from you.</p>
+    <h1>{{ contact.heading }}</h1>
+    <p class="page-header__lede">{{ contact.lede }}</p>
   </div>
 </section>
 
@@ -43,12 +43,37 @@ bodyClass: "contact"
       <div class="contact-card-tile contact-card-tile--full">
         <p class="eyebrow">Follow</p>
         <h2>Stay in touch</h2>
-        <p>For local news, photos and updates between editions, follow us on Facebook.</p>
-        <p>
-          <a class="btn btn--ghost" href="{{ site.social.facebook }}" rel="noopener">Follow on Facebook ↗</a>
+        <p>For local news, photos and updates between editions, follow us on social.</p>
+        <p class="contact-card-tile__socials">
+          {% if site.social.facebook %}<a class="btn btn--ghost" href="{{ site.social.facebook }}" target="_blank" rel="noopener">Follow on Facebook ↗</a>{% endif %}
+          {% if site.social.instagram %}<a class="btn btn--ghost" href="{{ site.social.instagram }}" target="_blank" rel="noopener">Follow on Instagram ↗</a>{% endif %}
         </p>
       </div>
 
     </div>
   </div>
 </section>
+
+{% if contact.delivery and contact.delivery.heading %}
+<section class="delivery section section--cream">
+  <div class="container container--narrow">
+    <p class="eyebrow">Join the team</p>
+    <h2>{{ contact.delivery.heading }}</h2>
+    <p>{{ contact.delivery.intro }}</p>
+
+    {% if contact.delivery.email %}
+      <p>
+        <a class="btn btn--primary" href="mailto:{{ contact.delivery.email }}?subject=Newspaper%20delivery%20role">{{ contact.delivery.email }}</a>
+      </p>
+    {% endif %}
+
+    {% if contact.delivery.details and contact.delivery.details.length %}
+      <ul class="delivery__details" role="list">
+        {% for d in contact.delivery.details %}
+          <li>{{ d }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  </div>
+</section>
+{% endif %}

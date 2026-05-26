@@ -1,11 +1,14 @@
 intro: The Pōhutukawa Coast Times reaches more than 6,800 households and businesses — about 20,000 people — within the coastal and rural communities of south-east Auckland each week.
 
 benefits:
-  - Reaches over 6,800 households and businesses within the Pōhutukawa Coast and surrounding coastal and rural areas
-  - Hyper-local focus — high readership and recall
+  - Hyper-local focus - high readership and recall
   - Full-colour printing at no extra cost
   - Flexible options, from classifieds to full-page display ads
   - Eyes linger longer on print!
+
+# Optional URL for the Media Kit button on the Advertising page.
+# Leave blank to fall back to the rate card PDF.
+media_kit_url: ''
 
 classified_rate: $15 per 30 words
 boxed_rate: $8 + GST per column centimetre - email your ad to us for pricing

@@ -50,11 +50,7 @@ bodyClass: "home"
 
         <div class="latest-card__actions">
           <a class="btn btn--primary" href="/latest-issue/">Read this week's issue</a>
-          {% if latest.flipbook_url %}
-            <a class="btn btn--link" href="{{ latest.flipbook_url }}" target="_blank" rel="noopener">Read online ↗</a>
-          {% else %}
-            <a class="btn btn--link" href="{{ latest.pdf }}" target="_blank" rel="noopener">Open PDF ↗</a>
-          {% endif %}
+          <a class="btn btn--link" href="/latest-issue/#archive">Read back issues</a>
           <a class="btn btn--link" href="{{ latest.pdf }}" download>Download PDF</a>
         </div>
       </div>
@@ -62,22 +58,6 @@ bodyClass: "home"
   </div>
 </section>
 {% endif %}
-
-<section class="coverage section">
-  <div class="container">
-    <p class="eyebrow eyebrow--centered">Where we deliver</p>
-    <ul class="coverage__list" role="list">
-      {% for place in site.coverage_area %}
-        <li class="coverage__item">{{ place }}</li>
-      {% endfor %}
-    </ul>
-    <p class="coverage__stat">
-      <strong>{{ site.reach.households | thousands }}</strong> households &nbsp;·&nbsp;
-      <strong>~{{ site.reach.readers | thousands }}</strong> readers &nbsp;·&nbsp;
-      delivered every Friday
-    </p>
-  </div>
-</section>
 
 <section class="about-strip section section--cream">
   <div class="container about-strip__inner">
@@ -89,7 +69,6 @@ bodyClass: "home"
 
 <section class="gallery section">
   <div class="container">
-    <p class="eyebrow eyebrow--centered">The coast we cover</p>
     <ul class="gallery__grid" role="list">
       {% for img in home.gallery %}
         <li class="gallery__item">
@@ -104,7 +83,7 @@ bodyClass: "home"
   <div class="container cta-band__inner">
     <div class="cta-band__col">
       <h2 class="cta-band__heading">Got a story?</h2>
-      <p>Tip, photo, letter, community notice — we want to hear from you.</p>
+      <p>Tip, photo, letter, community notice - we want to hear from you.</p>
       <a class="btn btn--primary" href="/submit/">Submit a story</a>
     </div>
     <div class="cta-band__col">

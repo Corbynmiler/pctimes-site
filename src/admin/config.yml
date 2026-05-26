@@ -228,6 +228,7 @@ collections:
             widget: "object"
             fields:
               - { label: "Facebook page URL", name: "facebook", widget: "string", required: false }
+              - { label: "Instagram URL", name: "instagram", widget: "string", required: false, hint: "e.g. https://www.instagram.com/pohutukawacoasttimes/" }
 
           - label: "Coverage area"
             name: "coverage_area"
@@ -371,6 +372,39 @@ collections:
               - { label: "Section body", name: "body", widget: "markdown", hint: "Bold, links and basic formatting are supported." }
           - { label: "Closing note (optional)", name: "team_note", widget: "text", required: false }
 
+          - label: "Notes for editors"
+            name: "editor_notes"
+            widget: "markdown"
+            required: false
+            collapsed: true
+            hint: "Visible to anyone editing the site in /admin. Not shown on the public website — but the project is on a public GitHub repo, so don't put anything truly private (passwords, home addresses, etc.) here."
+
+
+  # 7b) CONTACT PAGE ────────────────────────────────────────────────────
+  - name: "contact"
+    label: "📞 Contact page"
+    description: "Contact page content — heading, intro, and the Delivery Roles card."
+    files:
+      - name: "contact"
+        label: "Contact page"
+        file: "src/_data/contact.yml"
+        format: "yml"
+        fields:
+          - { label: "Page heading", name: "heading", widget: "string", default: "Get in touch." }
+          - { label: "Page intro", name: "lede", widget: "text" }
+          - label: "Newspaper delivery roles"
+            name: "delivery"
+            widget: "object"
+            hint: "Shown as a card at the bottom of the Contact page. Clear the heading to hide it entirely."
+            fields:
+              - { label: "Section heading", name: "heading", widget: "string", default: "Newspaper delivery roles" }
+              - { label: "Intro paragraph", name: "intro", widget: "text" }
+              - { label: "Contact email", name: "email", widget: "string", hint: "e.g. distribution@pctimes.co.nz — becomes a clickable button." }
+              - label: "What to include in the email"
+                name: "details"
+                widget: "list"
+                summary: "{{fields.detail}}"
+                field: { label: "Detail", name: "detail", widget: "string" }
           - label: "Notes for editors"
             name: "editor_notes"
             widget: "markdown"

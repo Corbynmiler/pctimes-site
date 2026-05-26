@@ -1,0 +1,16 @@
+# Contact page content. Edited via CMS at /admin → "📞 Contact page".
+heading: Get in touch.
+lede: Newsdesk tips, advertising enquiries, community notices, or just want to say hello - we'd love to hear from you.
+
+delivery:
+  heading: Newspaper delivery roles
+  intro: "Want to join our waiting list for a newspaper delivery role? Email us with the following information:"
+  email: distribution@pctimes.co.nz
+  details:
+    - your name
+    - the name of a parent/caregiver if you are under 16 years
+    - phone number
+    - email
+    - your address (so we can match you with a run in your neighbourhood)
+
+editor_notes: ''
