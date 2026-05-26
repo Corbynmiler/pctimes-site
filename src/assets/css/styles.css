@@ -119,11 +119,20 @@ ul { padding: 0; margin: 0; list-style: none; }
 
 /* -----  Header / nav  ---------------------------------------------------- */
 /* Centred newspaper masthead. Logo big, centred. Nav row below.
-   Mobile: hamburger sits directly under the logo, centred. */
+   Mobile: the whole header is sticky as one block (small screens benefit
+            from keeping the menu button always reachable).
+   Desktop: the masthead scrolls away naturally and only the nav row sticks
+            (see the .site-nav rule inside the >=900px media query below). */
 .site-header {
   background: #fff;
   border-bottom: 1px solid var(--color-rule);
   position: sticky; top: 0; z-index: 50;
+}
+@media (min-width: 900px) {
+  .site-header {
+    position: static;
+    border-bottom: 0;
+  }
 }
 
 /* Optional banner ad above the masthead. Hidden when no image set. */
@@ -233,7 +242,14 @@ ul { padding: 0; margin: 0; list-style: none; }
     max-height: none; overflow: visible;
     background: var(--color-paper);
     border-top: 1px solid var(--color-rule);
-    border-bottom: 0;
+    border-bottom: 1px solid var(--color-rule);
+
+    /* Stick the nav row to the top of the viewport once the user scrolls
+       past the masthead. The logo above scrolls away normally. */
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    box-shadow: 0 2px 6px rgba(45, 17, 24, 0.04);
   }
   .site-nav__list {
     display: flex; flex-direction: row;
