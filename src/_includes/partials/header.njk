@@ -1,19 +1,27 @@
 <header class="site-header" role="banner">
-  <div class="container site-header__top">
-    <a href="/" class="site-header__brand" aria-label="{{ site.name }} — home">
-      <img src="/assets/images/logo.png" alt="{{ site.name }}" class="site-header__logo" width="640" height="130">
-    </a>
 
-    {# Reserved slot for a future top-right banner ad. Empty for now; will
-       render only when site.top_ad.image is set in the CMS. #}
-    {% if site.top_ad and site.top_ad.image %}
-      <div class="site-header__ad">
+  {# Future top banner ad — only renders if site.top_ad.image is set. #}
+  {% if site.top_ad and site.top_ad.image %}
+    <div class="site-header__ad">
+      <div class="container">
         {% if site.top_ad.url %}<a href="{{ site.top_ad.url }}" target="_blank" rel="noopener">{% endif %}
           <img src="{{ site.top_ad.image }}" alt="{{ site.top_ad.alt or 'Advertisement' }}" loading="lazy">
         {% if site.top_ad.url %}</a>{% endif %}
       </div>
-    {% endif %}
+    </div>
+  {% endif %}
 
+  {# Masthead: logo centred. Big and dominant on desktop, scaled on mobile. #}
+  <div class="site-header__masthead">
+    <div class="container">
+      <a href="/" class="site-header__brand" aria-label="{{ site.name }} — home">
+        <img src="/assets/images/logo.png" alt="{{ site.name }}" class="site-header__logo" width="800" height="160">
+      </a>
+    </div>
+  </div>
+
+  {# Mobile menu button sits directly underneath the logo, centred. Hidden on desktop. #}
+  <div class="site-header__menubar">
     <button
       class="nav-toggle"
       type="button"
@@ -27,8 +35,9 @@
     </button>
   </div>
 
+  {# Primary nav row. Inline on desktop. Collapsed-by-default dropdown on mobile. #}
   <nav id="primary-nav" class="site-nav" aria-label="Primary">
-    <ul class="site-nav__list container">
+    <ul class="site-nav__list">
       {% for item in nav.items %}
         <li class="site-nav__item">
           <a
