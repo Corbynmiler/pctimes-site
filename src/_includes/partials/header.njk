@@ -35,17 +35,21 @@
     </button>
   </div>
 
-  {# Primary nav row. Inline on desktop. Collapsed-by-default dropdown on mobile. #}
-  <nav id="primary-nav" class="site-nav" aria-label="Primary">
-    <ul class="site-nav__list">
-      {% for item in nav.items %}
-        <li class="site-nav__item">
-          <a
-            href="{{ item.href }}"
-            class="site-nav__link{% if page.url == item.href %} is-current{% endif %}"
-            {% if page.url == item.href %}aria-current="page"{% endif %}>{{ item.label }}</a>
-        </li>
-      {% endfor %}
-    </ul>
-  </nav>
 </header>
+
+{# Primary nav lives OUTSIDE the header so it can sticky-stick to the viewport
+   while the masthead scrolls away on desktop. Sticky only works inside an
+   ancestor that extends down the scrolling area — i.e. <body>, not the
+   short-height <header>. #}
+<nav id="primary-nav" class="site-nav" aria-label="Primary">
+  <ul class="site-nav__list">
+    {% for item in nav.items %}
+      <li class="site-nav__item">
+        <a
+          href="{{ item.href }}"
+          class="site-nav__link{% if page.url == item.href %} is-current{% endif %}"
+          {% if page.url == item.href %}aria-current="page"{% endif %}>{{ item.label }}</a>
+      </li>
+    {% endfor %}
+  </ul>
+</nav>
