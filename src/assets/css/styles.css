@@ -135,31 +135,40 @@ ul { padding: 0; margin: 0; list-style: none; }
 }
 .site-header__ad img { max-height: 90px; width: auto; display: inline-block; }
 
-/* Masthead — logo only, centred. Generous vertical padding on desktop. */
+/* Masthead — logo only, centred. Width-driven so it fills the viewport
+   on mobile but is capped on desktop. */
 .site-header__masthead {
-  text-align: center;
-  padding: 0.75rem 0 0.5rem;
+  padding: 0.6rem 0 0.5rem;
 }
 @media (min-width: 720px) { .site-header__masthead { padding: 1.1rem 0 0.75rem; } }
 @media (min-width: 1024px) { .site-header__masthead { padding: 1.4rem 0 1rem; } }
+.site-header__masthead .container {
+  display: flex; justify-content: center;
+}
 .site-header__brand {
-  display: inline-block;
+  display: block;
+  width: 100%;
   text-decoration: none;
-  max-width: 100%;
+  text-align: center;
 }
 .site-header__logo {
   display: block;
-  height: 70px; width: auto; max-width: 100%;
+  width: 100%;
+  max-width: 500px;     /* mobile: fill the viewport (minus container gutter) */
+  height: auto;
   margin: 0 auto;
 }
-@media (min-width: 600px) { .site-header__logo { height: 95px; } }
-@media (min-width: 900px) { .site-header__logo { height: 115px; } }
-@media (min-width: 1200px) { .site-header__logo { height: 135px; } }
+@media (min-width: 600px)  { .site-header__logo { max-width: 580px; } }
+@media (min-width: 900px)  { .site-header__logo { max-width: 660px; } }
+@media (min-width: 1200px) { .site-header__logo { max-width: 740px; } }
 
-/* Mobile-only menu bar — hamburger directly below the logo, centred. */
+/* Mobile-only menu bar — hamburger directly below the logo, dead centre. */
 .site-header__menubar {
-  display: flex; justify-content: center;
-  padding: 0 var(--gutter) 0.75rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0.2rem var(--gutter) 0.75rem;
+  width: 100%;
 }
 @media (min-width: 900px) {
   .site-header__menubar { display: none; }
@@ -213,20 +222,24 @@ ul { padding: 0; margin: 0; list-style: none; }
 .site-nav__link:hover { color: var(--color-red); }
 .site-nav__link.is-current { color: var(--color-red); }
 
-/* Desktop: nav becomes a horizontal centred row sitting below the masthead. */
+/* Desktop: nav becomes a horizontal centred row sitting below the masthead.
+   The nav element itself flexes to centre the inner ul, instead of relying
+   on margin auto on the ul (which behaves inconsistently with flex children). */
 @media (min-width: 900px) {
   .nav-toggle { display: none; }
   .site-nav {
+    display: flex;
+    justify-content: center;
     max-height: none; overflow: visible;
     background: var(--color-paper);
     border-top: 1px solid var(--color-rule);
+    border-bottom: 0;
   }
   .site-nav__list {
-    flex-direction: row; gap: 0.25rem;
-    padding: 0.4rem var(--gutter);
-    justify-content: center;
-    width: 100%; max-width: var(--container);
-    margin: 0 auto;
+    display: flex; flex-direction: row;
+    gap: 0.5rem;
+    padding: 0.45rem var(--gutter);
+    margin: 0;
   }
   .site-nav__link {
     padding: 0.55rem 0.95rem;
