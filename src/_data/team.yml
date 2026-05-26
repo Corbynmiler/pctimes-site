@@ -3,10 +3,10 @@ intro: A small team, all locals, putting the paper together every week.
 members:
   - name: Leanne Chamberlin
     role: Owner / Editor
-    photo: /assets/images/leanne.jpg
+    photo: ''
     bio: |-
       After reporting for the PC Times for two years, Leanne stepped into the role of owner/editor in 2018 when the previous owners retired after 22 years.
-      Leanne's background spans communications across corporate, nonprofit, healthcare and education sectors.
+      Leanne's communications background spans corporate, nonprofit, healthcare and education sectors.
   - name: Melody Cutfield
     role: Advertising
     photo: ''
@@ -15,14 +15,10 @@ members:
     role: Accounts
     photo: ''
     bio: ''
-  - name: Andrea Matson - The Content Room
-    role: Graphic Design
-    photo: ''
-    bio: ''
 partners:
-  - name: The Content Room
+  - name: The Content Room - Andrea Matson
     role: Graphic design
-    blurb: Beachlands-based design studio that lays out the paper each week.
+    blurb: Beachlands-based design studio responsible for ad creation and pre-press production.
   - name: NZME
     role: Printers
     blurb: The Pōhutukawa Coast Times is printed by NZME.
