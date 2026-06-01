@@ -1,36 +1,26 @@
-intro: The Pōhutukawa Coast Times reaches more than 6,800 households and businesses — about 20,000 people — within the coastal and rural communities of south-east Auckland each week.
-
+intro: The Pōhutukawa Coast Times reaches the letterboxes of more than 6,800 households and businesses — about 20,000 people — within the coastal and rural communities of south-east Auckland each week.
 benefits:
   - Hyper-local focus - high readership and recall
-  - Full-colour printing at no extra cost
+  - Delivered to actual letterboxes - not left sitting in a rack
   - Flexible options, from classifieds to full-page display ads
   - Eyes linger longer on print!
-
-# Optional URL for the Media Kit button on the Advertising page.
-# Leave blank to fall back to the rate card PDF.
-media_kit_url: ''
-
 classified_rate: $15 per 30 words
 boxed_rate: $8 + GST per column centimetre - email your ad to us for pricing
 display_rate_note: Display ad rates vary by size, placement and duration — see rate card.
-
 rate_card:
   pdf: /files/rate-card/PC Times rate card low res.pdf
   updated: ''
-
 deadlines:
   pdf: /files/rate-card/publication-deadlines-2026.pdf
   note: 2026 publication dates and copy deadlines
-
 manager:
   name: Melody Cutfield
   role: Advertising Manager
   email: advertising@pctimes.co.nz
   phone: 021 0261 4467
-
 demographics:
   median_income: $58,260
   tertiary_qualified: 31.6%
   blurb: Our readers are a predominantly professional and managerial demographic with strong purchasing power, engaged readers, and a community-first mindset.
-
 editor_notes: ''
+media_kit_url: ''
