@@ -60,6 +60,11 @@ bodyClass: "advertising"
           {{ advertising.deadlines.note }} ↗
         </a>
       {% endif %}
+      {% if advertising.deadlines_2027.pdf %}
+        <a class="btn btn--link" href="{{ advertising.deadlines_2027.pdf }}" target="_blank" rel="noopener">
+          {{ advertising.deadlines_2027.note }} ↗
+        </a>
+      {% endif %}
     </div>
     {% if advertising.rate_card.updated %}
       <p class="muted">Rate card last updated {{ advertising.rate_card.updated }}.</p>

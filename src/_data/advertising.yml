@@ -13,6 +13,9 @@ rate_card:
 deadlines:
   pdf: /files/rate-card/publication-deadlines-2026.pdf
   note: 2026 publication dates and copy deadlines
+deadlines_2027:
+  pdf: /files/rate-card/publication-deadlines-2027.pdf
+  note: 2027 publication dates and copy deadlines
 manager:
   name: Melody Cutfield
   role: Advertising Manager
