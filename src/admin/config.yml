@@ -148,7 +148,7 @@ collections:
                 public_folder: "/files/rate-card"
               - { label: "Last updated (e.g. 'May 2024')", name: "updated", widget: "string", required: false }
 
-          - label: "Publication deadlines"
+          - label: "Publication deadlines (2026)"
             name: "deadlines"
             widget: "object"
             collapsed: true
@@ -160,6 +160,19 @@ collections:
                 public_folder: "/files/rate-card"
                 required: false
               - { label: "Button label", name: "note", widget: "string", default: "2026 publication dates and copy deadlines" }
+
+          - label: "Publication deadlines (2027)"
+            name: "deadlines_2027"
+            widget: "object"
+            collapsed: true
+            fields:
+              - label: "Deadlines PDF (optional)"
+                name: "pdf"
+                widget: "file"
+                media_folder: "/src/files/rate-card"
+                public_folder: "/files/rate-card"
+                required: false
+              - { label: "Button label", name: "note", widget: "string", default: "2027 publication dates and copy deadlines" }
 
           - label: "Advertising manager"
             name: "manager"
