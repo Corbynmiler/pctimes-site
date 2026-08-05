@@ -1,12 +1,8 @@
 intro: Local events, club meetings, fundraisers and community happenings on the Pōhutukawa Coast.
-
 external:
   enabled: false
   url: ''
   label: Open community calendar
-
-# Recurring weekly activity groups — leave date / time / location blank.
-# Bulleted activities in the description become a clean list on the public site.
 events:
   - title: Mondays
     date: ''
@@ -34,7 +30,6 @@ events:
       • ZUMBA WITH JAZAM: 9.30-10.30am, 49 Wakelin Road, Beachlands, $10. Amy 021 163 4828.
 
       • MAHJONG: 1-3pm, Te Puru Centre, $2.
-
   - title: Tuesdays
     date: ''
     time: ''
@@ -69,7 +64,6 @@ events:
       • THE GOOD KNIGHTS SOCIAL CHESS 7:00 - 8:30pm. Beachlands Baptist Church, 59 Third View Ave. Runs fortnightly (usually 1st & 3rd Tues of the month). All ages and skill levels welcome. Contact 022 656 1154 for more info.
 
       • SENIOR STRENGTH & BALANCE: 9:30-10:30 Te Puru Community Centre, $10
-
   - title: Wednesdays
     date: ''
     time: ''
@@ -108,7 +102,6 @@ events:
       • COASTAL TREASURES Open Wednesday - Saturday, 10am-4pm, 41 Third View Ave, Beachlands. Donations welcome Monday, Wednesday and Saturday before 7pm at 25 Liberty Crescent (unless raining) or phone Tania on 021 644 722 for appointment.
 
       • ZUMBA WITH JAZAM: 7-8pm, 49 Wakelin Road, Beachlands, $10. Amy 021 163 4828.
-
   - title: Thursdays
     date: ''
     time: ''
@@ -126,9 +119,9 @@ events:
 
       • TWICE LOVED OP SHOP: Open 10am-3pm, 104 Maraetai Drive, Maraetai.
 
-      • S.A.Y.G.O. “STEADY AS YOU GO” Balance and coordination class. 10.30am. Kawakawa Bay Hall. $2 Fee for Hall Hire and donations to Age Concern and Community. Friendly, gentle exercises. Contact Ans Bloem 021 202 8371.
+      • S.A.Y.G.O. “STEADY AS YOU GO” Balance and coordination class. 10.30am. Kawakawa Bay Hall. $2 Fee for Hall Hire and donations to Age Concern and Community. Friendly, gentle exercises. Ans Bloem 021 202 8371.
 
-      • LINE DANCING, Beachlands Memorial Hall, 6.30pm for Country Swing class, 7pm for beginners, 7.30pm for intermediates. Ph Ezabelle Els 021 0843 9334.
+      • LINE DANCING: 9.30-10.30am, Beachlands Hall. Karen 021 213 6020
 
       • COASTAL UKES (UKELLE CLUB) 1:30 - 2:30pm, at Log Cabin, contact Val 027 393 4999 or Jean 021 023 09043.
 
@@ -145,7 +138,6 @@ events:
       • STRENGTH AND BALANCE: 10.30-11.30am, Te Puru, $10.
 
       • CLUB NIGHT: 6.00pm-9.00pm, Te Puru (kitchen open)
-
   - title: Fridays
     date: ''
     time: ''
@@ -168,7 +160,6 @@ events:
       • CLEVEDON ART GROUP: Meets weekly 10-12 noon. Clevedon Sports Centre, 65 Monument Road. New members, beginners or advanced most welcome. Phone Marian 027 296 3827 or Gerri 022 414 0449.
 
       • FOOD TOGETHER POP-UP SHOP 2pm – 4pm, Beachlands Baptist Church, 59 Third View Ave. Grab a $15 bag of seasonal, fresh fruit & veg at this community pop-up. We’d love to see you there. Preorder at foodtogether.co.nz or pop in to pick your own. Contact Meg 021 887 902 for more info.
-
   - title: Saturdays
     date: ''
     time: ''
@@ -177,13 +168,10 @@ events:
       • WORN AGAIN OP SHOP, 9.30am-12pm, The Cottage, 5 K Bay-Orere Rd, Kawakawa Bay.
 
       • TWICE LOVED OP SHOP: Open 10am-3pm, 104 Maraetai Drive, Maraetai.
-
   - title: Sundays
     date: ''
     time: ''
     location: ''
-    description: |-
-      • TOY LIBRARY: 12pm-1pm, 59 Third View Ave, Beachlands. Can view & reserve toys online. Contact Betty Wilkings 021 492 325.
-
+    description: '• TOY LIBRARY: 12pm-1pm, 59 Third View Ave, Beachlands. Can view & reserve toys online. Contact Betty Wilkings 021 492 325.'
 submit_note: Got an event for the calendar? Email us at info@pctimes.co.nz with the details.
 editor_notes: ''
