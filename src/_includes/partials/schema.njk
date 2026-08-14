@@ -1,0 +1,170 @@
+{# ─────────────────────────────────────────────────────────────────────
+   JSON-LD structured data for search engines and AI assistants.
+   Emits one <script> containing an @graph of:
+     • NewsMediaOrganization + LocalBusiness (site-wide)
+     • WebSite (site-wide)
+     • Page-type node (WebPage / AboutPage / ContactPage / CollectionPage)
+     • BreadcrumbList (on all pages except home)
+     • Service (on /advertising/ only)
+     • Person entries (on /about/ only, from team.yml)
+   Purely additive — nothing about the visible page changes.
+   ───────────────────────────────────────────────────────────────────── #}
+
+{%- set orgId = site.url + '/#organization' -%}
+{%- set webId = site.url + '/#website' -%}
+{%- set pageId = site.url + page.url + '#webpage' -%}
+{%- set pageUrl = site.url + page.url -%}
+{%- set pageTitle = title or site.name -%}
+{%- set pageDesc = description or site.description -%}
+{%- set pageType = 'WebPage' -%}
+{%- if page.url == '/about/' %}{% set pageType = 'AboutPage' %}{% endif -%}
+{%- if page.url == '/contact/' %}{% set pageType = 'ContactPage' %}{% endif -%}
+{%- if page.url == '/latest-issue/' %}{% set pageType = 'CollectionPage' %}{% endif -%}
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": ["NewsMediaOrganization", "LocalBusiness"],
+      "@id": {{ orgId | dump | safe }},
+      "name": {{ site.name | dump | safe }},
+      "alternateName": {{ site.short_name | dump | safe }},
+      "url": {{ site.url | dump | safe }},
+      "logo": {
+        "@type": "ImageObject",
+        "url": {{ (site.url + '/assets/images/logo.png') | dump | safe }},
+        "width": 800,
+        "height": 160
+      },
+      "image": {{ (site.url + '/assets/images/IMG_5807.JPG') | dump | safe }},
+      "slogan": {{ site.tagline | dump | safe }},
+      "description": {{ site.description | dump | safe }},
+      "email": {{ site.contact.email_news | dump | safe }},
+      "telephone": {{ site.contact.phone_news | dump | safe }},
+      "priceRange": "$",
+      "areaServed": [
+        {%- for place in site.coverage_area %}
+        {"@type": "Place", "name": {{ place | dump | safe }}}{%- if not loop.last %},{% endif %}
+        {%- endfor %}
+      ],
+      "sameAs": [
+        {%- set links = [] -%}
+        {%- if site.social.facebook %}{{ site.social.facebook | dump | safe }}{% if site.social.instagram %},{% endif %}{% endif %}
+        {%- if site.social.instagram %}{{ site.social.instagram | dump | safe }}{% endif %}
+      ],
+      "publisher": {
+        "@type": "Organization",
+        "name": {{ site.publisher | dump | safe }}
+      },
+      "founder": {
+        "@type": "Person",
+        "name": {{ site.editor.name | dump | safe }}
+      },
+      "knowsLanguage": "en-NZ",
+      "diversityPolicy": {{ (site.url + '/about/') | dump | safe }},
+      "actionableFeedbackPolicy": {{ (site.url + '/submit/') | dump | safe }},
+      "publishingPrinciples": {{ (site.url + '/about/') | dump | safe }}
+    },
+    {
+      "@type": "WebSite",
+      "@id": {{ webId | dump | safe }},
+      "url": {{ site.url | dump | safe }},
+      "name": {{ site.name | dump | safe }},
+      "description": {{ site.description | dump | safe }},
+      "publisher": { "@id": {{ orgId | dump | safe }} },
+      "inLanguage": "en-NZ"
+    },
+    {
+      "@type": {{ pageType | dump | safe }},
+      "@id": {{ pageId | dump | safe }},
+      "url": {{ pageUrl | dump | safe }},
+      "name": {{ pageTitle | dump | safe }},
+      "description": {{ pageDesc | dump | safe }},
+      "isPartOf": { "@id": {{ webId | dump | safe }} },
+      "about": { "@id": {{ orgId | dump | safe }} },
+      "inLanguage": "en-NZ"
+    }
+    {%- if page.url != '/' -%}
+    ,
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": {{ site.url | dump | safe }}
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": {{ pageTitle | dump | safe }},
+          "item": {{ pageUrl | dump | safe }}
+        }
+      ]
+    }
+    {%- endif -%}
+    {%- if page.url == '/advertising/' -%}
+    ,
+    {
+      "@type": "Service",
+      "@id": {{ (site.url + '/advertising/#service') | dump | safe }},
+      "name": "Print and Digital Advertising in the Pōhutukawa Coast Times",
+      "serviceType": "Newspaper advertising",
+      "provider": { "@id": {{ orgId | dump | safe }} },
+      "areaServed": [
+        {%- for place in site.coverage_area %}
+        {"@type": "Place", "name": {{ place | dump | safe }}}{%- if not loop.last %},{% endif %}
+        {%- endfor %}
+      ],
+      "audience": {
+        "@type": "BusinessAudience",
+        "name": "Businesses advertising in Pōhutukawa Coast and south-east Auckland"
+      },
+      "description": {{ advertising.intro | dump | safe }},
+      "offers": {
+        "@type": "AggregateOffer",
+        "priceCurrency": "NZD",
+        "offerCount": 3,
+        "lowPrice": "15",
+        "availability": "https://schema.org/InStock"
+      },
+      "url": {{ (site.url + '/advertising/') | dump | safe }},
+      "termsOfService": {{ (site.url + '/advertising/') | dump | safe }}
+    }
+    {%- endif -%}
+    {%- if page.url == '/contact/' -%}
+    ,
+    {
+      "@type": "ContactPoint",
+      "contactType": "Newsdesk",
+      "telephone": {{ site.contact.phone_news | dump | safe }},
+      "email": {{ site.contact.email_news | dump | safe }},
+      "areaServed": "NZ",
+      "availableLanguage": "en-NZ"
+    },
+    {
+      "@type": "ContactPoint",
+      "contactType": "Advertising",
+      "telephone": {{ site.contact.phone_advertising | dump | safe }},
+      "email": {{ site.contact.email_advertising | dump | safe }},
+      "areaServed": "NZ",
+      "availableLanguage": "en-NZ"
+    }
+    {%- endif -%}
+    {%- if page.url == '/about/' and team and team.members and team.members.length -%}
+    {%- for member in team.members -%}
+    ,
+    {
+      "@type": "Person",
+      "name": {{ member.name | dump | safe }},
+      "jobTitle": {{ member.role | dump | safe }},
+      {% if member.bio %}"description": {{ member.bio | dump | safe }},{% endif %}
+      "worksFor": { "@id": {{ orgId | dump | safe }} }
+    }
+    {%- endfor -%}
+    {%- endif -%}
+  ]
+}
+</script>

@@ -6,11 +6,35 @@
   <title>{% if title %}{{ title }} — {{ site.short_name }}{% else %}{{ site.name }} — {{ site.tagline }}{% endif %}</title>
   <meta name="description" content="{{ description or site.description }}">
 
-  {# Open Graph (basic) #}
+  {# Canonical + crawl hints #}
+  <link rel="canonical" href="{{ site.url }}{{ page.url }}">
+  <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+
+  {# Regional / language hints #}
+  <meta name="geo.region" content="NZ-AUK">
+  <meta name="geo.placename" content="Pōhutukawa Coast, Auckland">
+  <meta http-equiv="content-language" content="en-NZ">
+
+  {# Open Graph (full) — for Facebook, LinkedIn, Messenger, WhatsApp share cards #}
   <meta property="og:site_name" content="{{ site.name }}">
   <meta property="og:title" content="{% if title %}{{ title }} — {{ site.short_name }}{% else %}{{ site.name }}{% endif %}">
   <meta property="og:description" content="{{ description or site.description }}">
   <meta property="og:type" content="website">
+  <meta property="og:url" content="{{ site.url }}{{ page.url }}">
+  <meta property="og:locale" content="en_NZ">
+  <meta property="og:image" content="{{ site.url }}{{ ogImage or '/assets/images/IMG_5807.JPG' }}">
+  <meta property="og:image:alt" content="{{ site.name }}">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+
+  {# Twitter / X card #}
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="{% if title %}{{ title }} — {{ site.short_name }}{% else %}{{ site.name }}{% endif %}">
+  <meta name="twitter:description" content="{{ description or site.description }}">
+  <meta name="twitter:image" content="{{ site.url }}{{ ogImage or '/assets/images/IMG_5807.JPG' }}">
+
+  {# Discoverability — help crawlers find the sitemap #}
+  <link rel="sitemap" type="application/xml" href="/sitemap.xml">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,6 +42,8 @@
 
   <link rel="stylesheet" href="/assets/css/styles.css">
   <link rel="icon" href="/assets/images/logo.png" type="image/png">
+
+  {% include "partials/schema.njk" %}
 </head>
 <body class="page {{ bodyClass }}">
   <a class="skip-link" href="#main">Skip to content</a>
