@@ -4,8 +4,8 @@
 roster:
   key: guest_editorial
   label: Guest Editorial
-  default_lead_days: 10
-  default_followup_days: 3
+  default_lead_days: 30
+  default_followup_days: 23
   template_key: guest_editorial
 contributors:
   - key: andy_baker
