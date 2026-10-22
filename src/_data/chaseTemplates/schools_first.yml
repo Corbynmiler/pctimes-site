@@ -1,0 +1,9 @@
+label: Schools — first chase
+subject: 'Student writing — {{organisation}} — {{issue_date_short}}'
+body: |-
+  Kia ora {{display_name}},
+
+  Are you able to send me a piece of student writing for the paper by {{due_date_long}} please?
+
+  fanx
+  L x

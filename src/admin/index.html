@@ -5,8 +5,42 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Edit the Pōhutukawa Coast Times</title>
   <meta name="robots" content="noindex,nofollow">
+  <style>
+    /* Floating "Open the Chaser" button — persists above Sveltia so there's
+       always a visible link to the roster/chaser page. */
+    .pct-chaser-floater {
+      position: fixed;
+      top: 0.6rem;
+      right: 0.75rem;
+      z-index: 2147483647;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.5rem 0.85rem;
+      background: #A52938;
+      color: #fff;
+      font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-decoration: none;
+      border-radius: 999px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+      transition: background 120ms ease, transform 120ms ease;
+    }
+    .pct-chaser-floater:hover { background: #871B27; transform: translateY(-1px); }
+    .pct-chaser-floater__badge {
+      background: rgba(255,255,255,0.2);
+      padding: 0.05rem 0.4rem;
+      border-radius: 999px;
+      font-size: 0.65rem;
+      letter-spacing: 0.06em;
+    }
+  </style>
 </head>
 <body>
+  <a class="pct-chaser-floater" href="/admin/chaser/" title="Open the Roster + Chaser dashboard">
+    ⚡ Open the Chaser <span class="pct-chaser-floater__badge">BETA</span>
+  </a>
   <!--
     Sveltia CMS is Decap-compatible. Loaded from CDN at a pinned major version
     so security/feature releases land automatically without breaking changes.
@@ -14,6 +48,6 @@
   -->
   <!-- The query string is a cache-buster — bump it when the CMS config changes
        structurally so editors don't run on stale config from localStorage. -->
-  <script src="https://unpkg.com/@sveltia/cms@0/dist/sveltia-cms.js?v=3"></script>
+  <script src="https://unpkg.com/@sveltia/cms@0/dist/sveltia-cms.js?v=7"></script>
 </body>
 </html>
