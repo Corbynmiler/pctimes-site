@@ -1,0 +1,28 @@
+---
+# Built-at-build-time JSON snapshot of the roster + chase templates.
+# Consumed by the /admin/roster/ dashboard. Netlify rebuilds this on every
+# push, so after a mutation (via GitHub API) the dashboard will see the fresh
+# version on next reload. In-memory optimistic updates handle the gap.
+#
+# Not linked from anywhere public. The admin area carries noindex headers.
+layout: null
+permalink: /admin-data/roster.json
+eleventyExcludeFromCollections: true
+---
+{
+  "generated_at": "{{ page.date | formatDate }}",
+  "rosters": [
+    {%- for r in rostersList.rosters %}
+    {
+      "key": {{ r.roster.key | dump | safe }},
+      "label": {{ r.roster.label | dump | safe }},
+      "default_lead_days": {{ r.roster.default_lead_days | default(10) }},
+      "default_followup_days": {{ r.roster.default_followup_days | default(3) }},
+      "template_key": {{ r.roster.template_key | dump | safe }},
+      "contributors": {{ r.contributors | dump | safe }},
+      "slots": {{ r.slots | dump | safe }}
+    }{%- if not loop.last %},{% endif %}
+    {%- endfor %}
+  ],
+  "chase_templates": {{ chaseTemplates | dump | safe }}
+}

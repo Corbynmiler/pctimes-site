@@ -1,0 +1,56 @@
+# Chase email templates. Edited from /admin/ → Chase Templates.
+#
+# Available variables (double-brace):
+#   {{display_name}}   e.g. "Claire"
+#   {{organisation}}   e.g. "Judith Collins (MP)"
+#   {{due_date_long}}  e.g. "Thursday 29 October"
+#   {{due_date_short}} e.g. "29 Oct"
+#   {{issue_date_long}}
+#   {{issue_date_short}}
+#
+# Keep the voice short, warm, in Leanne's own tone — these are the exact
+# words that go out, so the system does not need to be clever.
+
+guest_editorial_first:
+  label: Guest editorial — first chase
+  subject: 'Guest editorial — {{organisation}} — {{issue_date_short}}'
+  body: |-
+    Kia ora {{display_name}},
+
+    I have {{organisation}} scheduled for a guest editorial spot soon — are you able to get some words to me by {{due_date_long}} please?
+
+    fanx
+    L x
+
+guest_editorial_followup:
+  label: Guest editorial — follow-up nudge
+  subject: 'RE: Guest editorial — {{organisation}} — {{issue_date_short}}'
+  body: |-
+    Kia ora {{display_name}},
+
+    Just a quick nudge on the guest editorial for {{issue_date_long}} — are you still able to get it to me by {{due_date_long}}? Happy to shift things if that's easier.
+
+    fanx
+    L x
+
+schools_first:
+  label: Schools — first chase
+  subject: 'Student writing — {{organisation}} — {{issue_date_short}}'
+  body: |-
+    Kia ora {{display_name}},
+
+    Are you able to send me a piece of student writing for the paper by {{due_date_long}} please?
+
+    fanx
+    L x
+
+schools_followup:
+  label: Schools — follow-up nudge
+  subject: 'RE: Student writing — {{organisation}} — {{issue_date_short}}'
+  body: |-
+    Kia ora {{display_name}},
+
+    Just a quick nudge on the piece of student writing for {{issue_date_long}} — are you still able to send it through by {{due_date_long}}? Let me know if the timing is tight.
+
+    fanx
+    L x

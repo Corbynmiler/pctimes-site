@@ -1,0 +1,11 @@
+# Schools roster — populated once Leanne shares the Schools Google Sheet.
+# Same shape as guest_editorial.yml; add contributors and slots via /admin/.
+
+roster:
+  key: schools
+  label: Schools
+  default_lead_days: 14
+  default_followup_days: 3
+  template_key: schools
+contributors: []
+slots: []
