@@ -14,18 +14,12 @@ contributors:
     email: ''
     self_authored: false
     notes: ''
-  - key: flb
-    organisation: FLB
-    display_name: Linh Tra
-    email: ''
-    self_authored: false
-    notes: ''
   - key: franklin_local_board
     organisation: Franklin Local Board
     display_name: Linh Tra
     email: ''
     self_authored: false
-    notes: ''
+    notes: 'FLB in the original sheet merged into this entry.'
   - key: friends_of_te_wairoa
     organisation: Friends of Te Wairoa
     display_name: Glenn Richards
@@ -62,12 +56,6 @@ contributors:
     email: derek.nielsen.e55@gmail.com
     self_authored: false
     notes: ''
-  - key: kbca
-    organisation: KBCA
-    display_name: KBCA
-    email: ''
-    self_authored: false
-    notes: ''
   - key: orere_community_and_boating_association
     organisation: Orere Community & Boating Association
     display_name: Jared McKay
@@ -97,7 +85,7 @@ contributors:
     display_name: Marcus
     email: ''
     self_authored: false
-    notes: 'contact-cell note: "received"'
+    notes: 'Only "Marcus" in the sheet — surname and email to confirm.'
   - key: wayne_brown
     organisation: Wayne Brown
     display_name: Wayne Brown
@@ -109,7 +97,7 @@ contributors:
     display_name: Maurice Hinton
     email: ''
     self_authored: false
-    notes: ''
+    notes: 'Sheet was unclear — confirm which organisation this is before chasing.'
 slots:
   - issue_date: '2026-01-30'
     due_date: '2026-01-22'
@@ -269,7 +257,7 @@ slots:
     chase_log: []
   - issue_date: '2026-07-31'
     due_date: '2026-07-23'
-    contributor_key: kbca
+    contributor_key: kawakawa_bay_community_association
     status: not_supplying
     notes: imported as 'not_supplying' — organisation name had 'not supplying' in it
     chase_log: []
@@ -371,7 +359,7 @@ slots:
     chase_log: []
   - issue_date: '2026-11-27'
     due_date: '2026-11-19'
-    contributor_key: flb
+    contributor_key: franklin_local_board
     status: pending
     notes: ''
     chase_log: []

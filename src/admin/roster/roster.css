@@ -230,6 +230,21 @@ body {
 .draft-card__textarea:focus { outline: 2px solid var(--red); outline-offset: 1px; }
 .draft-card__actions { display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center; }
 
+.draft-card--waiting { border-left-color: #B57F1E; }
+.draft-card__preview {
+  margin: 0;
+  padding: 0.75rem;
+  background: var(--paper);
+  border: 1px dashed var(--rule);
+  border-radius: var(--radius);
+  font-family: var(--font-sans);
+  font-size: 0.92rem;
+  line-height: 1.55;
+  color: var(--ink);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
 /* -----  Buttons  -------------------------------------------------------- */
 .btn {
   display: inline-flex;

@@ -209,6 +209,7 @@ function render() {
   app.append(
     sectionNeedsAttention(buckets.needsAttention, today),
     sectionDrafts(buckets.drafts),
+    sectionWaitingOnEmail(buckets.waitingOnEmail),
     sectionUpcoming(buckets.upcoming, today),
     sectionAll(buckets.all),
     sectionContributorsMissingEmail(buckets.missingEmails),
@@ -219,6 +220,7 @@ function render() {
 function bucketise(today) {
   const needsAttention = [];
   const drafts = [];
+  const waitingOnEmail = [];
   const upcoming = {}; // rosterKey -> [rows]
   const all = [];
   const missingEmails = [];
@@ -249,21 +251,20 @@ function bucketise(today) {
         needsAttention.push(row);
       }
 
-      // Drafts ready: needs a chase, has contributor email, within lead_days window,
-      // and not more than a few days past the due date (so we don't draft chases
-      // for historical slots that just weren't marked received in the sheet).
+      // Draft candidate: actionable upcoming slot not written by Leanne herself.
+      // Emails without a recipient address land in a separate 'waiting on email'
+      // bucket — the preview is still useful, but it can't be sent as-is.
       const lead = roster.default_lead_days ?? 10;
-      const shouldDraft =
+      const inDraftWindow =
         actionable &&
         !contrib.self_authored &&
-        contrib.email &&
         dueDays != null &&
         dueDays <= lead &&
         dueDays >= -3 &&
         issueDays != null &&
         issueDays >= -1;
 
-      if (shouldDraft) {
+      if (inDraftWindow) {
         const tplKey = pickTemplate(roster, slot);
         const tpl = state.data.chase_templates[tplKey];
         if (tpl) {
@@ -277,7 +278,7 @@ function bucketise(today) {
           });
           const editKey = sKey + ":" + tplKey;
           const edited = state.editedDrafts[editKey];
-          drafts.push({
+          const draft = {
             ...row,
             tplKey,
             tplLabel: tpl.label || tplKey,
@@ -285,7 +286,9 @@ function bucketise(today) {
             subject: edited?.subject ?? rendered.subject,
             body: edited?.body ?? rendered.body,
             isEdited: !!edited,
-          });
+          };
+          if (contrib.email) drafts.push(draft);
+          else waitingOnEmail.push(draft);
         }
       }
 
@@ -298,11 +301,13 @@ function bucketise(today) {
     upcoming[roster.key].sort((a, b) => (a.slot.issue_date || "").localeCompare(b.slot.issue_date || ""));
   }
 
-  needsAttention.sort((a, b) => (a.slot.issue_date || "").localeCompare(b.slot.issue_date || ""));
-  drafts.sort((a, b) => (a.slot.issue_date || "").localeCompare(b.slot.issue_date || ""));
-  all.sort((a, b) => (a.slot.issue_date || "").localeCompare(b.slot.issue_date || ""));
+  const byDate = (a, b) => (a.slot.issue_date || "").localeCompare(b.slot.issue_date || "");
+  needsAttention.sort(byDate);
+  drafts.sort(byDate);
+  waitingOnEmail.sort(byDate);
+  all.sort(byDate);
 
-  return { needsAttention, drafts, upcoming, all, missingEmails };
+  return { needsAttention, drafts, waitingOnEmail, upcoming, all, missingEmails };
 }
 
 function pickTemplate(roster, slot) {
@@ -342,6 +347,63 @@ function sectionDrafts(drafts) {
   for (const d of drafts) stack.append(draftCard(d));
   sec.append(stack);
   return sec;
+}
+
+// ───── Section: Waiting on email ───────────────────────────────────────
+function sectionWaitingOnEmail(items) {
+  if (items.length === 0) return document.createDocumentFragment();
+  const sec = el("section", { class: "section" });
+  sec.append(sectionHead("Waiting on email", items.length,
+    "These slots are inside the chase window but we don't have the contributor's email yet. Preview what the chase would say — then fill in the email in the Roster CMS tab."));
+  const stack = el("div", { class: "draft-stack" });
+  for (const d of items) stack.append(waitingDraftCard(d));
+  sec.append(stack);
+  return sec;
+}
+
+function waitingDraftCard(d) {
+  const art = el("article", { class: "draft-card draft-card--waiting" });
+  const head = el("header", { class: "draft-card__head" });
+  const left = el("div", {});
+  left.append(
+    el("div", { class: "draft-card__to" },
+      el("span", { class: "draft-card__to-label" }, "To:"),
+      " ",
+      el("strong", { class: "draft-card__name" }, d.contrib.display_name || d.contrib.organisation),
+      " ",
+      el("span", { class: "muted" }, "— no email on file yet"),
+    ),
+    el("div", { class: "draft-card__subject" }, d.subject),
+  );
+  const badges = el("div", { class: "draft-card__badges" });
+  badges.append(
+    el("span", { class: "badge badge--roster" }, d.roster.label),
+    el("span", { class: "badge", "data-status": "pending" }, "Needs email"),
+  );
+  head.append(left, badges);
+  art.append(head);
+
+  const body = el("div", { class: "draft-card__body" },
+    el("pre", { class: "draft-card__preview" }, d.body),
+  );
+  art.append(body);
+
+  const actions = el("footer", { class: "draft-card__actions" });
+  const addEmailBtn = el("a", {
+    class: "btn btn--primary",
+    href: "/admin/#/collections/rosters",
+    target: "_blank",
+    rel: "noopener",
+  }, "Add this contributor's email →");
+  const copyBtn = btn("Copy email body", "btn", () => {
+    navigator.clipboard.writeText(d.body).then(
+      () => toast("Draft body copied."),
+      () => toast("Couldn't copy — select the text instead.", true),
+    );
+  });
+  actions.append(addEmailBtn, copyBtn);
+  art.append(actions);
+  return art;
 }
 
 // ───── Section: Upcoming ───────────────────────────────────────────────
