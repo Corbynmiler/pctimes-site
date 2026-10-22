@@ -19,6 +19,7 @@ eleventyExcludeFromCollections: true
       "default_lead_days": {{ r.roster.default_lead_days | default(10) }},
       "default_followup_days": {{ r.roster.default_followup_days | default(3) }},
       "template_key": {{ r.roster.template_key | dump | safe }},
+      "editor_notes": {{ r.editor_notes | default("") | dump | safe }},
       "contributors": {{ r.contributors | dump | safe }},
       "slots": {{ r.slots | dump | safe }}
     }{%- if not loop.last %},{% endif %}

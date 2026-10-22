@@ -3,12 +3,12 @@
 Hi Leanne — here's everything you need to keep the site up to date.
 You log into one page (`/admin`) and the site rebuilds itself.
 
-> **New (Beta): the Roster**
-> You'll see two new tabs in the left sidebar — **📬 Roster ✨ (Beta)**
-> and **📝 Chase Templates ✨ (Beta)**. The Roster tab holds the raw data
-> (contributors and weekly slots). The pretty dashboard with "who needs
-> chasing", draft chase emails and status buttons lives at
-> **`/admin/roster/`** — bookmark it. Nothing sends automatically.
+> **New (Beta): Roster + Chaser**
+> Two new tabs in the sidebar — **📬 Roster** (the full spreadsheet of
+> upcoming slots & contributors) and **📝 Chase Templates** (the exact
+> wording of the chase emails). The "needs sending today" view with
+> colour-coded rows and Send buttons lives at **`/admin/chaser/`** —
+> bookmark it. Phase 1: review-and-copy only, nothing sends automatically.
 
 ---
 

@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chaser — PC Times admin</title>
+  <meta name="robots" content="noindex,nofollow">
+  <link rel="icon" href="/assets/images/logo.png">
+  <link rel="stylesheet" href="/admin/chaser/chaser.css">
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar" aria-label="Admin sections">
+      <div class="sidebar__brand">
+        <img src="/assets/images/logo.png" alt="" class="sidebar__logo">
+        <div>
+          <div class="sidebar__title">PC Times</div>
+          <div class="sidebar__sub">Admin</div>
+        </div>
+      </div>
+      <nav class="sidebar__nav">
+        <div class="sidebar__section">Content</div>
+        <a href="/admin/#/collections/issues">📰 Issues</a>
+        <a href="/admin/#/collections/advertising">💼 Advertising</a>
+        <a href="/admin/#/collections/site">⚙️ Site settings</a>
+        <a href="/admin/#/collections/home">🏠 Home page</a>
+        <a href="/admin/#/collections/team">👥 Team</a>
+        <a href="/admin/#/collections/about">ℹ️ About</a>
+        <a href="/admin/#/collections/contact">📞 Contact</a>
+        <a href="/admin/#/collections/community">📅 Community</a>
+
+        <div class="sidebar__section">Roster <span class="sidebar__beta">Beta</span></div>
+        <a href="/admin/#/collections/rosters">📬 Roster (spreadsheet)</a>
+        <a href="/admin/#/collections/chase_templates">📝 Chase Templates</a>
+        <a href="/admin/chaser/" class="sidebar__current" aria-current="page">⚡ Chaser</a>
+      </nav>
+      <div class="sidebar__foot">
+        pctimes.co.nz
+      </div>
+    </aside>
+
+    <main class="main" id="app">
+      <header class="page-head">
+        <div>
+          <h1>⚡ Chaser <span class="pill pill--beta">Beta</span></h1>
+          <p class="muted">Who needs chasing today, who's drafted, and the whole roster — in order.</p>
+        </div>
+        <div class="page-head__user" id="whoami"></div>
+      </header>
+
+      <div id="banner" class="banner" hidden></div>
+
+      <div class="legend" aria-label="Colour key">
+        <strong>Key:</strong>
+        <span class="legend__chip legend__chip--overdue">overdue</span>
+        <span class="legend__chip legend__chip--due">due this week</span>
+        <span class="legend__chip legend__chip--missing">needs an email</span>
+        <span class="legend__chip legend__chip--done">done</span>
+        <span class="legend__chip legend__chip--self">self-written (no chase)</span>
+      </div>
+
+      <div id="content">
+        <div class="loading">Loading roster…</div>
+      </div>
+
+      <footer class="page-foot">
+        <small class="muted">Phase 1: review-and-copy only. The Send button talks to the clipboard. Email integration lands when Corbyn hooks it up.</small>
+      </footer>
+    </main>
+  </div>
+
+  <template id="tpl-sheet-row">
+    <tr class="row">
+      <td class="col-dates">
+        <div class="col-dates__due"></div>
+        <div class="col-dates__pub muted"></div>
+      </td>
+      <td class="col-org">
+        <strong class="col-org__name"></strong>
+        <div class="muted col-org__contact"></div>
+      </td>
+      <td class="col-email"></td>
+      <td class="col-status"></td>
+      <td class="col-timing muted"></td>
+      <td class="col-actions"></td>
+    </tr>
+  </template>
+
+  <template id="tpl-draft-card">
+    <article class="draft">
+      <header class="draft__head">
+        <div class="draft__meta">
+          <span class="pill pill--roster"></span>
+          <strong class="draft__to"></strong>
+          <span class="muted draft__email"></span>
+        </div>
+        <div class="draft__subject"></div>
+      </header>
+      <textarea class="draft__textarea" rows="7" spellcheck="true"></textarea>
+      <footer class="draft__actions"></footer>
+    </article>
+  </template>
+
+  <div id="toast-host" aria-live="polite"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
+  <script src="/admin/chaser/chaser.js" type="module"></script>
+</body>
+</html>

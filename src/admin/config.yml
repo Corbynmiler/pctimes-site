@@ -432,7 +432,7 @@ collections:
   # chase/send workflow lives in the dashboard, not here.
   - name: "rosters"
     label: "📬 Roster ✨ (Beta)"
-    description: "👉 OPEN THE DASHBOARD: https://pctimes.co.nz/admin/roster/ — the pretty view with upcoming slots, drafts and 'needs chasing' lives there. This page is just the raw editor for the underlying data."
+    description: "The weekly content roster. The sending view — 'needs chasing today' with Send buttons — lives at /admin/chaser/. This tab is the admin editor for contributors and slots."
     folder: "src/_data/rosters"
     extension: "yml"
     format: "yml"
@@ -467,8 +467,8 @@ collections:
       - label: "Slots"
         name: "slots"
         widget: "list"
-        summary: "{{fields.issue_date}} — {{fields.contributor_key}} ({{fields.status}})"
-        hint: "One slot per issue. Add new slots as the schedule extends. Edit statuses from the Roster dashboard."
+        summary: "📅 {{fields.issue_date}}  ·  {{fields.contributor_key}}  ·  {{fields.status}}"
+        hint: "One slot per issue. Status, chase history and Send buttons live at /admin/chaser/. Edit here if you need to add a slot or correct data."
         fields:
           - { label: "Issue date (Friday it's published)", name: "issue_date", widget: "datetime", date_format: "YYYY-MM-DD", time_format: false, picker_utc: false }
           - { label: "Due date (when copy is needed)", name: "due_date", widget: "datetime", date_format: "YYYY-MM-DD", time_format: false, picker_utc: false }
@@ -515,43 +515,17 @@ collections:
   - name: "chase_templates"
     label: "📝 Chase Templates ✨ (Beta)"
     description: "The exact words of each chase email. No AI — these are rendered as-is with the contributor's name and dates filled in."
-    files:
-      - name: "chase_templates"
-        label: "Chase Templates"
-        file: "src/_data/chaseTemplates.yml"
-        format: "yml"
-        fields:
-          - label: "Guest editorial — first chase"
-            name: "guest_editorial_first"
-            widget: "object"
-            fields:
-              - { label: "Label", name: "label", widget: "string" }
-              - { label: "Subject", name: "subject", widget: "string" }
-              - { label: "Body", name: "body", widget: "text", hint: "Available: {{display_name}}, {{organisation}}, {{due_date_long}}, {{due_date_short}}, {{issue_date_long}}, {{issue_date_short}}." }
-
-          - label: "Guest editorial — follow-up"
-            name: "guest_editorial_followup"
-            widget: "object"
-            fields:
-              - { label: "Label", name: "label", widget: "string" }
-              - { label: "Subject", name: "subject", widget: "string" }
-              - { label: "Body", name: "body", widget: "text" }
-
-          - label: "Schools — first chase"
-            name: "schools_first"
-            widget: "object"
-            fields:
-              - { label: "Label", name: "label", widget: "string" }
-              - { label: "Subject", name: "subject", widget: "string" }
-              - { label: "Body", name: "body", widget: "text" }
-
-          - label: "Schools — follow-up"
-            name: "schools_followup"
-            widget: "object"
-            fields:
-              - { label: "Label", name: "label", widget: "string" }
-              - { label: "Subject", name: "subject", widget: "string" }
-              - { label: "Body", name: "body", widget: "text" }
+    folder: "src/_data/chaseTemplates"
+    extension: "yml"
+    format: "yml"
+    create: false
+    identifier_field: "label"
+    summary: "✉️  {{fields.label}}"
+    sortable_fields: ["label"]
+    fields:
+      - { label: "Label (shown everywhere)", name: "label", widget: "string" }
+      - { label: "Subject", name: "subject", widget: "string" }
+      - { label: "Body", name: "body", widget: "text", hint: "Available variables: {{display_name}}, {{organisation}}, {{due_date_long}}, {{due_date_short}}, {{issue_date_long}}, {{issue_date_short}}." }
 
 
   # 7) COMMUNITY CALENDAR ───────────────────────────────────────────────
