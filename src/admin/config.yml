@@ -20,6 +20,14 @@ site_url: https://pctimes.netlify.app
 display_url: https://pctimes.netlify.app
 logo_url: /assets/images/logo.png
 
+# Extra sidebar entry — the Roster + Chaser live on their own page so Leanne
+# can see upcoming slots as a spreadsheet and press Send on draft chases.
+additional_links:
+  - name: chaser
+    label: "⚡ Open the Chaser"
+    url: /admin/chaser/
+    open_in_new_tab: false
+
 # Default media folder. Per-field overrides below for PDFs.
 media_folder: "src/assets/images"
 public_folder: "/assets/images"

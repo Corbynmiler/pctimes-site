@@ -14,6 +14,7 @@ const DATA_URL = "/admin-data/roster.json";
 const TZ = "Pacific/Auckland";
 const EDIT_DRAFT_KEY = "pct-chaser-draft-edits-v1";
 const SHEET_FILTER_KEY = "pct-chaser-sheet-filter-v1";
+const TAB_KEY = "pct-chaser-tab-v1";
 
 // ─── Date helpers ──────────────────────────────────────────────────────
 const monthShort = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
@@ -137,9 +138,11 @@ async function ghPut(path, { content, sha, message, token }) {
 const state = {
   auth: null,
   data: null,
+  tab: readLS(TAB_KEY, "chaser"), // chaser | roster
   editedDrafts: readLS(EDIT_DRAFT_KEY, {}),
   sheetFilter: readLS(SHEET_FILTER_KEY, "upcoming"), // upcoming | all | done | missing
   sheetSearch: "",
+  savingContrib: null, // key being saved, for optimistic UI
 };
 function readLS(k, fb) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : fb; } catch { return fb; } }
 function writeLS(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch { /* noop */ } }
@@ -150,6 +153,7 @@ async function boot() {
   state.auth = getAuth();
   renderWhoAmI();
   renderBanner();
+  wireTabs();
   try {
     const res = await fetch(DATA_URL, { cache: "no-store" });
     if (!res.ok) throw new Error(`Could not load roster data (${res.status})`);
@@ -160,6 +164,19 @@ async function boot() {
     return;
   }
   render();
+}
+
+function wireTabs() {
+  document.querySelectorAll(".shell__tab").forEach((btn) => {
+    btn.setAttribute("aria-selected", btn.dataset.tab === state.tab ? "true" : "false");
+    btn.addEventListener("click", () => {
+      state.tab = btn.dataset.tab;
+      writeLS(TAB_KEY, state.tab);
+      document.querySelectorAll(".shell__tab").forEach((b) =>
+        b.setAttribute("aria-selected", b.dataset.tab === state.tab ? "true" : "false"));
+      render();
+    });
+  });
 }
 
 function renderWhoAmI() {
@@ -191,12 +208,18 @@ function render() {
   const today = todayISONZ();
   const buckets = bucketise(today);
 
-  root.append(
-    sectionNeedsSending(buckets.drafts),
-    sectionWaitingOnEmail(buckets.waitingOnEmail),
-    sectionSheet(buckets.all),
-    sectionNotes(),
-  );
+  if (state.tab === "chaser") {
+    root.append(
+      sectionNeedsSending(buckets.drafts),
+      sectionWaitingOnEmail(buckets.waitingOnEmail),
+      sectionNotes(),
+    );
+  } else {
+    root.append(
+      sectionSheet(buckets.all),
+      sectionNotes(),
+    );
+  }
 }
 
 function bucketise(today) {
@@ -515,9 +538,8 @@ function sheetRow(row) {
     el("div", { class: "col-org__contact" }, row.contrib.display_name || ""),
   );
 
-  // Email
-  const email = el("td", { class: "col-email" + (row.contrib.email ? "" : " col-email--missing") },
-    row.contrib.self_authored ? "self-written" : (row.contrib.email || "⚠ needs email"));
+  // Email — inline editable
+  const email = emailCell(row);
 
   // Status
   const statusVal = row.state === "overdue" ? "overdue"
@@ -557,6 +579,63 @@ function sheetRow(row) {
 
   tr.append(dates, org, email, status, timing, actions);
   return tr;
+}
+
+// ─── Inline email editing ──────────────────────────────────────────────
+function emailCell(row) {
+  const td = el("td", { class: "col-email" + (row.contrib.email ? "" : " col-email--missing") });
+  if (row.contrib.self_authored) {
+    td.textContent = "self-written";
+    return td;
+  }
+  const current = row.contrib.email || "";
+  const input = el("input", {
+    class: "col-email__input",
+    type: "email",
+    value: current,
+    placeholder: "add email…",
+    "aria-label": `Email for ${row.contrib.organisation}`,
+  });
+  if (!state.auth) {
+    input.disabled = true;
+    input.title = "Sign in via /admin/ to edit";
+  }
+  let saved = current;
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") { e.preventDefault(); input.blur(); }
+    if (e.key === "Escape") { input.value = saved; input.blur(); }
+  });
+  input.addEventListener("blur", async () => {
+    const v = input.value.trim();
+    if (v === saved) return;
+    if (!state.auth) { input.value = saved; toast("Sign into /admin/ first.", true); return; }
+    const saving = el("span", { class: "col-email__saving" }, "saving…");
+    td.append(saving);
+    input.disabled = true;
+    try {
+      await updateContributorEmail(row.roster.key, row.contrib.key, v);
+      saved = v;
+      toast(`Saved email for ${row.contrib.organisation}`);
+      // render() will replace the row with fresh data; this cell will be rebuilt.
+    } catch (e) {
+      input.value = saved;
+      toast(`Save failed: ${e.message}`, true);
+    } finally {
+      input.disabled = false;
+      saving.remove();
+    }
+  });
+  td.append(input);
+  return td;
+}
+
+async function updateContributorEmail(rosterKey, contributorKey, newEmail) {
+  await mutateRoster(rosterKey, (r) => {
+    const c = (r.contributors || []).find((c) => c.key === contributorKey);
+    if (!c) throw new Error(`contributor ${contributorKey} not found`);
+    c.email = newEmail;
+    return `chore(roster): update email for ${c.organisation || contributorKey}`;
+  });
 }
 
 // ─── Section: Notes ────────────────────────────────────────────────────
