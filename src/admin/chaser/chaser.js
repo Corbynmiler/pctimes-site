@@ -211,7 +211,6 @@ function render() {
   if (state.tab === "chaser") {
     root.append(
       sectionNeedsSending(buckets.drafts),
-      sectionWaitingOnEmail(buckets.waitingOnEmail),
       sectionNotes(),
     );
   } else {
@@ -301,17 +300,19 @@ function computeState(row) {
   return "normal";
 }
 
-// ─── Section: Needs sending today ──────────────────────────────────────
+// ─── Section: Needs sending this week ──────────────────────────────────
 function sectionNeedsSending(items) {
   const sec = el("section", { class: "section" });
-  sec.append(sectionHead("Needs sending today", items.length,
-    "Chase emails ready to go. Review the wording, press Send to copy it to your clipboard, then paste into email."));
-  if (items.length === 0) {
-    sec.append(el("div", { class: "section__empty" }, "Nothing to chase right now. Nice."));
+  // Most urgent first: overdue slots climb to the top, then by closest due date.
+  const sorted = items.slice().sort((a, b) => (a.dueDays ?? 999) - (b.dueDays ?? 999));
+  sec.append(sectionHead("Needs sending this week", sorted.length,
+    "Chases that need to go out. Review, press Send to copy to your clipboard, then paste into email."));
+  if (sorted.length === 0) {
+    sec.append(el("div", { class: "section__empty" }, "Nothing to chase this week. Nice."));
     return sec;
   }
   const stack = el("div", { class: "draft-stack" });
-  for (const d of items) stack.append(sendDraftCard(d));
+  for (const d of sorted) stack.append(sendDraftCard(d));
   sec.append(stack);
   return sec;
 }
@@ -339,23 +340,23 @@ function sendDraftCard(d) {
   art.append(ta);
 
   const actions = el("footer", { class: "draft__actions" });
-  actions.append(
-    btn("📋 Send (copy to clipboard) & mark as chased", "btn--primary", () => sendDraft(d, ta.value)),
-    btn("Open in email", "btn btn--ghost", () => {
-      const href = `mailto:${encodeURIComponent(d.contrib.email)}?subject=${encodeURIComponent(d.subject)}&body=${encodeURIComponent(ta.value)}`;
-      window.location.href = href;
-    }),
-    d.isEdited ? btn("Reset to template", "btn", () => {
+  actions.append(btn("📋 Send (copy to clipboard) & mark as chased", "btn--primary", () => sendDraft(d, ta.value)));
+  actions.append(btn("Open in email client", "btn btn--ghost", () => {
+    const href = `mailto:${encodeURIComponent(d.contrib.email)}?subject=${encodeURIComponent(d.subject)}&body=${encodeURIComponent(ta.value)}`;
+    window.location.href = href;
+  }));
+  if (d.isEdited) {
+    actions.append(btn("Reset to template", "btn", () => {
       delete state.editedDrafts[d.editKey];
       writeLS(EDIT_DRAFT_KEY, state.editedDrafts);
       render();
-    }) : null,
-    btn("Skip this cycle", "btn btn--danger-ghost", () => {
-      if (confirm(`Skip ${d.contrib.organisation}'s chase for ${fmtShort(d.slot.issue_date)}? (The slot stays, no email will be drafted.)`)) {
-        updateSlotStatus(d.roster.key, d.slot, "skipped", `Skipped from chaser on ${todayISONZ()}`);
-      }
-    }),
-  );
+    }));
+  }
+  actions.append(btn("Skip this cycle", "btn btn--danger-ghost btn--small", () => {
+    if (confirm(`Skip ${d.contrib.organisation}'s chase for ${fmtShort(d.slot.issue_date)}? (The slot stays, no chase goes out.)`)) {
+      updateSlotStatus(d.roster.key, d.slot, "skipped", `Skipped from chaser on ${todayISONZ()}`);
+    }
+  }));
   art.append(actions);
   return art;
 }
@@ -393,60 +394,13 @@ async function sendDraft(d, bodyText) {
   writeLS(EDIT_DRAFT_KEY, state.editedDrafts);
 }
 
-// ─── Section: Waiting on email ─────────────────────────────────────────
-function sectionWaitingOnEmail(items) {
-  if (items.length === 0) return document.createDocumentFragment();
-  const sec = el("section", { class: "section" });
-  sec.append(sectionHead("Waiting on email", items.length,
-    "Would be chased soon — but we don't have the contributor's email yet. Preview what the chase would say, then add the email in the Roster CMS tab."));
-  const stack = el("div", { class: "draft-stack" });
-  for (const d of items) stack.append(waitingCard(d));
-  sec.append(stack);
-  return sec;
-}
-
-function waitingCard(d) {
-  const art = el("article", { class: "draft draft--waiting" });
-  const head = el("header", { class: "draft__head" });
-  head.append(
-    el("div", { class: "draft__meta" },
-      el("span", { class: "pill pill--roster" }, d.roster.label),
-      "To:",
-      el("strong", { class: "draft__to" }, d.contrib.display_name || d.contrib.organisation),
-      el("span", { class: "muted draft__email" }, "— no email on file yet"),
-      el("span", { class: "badge", "data-status": "pending" }, "Needs email"),
-    ),
-    el("div", { class: "draft__subject" }, d.subject),
-  );
-  art.append(head);
-  art.append(el("pre", { class: "draft__preview" }, d.body));
-  const actions = el("footer", { class: "draft__actions" });
-  const addEmail = el("a", {
-    class: "btn btn--primary",
-    href: `/admin/#/collections/rosters/entries/${d.roster.key}`,
-    target: "_blank",
-    rel: "noopener",
-  }, "Add email in Roster CMS →");
-  actions.append(
-    addEmail,
-    btn("Copy email body", "btn btn--ghost", () => {
-      navigator.clipboard.writeText(d.body).then(
-        () => toast("Draft body copied."),
-        () => toast("Couldn't copy — select the text instead.", true),
-      );
-    }),
-  );
-  art.append(actions);
-  return art;
-}
-
-// ─── Section: Spreadsheet ──────────────────────────────────────────────
+// ─── Section: Spreadsheet (per-roster tables) ─────────────────────────
 function sectionSheet(rows) {
   const sec = el("section", { class: "section" });
-  sec.append(sectionHead("Full roster", rows.length,
-    "Everything in order, like your spreadsheet. Click any row to mark it done, change its status, or jump into the CMS."));
+  sec.append(sectionHead("Rosters", rows.length,
+    "Each roster is kept separate, like Leanne's spreadsheets. Click the yellow 'add' cells to type in emails — they save automatically."));
 
-  // Filters
+  // Filters (apply to both tables)
   const bar = el("div", { class: "filters" });
   const FILTERS = [
     { key: "upcoming", label: "Upcoming + active" },
@@ -479,45 +433,63 @@ function sectionSheet(rows) {
   bar.append(search);
   sec.append(bar);
 
-  // Filter rows
-  const filtered = rows.filter((r) => {
-    const s = r.slot.status;
-    const inUpcoming = ACTIVE_STATUSES.has(s) &&
-      r.issueDays != null && r.issueDays >= -14; // show the last couple of weeks + future
-    if (state.sheetFilter === "upcoming" && !inUpcoming) return false;
-    if (state.sheetFilter === "done" && !DONE_STATUSES.has(s)) return false;
-    if (state.sheetFilter === "missing" && !(ACTIVE_STATUSES.has(s) && !r.contrib.email && !r.contrib.self_authored)) return false;
+  // Partition by roster
+  const byRoster = new Map();
+  for (const r of state.data.rosters) byRoster.set(r.key, { roster: r, rows: [] });
+  for (const row of rows) {
+    const bucket = byRoster.get(row.roster.key);
+    if (!bucket) continue;
+    // Apply filters
+    const s = row.slot.status;
+    const inUpcoming = ACTIVE_STATUSES.has(s) && row.issueDays != null && row.issueDays >= -14;
+    if (state.sheetFilter === "upcoming" && !inUpcoming) continue;
+    if (state.sheetFilter === "done" && !DONE_STATUSES.has(s)) continue;
+    if (state.sheetFilter === "missing" && !(ACTIVE_STATUSES.has(s) && !row.contrib.email && !row.contrib.self_authored)) continue;
     if (state.sheetSearch) {
-      const hay = `${r.contrib.organisation} ${r.contrib.display_name} ${r.contrib.email}`.toLowerCase();
-      if (!hay.includes(state.sheetSearch)) return false;
+      const hay = `${row.contrib.organisation} ${row.contrib.display_name} ${row.contrib.email}`.toLowerCase();
+      if (!hay.includes(state.sheetSearch)) continue;
     }
-    return true;
-  });
-
-  if (filtered.length === 0) {
-    sec.append(el("div", { class: "section__empty" }, "No slots match this filter."));
-    return sec;
+    bucket.rows.push(row);
   }
 
-  // Build table
-  const wrap = el("div", { class: "sheet-wrap" });
-  const table = el("table", { class: "sheet" });
-  const thead = el("thead");
-  thead.append(el("tr", {},
-    el("th", {}, "Dates"),
-    el("th", {}, "Organisation / contact"),
-    el("th", {}, "Email"),
-    el("th", {}, "Status"),
-    el("th", {}, "Timing"),
-    el("th", { style: "text-align:right" }, "Actions"),
-  ));
-  table.append(thead);
-  const tbody = el("tbody");
-  for (const row of filtered.slice(0, 200)) tbody.append(sheetRow(row));
-  table.append(tbody);
-  wrap.append(table);
-  sec.append(wrap);
-  if (filtered.length > 200) sec.append(el("p", { class: "muted" }, `Showing first 200 of ${filtered.length}.`));
+  // Render one table per roster
+  for (const { roster, rows: list } of byRoster.values()) {
+    const block = el("div", { class: "roster-block" });
+    const head = el("div", { class: "roster-block__head" });
+    head.append(
+      el("h3", { class: "roster-block__title" }, roster.label),
+      el("span", { class: "muted" }, `${list.length} shown`),
+    );
+    block.append(head);
+
+    if (list.length === 0) {
+      block.append(el("div", { class: "section__empty" },
+        roster.slots && roster.slots.length === 0
+          ? "No slots in this roster yet."
+          : "No slots match the current filter."));
+    } else {
+      const wrap = el("div", { class: "sheet-wrap" });
+      const table = el("table", { class: "sheet" });
+      const thead = el("thead");
+      thead.append(el("tr", {},
+        el("th", {}, "Dates"),
+        el("th", {}, "Organisation / contact"),
+        el("th", {}, "Email"),
+        el("th", {}, "Status"),
+        el("th", {}, "Timing"),
+        el("th", { style: "text-align:right" }, "Actions"),
+      ));
+      table.append(thead);
+      const tbody = el("tbody");
+      for (const row of list.slice(0, 100)) tbody.append(sheetRow(row));
+      table.append(tbody);
+      wrap.append(table);
+      block.append(wrap);
+      if (list.length > 100) block.append(el("p", { class: "muted" }, `Showing first 100 of ${list.length}.`));
+    }
+    sec.append(block);
+  }
+
   return sec;
 }
 

@@ -320,6 +320,23 @@ body {
 /* Tab panels */
 .tab-panel { display: none; }
 .tab-panel.is-active { display: block; }
+
+/* Per-roster block (two stacked tables on the Roster tab) */
+.roster-block { margin: 1.5rem 0; }
+.roster-block__head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  margin: 0 0 0.5rem;
+  padding-bottom: 0.3rem;
+  border-bottom: 1px dashed var(--rule);
+}
+.roster-block__title {
+  font-family: var(--font-serif);
+  color: var(--maroon);
+  font-size: 1.05rem;
+  margin: 0;
+}
 .col-status { white-space: nowrap; }
 .col-timing { font-size: 0.82rem; white-space: nowrap; }
 .col-actions { white-space: nowrap; text-align: right; }
