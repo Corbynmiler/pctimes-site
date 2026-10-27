@@ -20,6 +20,18 @@ site_url: https://pctimes.netlify.app
 display_url: https://pctimes.netlify.app
 logo_url: /assets/images/logo.png
 
+# Extra sidebar entry — the Roster + Chaser live on their own page so Leanne
+# can see upcoming slots as a spreadsheet and press Send on draft chases.
+additional_links:
+  - name: chaser
+    label: "⚡ Open the Chaser (live)"
+    url: /admin/chaser/
+    open_in_new_tab: false
+  - name: chaser_preview
+    label: "🔗 Chaser — preview branch"
+    url: https://deploy-preview-1--pctimes.netlify.app/admin/chaser/
+    open_in_new_tab: true
+
 # Default media folder. Per-field overrides below for PDFs.
 media_folder: "src/assets/images"
 public_folder: "/assets/images"
@@ -424,6 +436,17 @@ collections:
             required: false
             collapsed: true
             hint: "Visible to anyone editing the site in /admin. Not shown on the public website — but the project is on a public GitHub repo, so don't put anything truly private (passwords, home addresses, etc.) here."
+
+
+  # 8) ROSTER (contributors + weekly content slots) ─────────────────────
+  # Powers the new Roster dashboard at /admin/roster/. Two rosters today
+  # (Guest Editorial, Schools) share one schema. Phase 1 edits only; the
+  # chase/send workflow lives in the dashboard, not here.
+  # (8–9) Roster + Chase Templates CMS tabs removed. All roster/chaser work
+  # lives on its own page at /admin/chaser/ — see additional_links above.
+  # The underlying YAML files still exist at src/_data/rosters/ and
+  # src/_data/chaseTemplates/, writable by the chaser page via GitHub API
+  # using the editor's Sveltia OAuth token.
 
 
   # 7) COMMUNITY CALENDAR ───────────────────────────────────────────────

@@ -4,9 +4,16 @@
 [build]
   publish = "_site"
   command = "npm run build"
+  functions = "netlify/functions"
 
 [build.environment]
   NODE_VERSION = "20"
+
+# Functions directory for the roster feature. Phase 1 ships a stub only
+# (netlify/functions/send-chase.js) — no credentials, no real sending.
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
 
 # Pretty 404 for unmatched routes
 [[redirects]]
