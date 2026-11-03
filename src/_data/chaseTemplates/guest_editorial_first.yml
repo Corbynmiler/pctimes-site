@@ -1,0 +1,9 @@
+label: Guest editorial — first chase
+subject: 'Guest editorial — {{organisation}} — {{issue_date_short}}'
+body: |-
+  Kia ora {{display_name}},
+
+  I have {{organisation}} scheduled for a guest editorial spot soon — are you able to get some words to me by {{due_date_long}} please?
+
+  fanx
+  L x

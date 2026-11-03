@@ -1,0 +1,9 @@
+label: Schools — follow-up nudge
+subject: 'RE: Student writing — {{organisation}} — {{issue_date_short}}'
+body: |-
+  Kia ora {{display_name}},
+
+  Just a quick nudge on the piece of student writing for {{issue_date_long}} — are you still able to send it through by {{due_date_long}}? Let me know if the timing is tight.
+
+  fanx
+  L x
