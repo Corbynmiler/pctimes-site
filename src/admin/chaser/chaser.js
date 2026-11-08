@@ -865,27 +865,27 @@ const EXAMPLE_PUZZLES = [
 
 function sectionCrossword() {
   const sec = el("section", { class: "section" });
-  sec.append(sectionHead("Crossword — examples for review", 2,
-    "Aunty L's crossword vendor currently costs ~NZ$90/month. These are two example puzzles showing what the AI-generated version could look like. If you like the direction, we wire up the weekly pipeline next."));
+  sec.append(sectionHead("Crossword — examples for you to look at", 2,
+    "Hi Aunty L. Two example puzzles below showing what your weekly crossword would look like if you switched to one made in this system. Have a read of the clues, look at the grid shape — would you be happy publishing something like this each week?"));
 
   const banner = el("div", { class: "banner banner--info" });
-  banner.innerHTML = `<strong>These are static mock-ups</strong> — no AI call runs yet. Nothing published to the paper either. Just here so Aunty L can judge the format.`;
+  banner.innerHTML = `<strong>These are preview mock-ups</strong> — nothing is live yet. Just a visual to help you decide if this direction works.`;
   sec.append(banner);
 
   const grid = el("div", { class: "crossword-grid" });
   for (const p of EXAMPLE_PUZZLES) grid.append(crosswordExample(p));
   sec.append(grid);
 
-  // Next step CTA
+  // Next-step CTA, written for Leanne
   const foot = el("div", { class: "crossword-foot" });
   foot.innerHTML = `
-    <h3>If Aunty L says yes</h3>
+    <h3>How it would work each week</h3>
     <ol>
-      <li>Wire up a classical grid filler (Qxw or <code>blacksquare</code>) with a quality-scored wordlist.</li>
-      <li>Add an LLM clue-writer (Claude Haiku 4.5) with a solver-validator loop so no clue is ambiguous.</li>
-      <li>Weekly cadence: Monday morning, draft lands here; she reviews & tweaks; exports print-ready file (80×80mm) for InDesign.</li>
+      <li><strong>Click Generate</strong> and in a few seconds you get a fresh filled grid + numbered clue list — the 80×80mm size you print at, ready for InDesign.</li>
+      <li><strong>Read through and tweak.</strong> Don't love a clue? Click it and ask for another one, or write your own. The grid stays fixed; only the wording changes.</li>
+      <li><strong>Export</strong> — one file for the grid + clues, one file for the answer key (page 8). Drop them into the layout the same way you do now.</li>
     </ol>
-    <p class="muted">Rough estimate: NZ$90/month → ~NZ$5/month in API costs + ~15 min of Aunty L's time each week.</p>
+    <p>About 15 minutes of your time each week, instead of waiting on the vendor's email. Includes a quality-check step that solves every clue against the grid before it reaches you, so you shouldn't see ambiguous or silly ones — if any slip through, you just click "give me another".</p>
   `;
   sec.append(foot);
   return sec;
