@@ -321,6 +321,69 @@ body {
 .tab-panel { display: none; }
 .tab-panel.is-active { display: block; }
 
+/* Crossword examples */
+.banner--info { background: #FFF8EC; border-color: #F0E1BE; color: #78541A; }
+.crossword-grid {
+  display: grid;
+  gap: 1.25rem;
+  grid-template-columns: 1fr;
+  margin: 1rem 0 1.5rem;
+}
+@media (min-width: 820px) { .crossword-grid { grid-template-columns: 1fr 1fr; } }
+
+.crossword-card {
+  background: #fff;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  padding: 1rem 1.1rem 1.1rem;
+  box-shadow: var(--shadow-sm);
+}
+.crossword-card__title {
+  font-family: var(--font-serif);
+  color: var(--maroon);
+  margin: 0 0 0.3rem;
+  font-size: 1.05rem;
+}
+.crossword-card__subtitle { font-size: 0.85rem; margin: 0 0 0.9rem; }
+.crossword-svg {
+  width: 100%;
+  max-width: 320px;
+  height: auto;
+  display: block;
+  margin: 0 auto 1rem;
+}
+.crossword-card__clues {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr 1fr;
+  font-size: 0.82rem;
+}
+.crossword-clues h4 {
+  font-family: var(--font-serif);
+  color: var(--maroon);
+  margin: 0 0 0.3rem;
+  font-size: 0.95rem;
+  padding-bottom: 0.2rem;
+  border-bottom: 1px solid var(--rule);
+}
+.crossword-clues ol {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.crossword-clues li { padding: 0.15rem 0; line-height: 1.35; }
+.crossword-clues__num { font-weight: 600; color: var(--maroon); display: inline-block; min-width: 1.5rem; }
+
+.crossword-foot {
+  background: var(--cream);
+  padding: 1rem 1.1rem;
+  border-radius: var(--radius);
+}
+.crossword-foot h3 { font-family: var(--font-serif); color: var(--maroon); margin: 0 0 0.5rem; font-size: 1rem; }
+.crossword-foot ol { padding-left: 1.25rem; margin: 0 0 0.5rem; font-size: 0.9rem; }
+.crossword-foot li { margin-bottom: 0.3rem; }
+.crossword-foot code { background: #fff; padding: 0.05rem 0.35rem; border-radius: 3px; font-size: 0.85em; border: 1px solid var(--rule); }
+
 /* Per-roster block (two stacked tables on the Roster tab) */
 .roster-block { margin: 1.5rem 0; }
 .roster-block__head {
@@ -337,6 +400,57 @@ body {
   font-size: 1.05rem;
   margin: 0;
 }
+.roster-block__actions {
+  margin-left: auto;
+  display: flex;
+  gap: 0.3rem;
+}
+
+.roster-block__addform {
+  background: #fff;
+  border: 1px solid var(--rule);
+  border-left: 3px solid var(--red);
+  border-radius: var(--radius);
+  padding: 0.85rem 1rem 0.9rem;
+  margin: 0.5rem 0 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.addform__title {
+  font-family: var(--font-serif);
+  color: var(--maroon);
+  font-size: 0.98rem;
+  margin-bottom: 0.1rem;
+}
+.addform__row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  font-size: 0.85rem;
+}
+.addform__row > span { color: var(--muted); font-size: 0.78rem; }
+.addform__row input[type="text"],
+.addform__row input[type="email"],
+.addform__row input[type="date"],
+.addform__row select {
+  padding: 0.35rem 0.55rem;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  font: inherit;
+  font-size: 0.92rem;
+  background: var(--paper);
+  color: var(--ink);
+}
+.addform__row input:focus,
+.addform__row select:focus {
+  outline: 0;
+  border-color: var(--red);
+  box-shadow: 0 0 0 3px rgba(165, 41, 56, 0.1);
+}
+.addform__row--check { flex-direction: row; align-items: center; gap: 0.4rem; }
+.addform__row--check > span { color: var(--ink); font-size: 0.85rem; }
+.addform__actions { display: flex; gap: 0.4rem; margin-top: 0.25rem; }
 .col-status { white-space: nowrap; }
 .col-timing { font-size: 0.82rem; white-space: nowrap; }
 .col-actions { white-space: nowrap; text-align: right; }

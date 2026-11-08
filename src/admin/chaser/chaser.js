@@ -213,11 +213,13 @@ function render() {
       sectionNeedsSending(buckets.drafts),
       sectionNotes(),
     );
-  } else {
+  } else if (state.tab === "roster") {
     root.append(
       sectionSheet(buckets.all),
       sectionNotes(),
     );
+  } else if (state.tab === "crossword") {
+    root.append(sectionCrossword());
   }
 }
 
@@ -459,6 +461,10 @@ function sectionSheet(rows) {
     head.append(
       el("h3", { class: "roster-block__title" }, roster.label),
       el("span", { class: "muted" }, `${list.length} shown`),
+      el("div", { class: "roster-block__actions" },
+        btn("+ Add slot", "btn--small btn--ghost", () => showAddSlotForm(block, roster)),
+        btn("+ Add contributor", "btn--small btn--ghost", () => showAddContributorForm(block, roster)),
+      ),
     );
     block.append(head);
 
@@ -553,6 +559,144 @@ function sheetRow(row) {
   return tr;
 }
 
+// ─── Inline add: contributor + slot ────────────────────────────────────
+function slugify(s) {
+  return String(s || "").toLowerCase()
+    .replace(/&/g, " and ").replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "").slice(0, 64);
+}
+
+function showAddContributorForm(block, roster) {
+  // Replace any existing add-form in this block
+  const existing = block.querySelector(".roster-block__addform");
+  if (existing) existing.remove();
+
+  const form = el("form", { class: "roster-block__addform" });
+  form.append(
+    el("div", { class: "addform__title" }, `+ New contributor for ${roster.label}`),
+    inputField("Organisation", "organisation", "text", true),
+    inputField("Contact name (optional)", "display_name", "text", false),
+    inputField("Email (optional — you can add later)", "email", "email", false),
+    checkField("Self-written (never chase, e.g. Leanne writes it herself)", "self_authored"),
+  );
+  const actions = el("div", { class: "addform__actions" });
+  actions.append(
+    btn("Save", "btn--primary", (ev) => { ev.preventDefault(); handleAddContributor(form, roster, block); }),
+    btn("Cancel", "btn btn--ghost", (ev) => { ev.preventDefault(); form.remove(); }),
+  );
+  form.append(actions);
+  form.addEventListener("submit", (ev) => { ev.preventDefault(); handleAddContributor(form, roster, block); });
+  block.querySelector(".roster-block__head").after(form);
+  form.querySelector('input[name="organisation"]').focus();
+}
+
+async function handleAddContributor(form, roster, block) {
+  const data = Object.fromEntries(new FormData(form));
+  const organisation = (data.organisation || "").trim();
+  if (!organisation) { toast("Organisation is required.", true); return; }
+  if (!state.auth) { toast("Sign into /admin/ first.", true); return; }
+
+  let key = slugify(organisation);
+  // Ensure uniqueness
+  const existingKeys = new Set((roster.contributors || []).map((c) => c.key));
+  if (existingKeys.has(key)) {
+    let i = 2;
+    while (existingKeys.has(`${key}_${i}`)) i++;
+    key = `${key}_${i}`;
+  }
+
+  try {
+    await mutateRoster(roster.key, (r) => {
+      r.contributors = r.contributors || [];
+      r.contributors.push({
+        key,
+        organisation,
+        display_name: (data.display_name || "").trim(),
+        email: (data.email || "").trim(),
+        self_authored: !!data.self_authored,
+        notes: "",
+      });
+      return `chore(roster): add contributor ${organisation} to ${roster.label}`;
+    });
+    toast(`Added ${organisation}.`);
+    form.remove();
+  } catch (e) {
+    toast(`Save failed: ${e.message}`, true);
+  }
+}
+
+function showAddSlotForm(block, roster) {
+  const existing = block.querySelector(".roster-block__addform");
+  if (existing) existing.remove();
+
+  const contribs = (roster.contributors || []).slice().sort((a, b) => a.organisation.localeCompare(b.organisation));
+  const form = el("form", { class: "roster-block__addform" });
+  form.append(
+    el("div", { class: "addform__title" }, `+ New slot for ${roster.label}`),
+    inputField("Issue date (Friday it's published, YYYY-MM-DD)", "issue_date", "date", true),
+    inputField("Due date (when copy is needed, YYYY-MM-DD)", "due_date", "date", true),
+    (() => {
+      const wrap = el("label", { class: "addform__row" });
+      wrap.append(el("span", {}, "Contributor"));
+      const sel = el("select", { name: "contributor_key", required: true });
+      sel.append(el("option", { value: "" }, "— pick a contributor —"));
+      for (const c of contribs) {
+        sel.append(el("option", { value: c.key }, `${c.organisation}${c.display_name ? ' · ' + c.display_name : ''}`));
+      }
+      wrap.append(sel);
+      return wrap;
+    })(),
+  );
+  const actions = el("div", { class: "addform__actions" });
+  actions.append(
+    btn("Save", "btn--primary", (ev) => { ev.preventDefault(); handleAddSlot(form, roster, block); }),
+    btn("Cancel", "btn btn--ghost", (ev) => { ev.preventDefault(); form.remove(); }),
+  );
+  form.append(actions);
+  form.addEventListener("submit", (ev) => { ev.preventDefault(); handleAddSlot(form, roster, block); });
+  block.querySelector(".roster-block__head").after(form);
+  form.querySelector('input[name="issue_date"]').focus();
+}
+
+async function handleAddSlot(form, roster, block) {
+  const data = Object.fromEntries(new FormData(form));
+  if (!data.issue_date || !data.due_date || !data.contributor_key) { toast("Fill all fields.", true); return; }
+  if (!state.auth) { toast("Sign into /admin/ first.", true); return; }
+  try {
+    await mutateRoster(roster.key, (r) => {
+      r.slots = r.slots || [];
+      r.slots.push({
+        issue_date: data.issue_date,
+        due_date: data.due_date,
+        contributor_key: data.contributor_key,
+        status: "pending",
+        notes: "",
+        chase_log: [],
+      });
+      r.slots.sort((a, b) => (a.issue_date || "").localeCompare(b.issue_date || ""));
+      return `chore(roster): add slot ${data.issue_date} (${data.contributor_key}) to ${roster.label}`;
+    });
+    toast(`Added slot for ${fmtShort(data.issue_date)}.`);
+    form.remove();
+  } catch (e) {
+    toast(`Save failed: ${e.message}`, true);
+  }
+}
+
+function inputField(label, name, type, required) {
+  const wrap = el("label", { class: "addform__row" });
+  wrap.append(el("span", {}, label));
+  const inp = el("input", { type, name, required: required ? "" : null });
+  wrap.append(inp);
+  return wrap;
+}
+
+function checkField(label, name) {
+  const wrap = el("label", { class: "addform__row addform__row--check" });
+  const inp = el("input", { type: "checkbox", name });
+  wrap.append(inp, " ", el("span", {}, label));
+  return wrap;
+}
+
 // ─── Inline email editing ──────────────────────────────────────────────
 function emailCell(row) {
   const td = el("td", { class: "col-email" + (row.contrib.email ? "" : " col-email--missing") });
@@ -608,6 +752,232 @@ async function updateContributorEmail(rosterKey, contributorKey, newEmail) {
     c.email = newEmail;
     return `chore(roster): update email for ${c.organisation || contributorKey}`;
   });
+}
+
+// ─── Section: Crossword examples (scaffold for AI generation pipeline) ─
+// Two hand-crafted example puzzles so Leanne can judge the format before
+// we wire up the real pipeline (classical grid filler + LLM clues, see
+// research notes). Everything here is static today — no generation yet.
+const EXAMPLE_PUZZLES = [
+  {
+    key: "classic",
+    title: "Example 1 — general knowledge",
+    subtitle: "Standard 13×13 'quick' crossword. This uses the exact clue set from the Team Brie / Ray White puzzle Aunty L sent — just to show what the AI would output in your current style.",
+    size: 13,
+    // Symmetric (180°) grid. '#' = black, '.' = white.
+    rows: [
+      "###..........",
+      "###.#.#.#.#.#",
+      ".............",
+      ".#.#.#...#.#.",
+      "....#...#....",
+      ".#...##...#.#",
+      "..#.....#..##",
+      "#.#...##...#.",
+      "....#...#....",
+      ".#.#...#.#.#.",
+      ".............",
+      "#.#.#.#.#.###",
+      "..........###",
+    ],
+    across: [
+      { n: 1, clue: "Star watcher", len: 10 },
+      { n: 8, clue: "Follow orders", len: 4 },
+      { n: 9, clue: "Mixed collection", len: 10 },
+      { n: 10, clue: "Eager and attentive", len: 4 },
+      { n: 11, clue: "Thin layer", len: 6 },
+      { n: 13, clue: "Arab ruler", len: 4 },
+      { n: 14, clue: "Proof", len: 8 },
+      { n: 18, clue: "Short musical drama", len: 8 },
+      { n: 23, clue: "Without", len: 4 },
+      { n: 25, clue: "Verse", len: 6 },
+      { n: 26, clue: "Musical symbol", len: 4 },
+      { n: 27, clue: "Play down", len: 10 },
+      { n: 28, clue: "Boast", len: 4 },
+      { n: 29, clue: "In all places", len: 10 },
+    ],
+    down: [
+      { n: 2, clue: "Method", len: 6 },
+      { n: 3, clue: "Person involved in rowdy disturbance", len: 6 },
+      { n: 4, clue: "Character", len: 6 },
+      { n: 5, clue: "Breakfast food", len: 6 },
+      { n: 6, clue: "Turn", len: 6 },
+      { n: 7, clue: "Valiant", len: 6 },
+      { n: 11, clue: "Blocking vote", len: 4 },
+      { n: 12, clue: "Pleasing", len: 4 },
+      { n: 15, clue: "Tank", len: 3 },
+      { n: 16, clue: "Leavened Indian bread", len: 4 },
+      { n: 17, clue: "Compass point", len: 4 },
+      { n: 19, clue: "Meagre (amount)", len: 6 },
+      { n: 20, clue: "Place of safety", len: 6 },
+      { n: 21, clue: "Walk unsteadily", len: 6 },
+      { n: 22, clue: "Off the correct path", len: 6 },
+      { n: 23, clue: "Inform", len: 6 },
+      { n: 24, clue: "Castrate", len: 6 },
+    ],
+  },
+  {
+    key: "coastal",
+    title: "Example 2 — themed, local flavour",
+    subtitle: "A smaller 11×11 with a Pōhutukawa Coast theme. Shows how we can add weekly themes (summer, school holidays, local events) on top of the standard quick-crossword format.",
+    size: 11,
+    rows: [
+      "..#.......#",
+      ".##.#.#.##.",
+      "...........",
+      "#.#.##.#.#.",
+      ".....#.....",
+      "..#.....#..",
+      ".....#.....",
+      ".#.#.##.#.#",
+      "...........",
+      ".##.#.#.##.",
+      "#.......#..",
+    ],
+    across: [
+      { n: 1, clue: "Big red bloom seen on the Coast at Christmas", len: 10 },
+      { n: 10, clue: "Boat place with pontoons", len: 6 },
+      { n: 11, clue: "Local __: our weekly paper", len: 5 },
+      { n: 13, clue: "Opposite of ebb", len: 4 },
+      { n: 14, clue: "Grain used in porridge", len: 4 },
+      { n: 16, clue: "What waves do on the shore", len: 5 },
+      { n: 18, clue: "Loud blow from a ship's horn", len: 5 },
+      { n: 20, clue: "Shellfish prized by Kiwis", len: 4 },
+      { n: 22, clue: "Beach ball sport, popular at Beachlands", len: 10 },
+    ],
+    down: [
+      { n: 2, clue: "The 'Ō' in Pōhutukawa, as a vowel mark", len: 6 },
+      { n: 3, clue: "Weekend market setup", len: 5 },
+      { n: 4, clue: "Seagull's cousin", len: 4 },
+      { n: 5, clue: "Sand castle tool", len: 6 },
+      { n: 6, clue: "South island fruit, kiwi's namesake", len: 8 },
+      { n: 7, clue: "What the paper is delivered to", len: 5 },
+      { n: 8, clue: "Fish and __", len: 5 },
+      { n: 9, clue: "Harbour vessel", len: 4 },
+      { n: 12, clue: "Ocean swell", len: 4 },
+      { n: 15, clue: "Māori word for sea", len: 2 },
+      { n: 17, clue: "Local rugby code", len: 5 },
+      { n: 19, clue: "Maraetai __: our main beach", len: 5 },
+      { n: 21, clue: "Crab's weapon", len: 5 },
+    ],
+  },
+];
+
+function sectionCrossword() {
+  const sec = el("section", { class: "section" });
+  sec.append(sectionHead("Crossword — examples for review", 2,
+    "Aunty L's crossword vendor currently costs ~NZ$90/month. These are two example puzzles showing what the AI-generated version could look like. If you like the direction, we wire up the weekly pipeline next."));
+
+  const banner = el("div", { class: "banner banner--info" });
+  banner.innerHTML = `<strong>These are static mock-ups</strong> — no AI call runs yet. Nothing published to the paper either. Just here so Aunty L can judge the format.`;
+  sec.append(banner);
+
+  const grid = el("div", { class: "crossword-grid" });
+  for (const p of EXAMPLE_PUZZLES) grid.append(crosswordExample(p));
+  sec.append(grid);
+
+  // Next step CTA
+  const foot = el("div", { class: "crossword-foot" });
+  foot.innerHTML = `
+    <h3>If Aunty L says yes</h3>
+    <ol>
+      <li>Wire up a classical grid filler (Qxw or <code>blacksquare</code>) with a quality-scored wordlist.</li>
+      <li>Add an LLM clue-writer (Claude Haiku 4.5) with a solver-validator loop so no clue is ambiguous.</li>
+      <li>Weekly cadence: Monday morning, draft lands here; she reviews & tweaks; exports print-ready file (80×80mm) for InDesign.</li>
+    </ol>
+    <p class="muted">Rough estimate: NZ$90/month → ~NZ$5/month in API costs + ~15 min of Aunty L's time each week.</p>
+  `;
+  sec.append(foot);
+  return sec;
+}
+
+function crosswordExample(p) {
+  const art = el("article", { class: "crossword-card" });
+  art.append(
+    el("h3", { class: "crossword-card__title" }, p.title),
+    el("p", { class: "crossword-card__subtitle muted" }, p.subtitle),
+  );
+
+  // Build grid + compute numbers
+  const { cells, numbers } = computeGrid(p.rows);
+  const svg = renderCrosswordSVG(cells, numbers, p.size);
+  art.append(svg);
+
+  const clueCols = el("div", { class: "crossword-card__clues" });
+  clueCols.append(cluesList("Across", p.across), cluesList("Down", p.down));
+  art.append(clueCols);
+
+  return art;
+}
+
+function computeGrid(rows) {
+  const size = rows.length;
+  const cells = rows.map((r) => r.split("").map((c) => c === "#" ? null : c === "." ? "" : c));
+  const numbers = {};
+  let n = 1;
+  for (let r = 0; r < size; r++) {
+    for (let c = 0; c < size; c++) {
+      if (cells[r][c] === null) continue;
+      const startsAcross = (c === 0 || cells[r][c - 1] === null) &&
+        (c + 1 < size && cells[r][c + 1] !== null);
+      const startsDown = (r === 0 || cells[r - 1][c] === null) &&
+        (r + 1 < size && cells[r + 1][c] !== null);
+      if (startsAcross || startsDown) {
+        numbers[`${r},${c}`] = n++;
+      }
+    }
+  }
+  return { cells, numbers };
+}
+
+function renderCrosswordSVG(cells, numbers, size) {
+  const cell = 24;
+  const w = cell * size;
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("class", "crossword-svg");
+  svg.setAttribute("viewBox", `0 0 ${w + 1} ${w + 1}`);
+  svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
+
+  for (let r = 0; r < size; r++) {
+    for (let c = 0; c < size; c++) {
+      const x = c * cell, y = r * cell;
+      const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+      rect.setAttribute("x", x); rect.setAttribute("y", y);
+      rect.setAttribute("width", cell); rect.setAttribute("height", cell);
+      rect.setAttribute("stroke", "#1A1A1A");
+      rect.setAttribute("stroke-width", "0.75");
+      rect.setAttribute("fill", cells[r][c] === null ? "#1A1A1A" : "#ffffff");
+      svg.appendChild(rect);
+      if (cells[r][c] === null) continue;
+      const num = numbers[`${r},${c}`];
+      if (num) {
+        const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        t.setAttribute("x", x + 2); t.setAttribute("y", y + 7);
+        t.setAttribute("font-size", "6"); t.setAttribute("font-family", "Inter, sans-serif");
+        t.setAttribute("fill", "#1A1A1A");
+        t.textContent = num;
+        svg.appendChild(t);
+      }
+    }
+  }
+  return svg;
+}
+
+function cluesList(heading, items) {
+  const col = el("div", { class: "crossword-clues" });
+  col.append(el("h4", {}, heading));
+  const ol = el("ol");
+  for (const it of items) {
+    ol.append(el("li", {},
+      el("span", { class: "crossword-clues__num" }, `${it.n}.`),
+      " ",
+      el("span", {}, it.clue),
+      " ",
+      el("span", { class: "muted" }, `(${it.len})`),
+    ));
+  }
+  col.append(ol);
+  return col;
 }
 
 // ─── Section: Notes ────────────────────────────────────────────────────
