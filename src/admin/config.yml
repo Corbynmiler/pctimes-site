@@ -24,13 +24,9 @@ logo_url: /assets/images/logo.png
 # can see upcoming slots as a spreadsheet and press Send on draft chases.
 additional_links:
   - name: chaser
-    label: "⚡ Open the Chaser (live)"
+    label: "⚡ Open the Chaser"
     url: /admin/chaser/
     open_in_new_tab: false
-  - name: chaser_preview
-    label: "🔗 Chaser — preview branch"
-    url: https://deploy-preview-1--pctimes.netlify.app/admin/chaser/
-    open_in_new_tab: true
 
 # Default media folder. Per-field overrides below for PDFs.
 media_folder: "src/assets/images"

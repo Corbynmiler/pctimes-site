@@ -817,8 +817,62 @@ const EXAMPLE_PUZZLES = [
     ],
   },
   {
+    key: "standard",
+    title: "Example 2 — standard quick crossword",
+    subtitle: "A plain non-themed 13×13 — this is the sort of thing you'd see every week, no gimmicks. Mix of easy and medium clues.",
+    size: 13,
+    rows: [
+      ".....#.......",
+      ".#.#.#.#.#.#.",
+      ".............",
+      ".#.#.#...#.#.",
+      "....#.....#..",
+      ".#...#.#.....",
+      "...#.......#.",
+      ".....#.#...#.",
+      "..#.....#....",
+      ".#.#...#.#.#.",
+      ".............",
+      ".#.#.#.#.#.#.",
+      ".......#.....",
+    ],
+    across: [
+      { n: 1, clue: "Soldier's room at the barracks", len: 5 },
+      { n: 5, clue: "Opposite of west", len: 7 },
+      { n: 10, clue: "Heavy book", len: 4 },
+      { n: 11, clue: "Second-hand", len: 4 },
+      { n: 12, clue: "Walked briskly", len: 8 },
+      { n: 14, clue: "Trumpeting ocean mammal", len: 8 },
+      { n: 15, clue: "What a sail catches", len: 4 },
+      { n: 17, clue: "Alternative to coffee", len: 3 },
+      { n: 18, clue: "Freshwater fish, often smoked", len: 6 },
+      { n: 20, clue: "Common house pet", len: 3 },
+      { n: 23, clue: "Oven for drying hops", len: 4 },
+      { n: 25, clue: "Of the stars (adj.)", len: 7 },
+      { n: 27, clue: "Garden tool for levelling soil", len: 4 },
+      { n: 28, clue: "Hidden treasure, as from pirates", len: 5 },
+    ],
+    down: [
+      { n: 1, clue: "Light meal between main meals", len: 5 },
+      { n: 2, clue: "French for 'yes'", len: 3 },
+      { n: 3, clue: "Flat-topped Spanish hat", len: 7 },
+      { n: 4, clue: "Hole punched in a belt", len: 6 },
+      { n: 6, clue: "At this moment", len: 3 },
+      { n: 7, clue: "Formal dance", len: 4 },
+      { n: 8, clue: "Yearly", len: 6 },
+      { n: 9, clue: "Opera solo", len: 4 },
+      { n: 13, clue: "Opposite of empty", len: 4 },
+      { n: 16, clue: "Not often found", len: 4 },
+      { n: 19, clue: "Mountain in Greek myth, home of the gods", len: 7 },
+      { n: 21, clue: "Make amends", len: 5 },
+      { n: 22, clue: "Pitched tent camp", len: 6 },
+      { n: 24, clue: "Needle hole", len: 3 },
+      { n: 26, clue: "Baby's bed", len: 3 },
+    ],
+  },
+  {
     key: "coastal",
-    title: "Example 2 — themed, local flavour",
+    title: "Example 3 — themed, local flavour",
     subtitle: "A smaller 11×11 with a Pōhutukawa Coast theme. Shows how we can add weekly themes (summer, school holidays, local events) on top of the standard quick-crossword format.",
     size: 11,
     rows: [
@@ -865,8 +919,8 @@ const EXAMPLE_PUZZLES = [
 
 function sectionCrossword() {
   const sec = el("section", { class: "section" });
-  sec.append(sectionHead("Crossword — examples for you to look at", 2,
-    "Hi Aunty L. Two example puzzles below showing what your weekly crossword would look like if you switched to one made in this system. Have a read of the clues, look at the grid shape — would you be happy publishing something like this each week?"));
+  sec.append(sectionHead("Crossword — examples for you to look at", 3,
+    "Hi Aunty L. Three example puzzles below showing what your weekly crossword could look like. Have a read of the clues, look at the grid shape — would you be happy publishing something like this each week?"));
 
   const banner = el("div", { class: "banner banner--info" });
   banner.innerHTML = `<strong>These are preview mock-ups</strong> — nothing is live yet. Just a visual to help you decide if this direction works.`;
@@ -886,6 +940,8 @@ function sectionCrossword() {
       <li><strong>Export</strong> — one file for the grid + clues, one file for the answer key (page 8). Drop them into the layout the same way you do now.</li>
     </ol>
     <p>About 15 minutes of your time each week, instead of waiting on the vendor's email. Includes a quality-check step that solves every clue against the grid before it reaches you, so you shouldn't see ambiguous or silly ones — if any slip through, you just click "give me another".</p>
+    <h3 style="margin-top: 1.25rem;">Cost</h3>
+    <p>If you're happy with the direction, I can fold this into your existing website bill — <strong>NZ$60/month total (website + crossword)</strong>, instead of the ~NZ$90/month you pay the current vendor plus the website. That covers as many regenerations as you want each week. Happy to run it as a free trial for a few weeks first — if the quality isn't there you let me know and we tune it or drop it, no change to anything. The current vendor can stay in place until you're sure.</p>
   `;
   sec.append(foot);
   return sec;
