@@ -5,8 +5,67 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Edit the Pōhutukawa Coast Times</title>
   <meta name="robots" content="noindex,nofollow">
+  <style>
+    /* Floating "Chaser" button — persists above Sveltia so there's always a
+       visible link to the roster/chaser page. The pill-badge (inbox style)
+       shows how many chases need sending this week; refreshes every 2 min. */
+    .pct-chaser-floater {
+      position: fixed;
+      top: 0.6rem;
+      right: 0.75rem;
+      z-index: 2147483647;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.5rem 0.85rem;
+      background: #A52938;
+      color: #fff;
+      font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-decoration: none;
+      border-radius: 999px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+      transition: background 120ms ease, transform 120ms ease;
+    }
+    .pct-chaser-floater:hover { background: #871B27; transform: translateY(-1px); }
+    .pct-chaser-floater__beta {
+      background: rgba(255,255,255,0.2);
+      padding: 0.05rem 0.4rem;
+      border-radius: 999px;
+      font-size: 0.65rem;
+      letter-spacing: 0.06em;
+    }
+    .pct-chaser-floater__badge {
+      display: none;
+      background: #FFF;
+      color: #A52938;
+      min-width: 1.25rem;
+      height: 1.25rem;
+      padding: 0 0.4rem;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      line-height: 1.25rem;
+      text-align: center;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+    }
+    .pct-chaser-floater--pulse .pct-chaser-floater__badge {
+      display: inline-block;
+      animation: pct-chaser-pulse 2.4s ease-in-out infinite;
+    }
+    @keyframes pct-chaser-pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.08); }
+    }
+  </style>
 </head>
 <body>
+  <a class="pct-chaser-floater" id="pct-chaser-floater" href="/admin/chaser/" title="Open the Roster + Chaser dashboard">
+    ⚡ Chaser
+    <span class="pct-chaser-floater__badge" id="pct-chaser-badge" aria-label="Chases to send this week"></span>
+    <span class="pct-chaser-floater__beta">BETA</span>
+  </a>
   <!--
     Sveltia CMS is Decap-compatible. Loaded from CDN at a pinned major version
     so security/feature releases land automatically without breaking changes.
@@ -14,6 +73,72 @@
   -->
   <!-- The query string is a cache-buster — bump it when the CMS config changes
        structurally so editors don't run on stale config from localStorage. -->
-  <script src="https://unpkg.com/@sveltia/cms@0/dist/sveltia-cms.js?v=3"></script>
+  <script src="https://unpkg.com/@sveltia/cms@0/dist/sveltia-cms.js?v=8"></script>
+
+  <script>
+    // Live badge: pull the roster data, compute how many chases need sending
+    // this week, show a count pill on the Chaser button. Refreshes every 2
+    // minutes so when Leanne marks a chase sent in the Chaser tab, the number
+    // drops the next time she glances at the CMS.
+    (function () {
+      const TZ = "Pacific/Auckland";
+      const ACTIVE = new Set(["pending", "draft_ready", "chased", "followed_up"]);
+
+      function todayISONZ() {
+        const parts = new Intl.DateTimeFormat("en-CA", {
+          timeZone: TZ, year: "numeric", month: "2-digit", day: "2-digit",
+        }).formatToParts(new Date());
+        const m = Object.fromEntries(parts.map((p) => [p.type, p.value]));
+        return m.year + "-" + m.month + "-" + m.day;
+      }
+      function daysBetween(aISO, bISO) {
+        if (!aISO || !bISO) return null;
+        const a = aISO.split("-").map(Number), b = bISO.split("-").map(Number);
+        if (a.length !== 3 || b.length !== 3) return null;
+        const au = Date.UTC(a[0], a[1] - 1, a[2]);
+        const bu = Date.UTC(b[0], b[1] - 1, b[2]);
+        return Math.round((bu - au) / 86400000);
+      }
+
+      async function tick() {
+        try {
+          const res = await fetch("/admin-data/roster.json", { cache: "no-store" });
+          if (!res.ok) return;
+          const data = await res.json();
+          const today = todayISONZ();
+          let count = 0;
+          for (const r of data.rosters || []) {
+            const byKey = {};
+            for (const c of r.contributors || []) byKey[c.key] = c;
+            const lead = r.default_lead_days || 10;
+            for (const s of r.slots || []) {
+              if (!ACTIVE.has(s.status)) continue;
+              const c = byKey[s.contributor_key];
+              if (!c || c.self_authored || !c.email) continue;
+              const dueDays = daysBetween(today, s.due_date);
+              const issueDays = daysBetween(today, s.issue_date);
+              if (dueDays == null || issueDays == null) continue;
+              if (dueDays <= lead && dueDays >= -3 && issueDays >= -1) count++;
+            }
+          }
+          const btn = document.getElementById("pct-chaser-floater");
+          const badge = document.getElementById("pct-chaser-badge");
+          if (!btn || !badge) return;
+          if (count > 0) {
+            badge.textContent = String(count);
+            btn.classList.add("pct-chaser-floater--pulse");
+            btn.title = count + (count === 1 ? " chase" : " chases") + " to send this week — click to open the Chaser";
+          } else {
+            badge.textContent = "";
+            btn.classList.remove("pct-chaser-floater--pulse");
+            btn.title = "Open the Roster + Chaser dashboard";
+          }
+        } catch { /* quietly ignore — the button still works */ }
+      }
+
+      tick();
+      setInterval(tick, 2 * 60 * 1000);
+    })();
+  </script>
 </body>
 </html>
