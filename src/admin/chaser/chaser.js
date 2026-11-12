@@ -870,57 +870,12 @@ const EXAMPLE_PUZZLES = [
       { n: 26, clue: "Baby's bed", len: 3 },
     ],
   },
-  {
-    key: "coastal",
-    title: "Example 3 — themed, local flavour",
-    subtitle: "A smaller 11×11 with a Pōhutukawa Coast theme. Shows how we can add weekly themes (summer, school holidays, local events) on top of the standard quick-crossword format.",
-    size: 11,
-    rows: [
-      "..#.......#",
-      ".##.#.#.##.",
-      "...........",
-      "#.#.##.#.#.",
-      ".....#.....",
-      "..#.....#..",
-      ".....#.....",
-      ".#.#.##.#.#",
-      "...........",
-      ".##.#.#.##.",
-      "#.......#..",
-    ],
-    across: [
-      { n: 1, clue: "Big red bloom seen on the Coast at Christmas", len: 10 },
-      { n: 10, clue: "Boat place with pontoons", len: 6 },
-      { n: 11, clue: "Local __: our weekly paper", len: 5 },
-      { n: 13, clue: "Opposite of ebb", len: 4 },
-      { n: 14, clue: "Grain used in porridge", len: 4 },
-      { n: 16, clue: "What waves do on the shore", len: 5 },
-      { n: 18, clue: "Loud blow from a ship's horn", len: 5 },
-      { n: 20, clue: "Shellfish prized by Kiwis", len: 4 },
-      { n: 22, clue: "Beach ball sport, popular at Beachlands", len: 10 },
-    ],
-    down: [
-      { n: 2, clue: "The 'Ō' in Pōhutukawa, as a vowel mark", len: 6 },
-      { n: 3, clue: "Weekend market setup", len: 5 },
-      { n: 4, clue: "Seagull's cousin", len: 4 },
-      { n: 5, clue: "Sand castle tool", len: 6 },
-      { n: 6, clue: "South island fruit, kiwi's namesake", len: 8 },
-      { n: 7, clue: "What the paper is delivered to", len: 5 },
-      { n: 8, clue: "Fish and __", len: 5 },
-      { n: 9, clue: "Harbour vessel", len: 4 },
-      { n: 12, clue: "Ocean swell", len: 4 },
-      { n: 15, clue: "Māori word for sea", len: 2 },
-      { n: 17, clue: "Local rugby code", len: 5 },
-      { n: 19, clue: "Maraetai __: our main beach", len: 5 },
-      { n: 21, clue: "Crab's weapon", len: 5 },
-    ],
-  },
 ];
 
 function sectionCrossword() {
   const sec = el("section", { class: "section" });
-  sec.append(sectionHead("Crossword — examples for you to look at", 3,
-    "Hi Aunty L. Three example puzzles below showing what your weekly crossword could look like. Have a read of the clues, look at the grid shape — would you be happy publishing something like this each week?"));
+  sec.append(sectionHead("Crossword — examples for you to look at", 2,
+    "Hi Aunty L. Two example puzzles below showing what your weekly crossword could look like — kept general-knowledge, not themed, with clues pitched at a smarter level (no giveaway 'blue ocean' type stuff). Have a read, look at the grid shape — would you be happy publishing something like this each week?"));
 
   const banner = el("div", { class: "banner banner--info" });
   banner.innerHTML = `<strong>These are preview mock-ups</strong> — nothing is live yet. Just a visual to help you decide if this direction works.`;
@@ -935,11 +890,11 @@ function sectionCrossword() {
   foot.innerHTML = `
     <h3>How it would work each week</h3>
     <ol>
-      <li><strong>Click Generate</strong> and in a few seconds you get a fresh filled grid + numbered clue list — the 80×80mm size you print at, ready for InDesign.</li>
+      <li><strong>Click Generate</strong> and in a few seconds you get a fresh filled grid + numbered clue list.</li>
       <li><strong>Read through and tweak.</strong> Don't love a clue? Click it and ask for another one, or write your own. The grid stays fixed; only the wording changes.</li>
-      <li><strong>Export</strong> — one file for the grid + clues, one file for the answer key (page 8). Drop them into the layout the same way you do now.</li>
+      <li><strong>Export</strong> — one print-ready file for the grid (sized exactly 80 mm × 80 mm to drop into your InDesign layout), plus the clue list ready to copy-paste straight out of this page, and a separate file for the answer key (page 8).</li>
     </ol>
-    <p>About 15 minutes of your time each week, instead of waiting on the vendor's email. Includes a quality-check step that solves every clue against the grid before it reaches you, so you shouldn't see ambiguous or silly ones — if any slip through, you just click "give me another".</p>
+    <p>About 15 minutes of your time each week. Includes a quality-check step that solves every clue against the grid before it reaches you, so you shouldn't see ambiguous or silly ones — if any slip through, you just click "give me another".</p>
     <h3 style="margin-top: 1.25rem;">Cost</h3>
     <p>If you're happy with the direction, I can fold this into your existing website bill — <strong>NZ$60/month total (website + crossword)</strong>, instead of the ~NZ$90/month you pay the current vendor plus the website. That covers as many regenerations as you want each week. Happy to run it as a free trial for a few weeks first — if the quality isn't there you let me know and we tune it or drop it, no change to anything. The current vendor can stay in place until you're sure.</p>
   `;
@@ -959,11 +914,27 @@ function crosswordExample(p) {
   const svg = renderCrosswordSVG(cells, numbers, p.size);
   art.append(svg);
 
+  // Toolbar: copy clues to clipboard in the format Leanne already uses
+  const bar = el("div", { class: "crossword-card__bar" });
+  bar.append(btn("📋 Copy clues", "btn--small btn--ghost", () => {
+    const text = cluesToText(p);
+    navigator.clipboard.writeText(text).then(
+      () => toast("Clues copied — paste straight into InDesign."),
+      () => toast("Couldn't copy — select the text below instead.", true),
+    );
+  }));
+  art.append(bar);
+
   const clueCols = el("div", { class: "crossword-card__clues" });
   clueCols.append(cluesList("Across", p.across), cluesList("Down", p.down));
   art.append(clueCols);
 
   return art;
+}
+
+function cluesToText(p) {
+  const fmt = (list) => list.map((c) => `${c.n}. ${c.clue} (${c.len})`).join("\n");
+  return `Across\n${fmt(p.across)}\n\nDown\n${fmt(p.down)}`;
 }
 
 function computeGrid(rows) {

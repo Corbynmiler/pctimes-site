@@ -350,7 +350,12 @@ body {
   max-width: 320px;
   height: auto;
   display: block;
-  margin: 0 auto 1rem;
+  margin: 0 auto 0.6rem;
+}
+.crossword-card__bar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 0.6rem;
 }
 .crossword-card__clues {
   display: grid;
