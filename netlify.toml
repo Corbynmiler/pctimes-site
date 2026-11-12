@@ -32,8 +32,13 @@
   [headers.values]
     Cache-Control = "public, max-age=3600"
 
-# Don't index the admin
+# Don't index the admin, and never cache — the floating Chaser button and
+# live badge both ship from /admin/index.html, and a stale cached copy makes
+# editors think the button is missing. Sveltia's CDN script has its own
+# cache-buster in the query string.
 [[headers]]
   for = "/admin/*"
   [headers.values]
     X-Robots-Tag = "noindex, nofollow"
+    Cache-Control = "no-store, no-cache, must-revalidate, max-age=0"
+    Pragma = "no-cache"
