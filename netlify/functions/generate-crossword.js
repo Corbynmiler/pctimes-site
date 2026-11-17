@@ -128,6 +128,36 @@ function slotPattern(cells, slot) {
   return p;
 }
 
+// Standard crossword grids sometimes have "orphan" white cells — whites
+// surrounded by blacks in both directions such that neither the across nor
+// the down run reaches length 3. My fill engine only handles entries of
+// length >= 3, so orphans stay empty and the grid has visible gaps.
+// Simple pragmatic fix: pre-fill orphan cells with a random vowel so they
+// at least render as letters. They are never clued (no entry covers them).
+function fillOrphans(cells, slots) {
+  const size = cells.length;
+  const covered = new Set();
+  for (const s of slots) {
+    for (let i = 0; i < s.len; i++) {
+      const r = s.dir === "A" ? s.row : s.row + i;
+      const c = s.dir === "A" ? s.col + i : s.col;
+      covered.add(`${r},${c}`);
+    }
+  }
+  const vowels = "AEIOU";
+  let n = 0;
+  for (let r = 0; r < size; r++) {
+    for (let c = 0; c < size; c++) {
+      if (cells[r][c] === null) continue;
+      if (!covered.has(`${r},${c}`)) {
+        cells[r][c] = vowels[Math.floor(Math.random() * vowels.length)];
+        n++;
+      }
+    }
+  }
+  return n;
+}
+
 function placeWord(cells, slot, word) {
   for (let i = 0; i < slot.len; i++) {
     const r = slot.dir === "A" ? slot.row : slot.row + i;
@@ -352,6 +382,8 @@ exports.handler = async () => {
       const { cells } = parseGrid(tpl.rows);
       const slots = extractSlots(cells);
       const deadline = Date.now() + 6000; // leave headroom for LLM call within 10s cap
+      // Pre-fill any orphan cells (white but not in any >= 3-letter entry).
+      fillOrphans(cells, slots);
       if (fillGrid(cells, slots, index, deadline)) {
         filled = cells;
         templateUsed = tpl;
