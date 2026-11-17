@@ -378,6 +378,27 @@ body {
 }
 .crossword-clues li { padding: 0.15rem 0; line-height: 1.35; }
 .crossword-clues__num { font-weight: 600; color: var(--maroon); display: inline-block; min-width: 1.5rem; }
+.crossword-clues__regen {
+  background: transparent;
+  border: 1px solid var(--rule);
+  color: var(--muted);
+  width: 1.4rem;
+  height: 1.4rem;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 0.82rem;
+  line-height: 1;
+  padding: 0;
+  margin-left: 0.2rem;
+  vertical-align: middle;
+  transition: background 100ms, color 100ms, border-color 100ms;
+}
+.crossword-clues__regen:hover:not(:disabled) {
+  background: var(--red);
+  color: #fff;
+  border-color: var(--red);
+}
+.crossword-clues__regen:disabled { opacity: 0.6; cursor: wait; }
 
 .crossword-foot {
   background: var(--cream);

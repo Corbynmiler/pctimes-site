@@ -16,6 +16,10 @@ const EDIT_DRAFT_KEY = "pct-chaser-draft-edits-v1";
 const SHEET_FILTER_KEY = "pct-chaser-sheet-filter-v1";
 const TAB_KEY = "pct-chaser-tab-v1";
 const CROSSWORD_RESULT_KEY = "pct-chaser-crossword-result-v1";
+const CROSSWORD_SWAPLOG_KEY = "pct-chaser-crossword-swaplog-v1";
+const CROSSWORD_REGEN_COUNT_KEY = "pct-chaser-crossword-regen-v1";
+const WEEKLY_REGEN_SOFT_CAP = 10;      // nudges Leanne after this many
+const WEEKLY_REGEN_HARD_CAP = 20;      // blocks after this many
 
 // ─── Date helpers ──────────────────────────────────────────────────────
 const monthShort = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
@@ -936,9 +940,8 @@ function sectionCrossword() {
       <li><strong>Read through and tweak.</strong> Don't love a clue? Click it and ask for another one, or write your own. The grid stays fixed; only the wording changes.</li>
       <li><strong>Export</strong> — one print-ready file for the grid (sized exactly 80 mm × 80 mm to drop into your InDesign layout), plus the clue list ready to copy-paste straight out of this page, and a separate file for the answer key (page 8).</li>
     </ol>
-    <p>About 15 minutes of your time each week. Includes a quality-check step that solves every clue against the grid before it reaches you, so you shouldn't see ambiguous or silly ones — if any slip through, you just click "give me another".</p>
-    <h3 style="margin-top: 1.25rem;">Cost</h3>
-    <p>If you're happy with the direction, I can fold this into your existing website bill — <strong>NZ$60/month total (website + crossword)</strong>, instead of the ~NZ$90/month you pay the current vendor plus the website. That covers as many regenerations as you want each week. Happy to run it as a free trial for a few weeks first — if the quality isn't there you let me know and we tune it or drop it, no change to anything. The current vendor can stay in place until you're sure.</p>
+    <p>About 15 minutes of your time each week. Includes a quality-check step that solves every clue against the grid before it reaches you, so you shouldn't see ambiguous or silly ones — if any slip through, you click the ↻ next to that one clue and we rewrite just that one.</p>
+    <p>Happy to run it as a free trial for a few weeks — if the quality isn't there you let me know and we tune it or drop it. Your current vendor can stay in place until you're sure.</p>
   `;
   sec.append(foot);
   return sec;
@@ -985,7 +988,31 @@ function answersToText(p) {
 }
 
 // ─── Generate: calls the Netlify function, stores result in state ──────
+function regenStats() {
+  // Weekly rolling count of full regenerations, kept in localStorage.
+  const raw = readLS(CROSSWORD_REGEN_COUNT_KEY, { weekStart: 0, count: 0 });
+  const now = Date.now();
+  const weekMs = 7 * 24 * 60 * 60 * 1000;
+  if (!raw.weekStart || now - raw.weekStart > weekMs) {
+    return { weekStart: now, count: 0 };
+  }
+  return raw;
+}
+function bumpRegenCount() {
+  const s = regenStats();
+  s.count++;
+  writeLS(CROSSWORD_REGEN_COUNT_KEY, s);
+  return s;
+}
+
 async function runGenerate() {
+  const stats = regenStats();
+  if (stats.count >= WEEKLY_REGEN_HARD_CAP) {
+    if (!confirm(`You've generated ${stats.count} full puzzles this week. Do you really want another? (If one clue is bothering you, use the ↻ next to that single clue — it's much cheaper.)`)) return;
+  } else if (stats.count >= WEEKLY_REGEN_SOFT_CAP) {
+    if (!confirm(`You've already generated ${stats.count} full puzzles this week. For small tweaks, use the ↻ next to a single clue instead. Generate anyway?`)) return;
+  }
+
   state.crosswordBusy = true;
   state.crosswordError = null;
   render();
@@ -995,6 +1022,7 @@ async function runGenerate() {
     if (!res.ok) throw new Error(data.error || `Request failed (${res.status})`);
     state.crosswordResult = data;
     writeLS(CROSSWORD_RESULT_KEY, data);
+    bumpRegenCount();
     state.crosswordBusy = false;
     render();
     toast("Fresh puzzle generated — review the clues below.");
@@ -1002,6 +1030,46 @@ async function runGenerate() {
     state.crosswordBusy = false;
     state.crosswordError = e.message;
     render();
+  }
+}
+
+// ─── Single-clue regen: replaces one clue without touching the grid ────
+async function runRegenClue(entry, direction) {
+  const r = state.crosswordResult;
+  if (!r) return;
+  entry._regenerating = true;
+  render();
+  try {
+    const swapLog = readLS(CROSSWORD_SWAPLOG_KEY, []);
+    const res = await fetch("/.netlify/functions/regenerate-clue", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        answer: entry.answer,
+        length: entry.len,
+        rejected_clue: entry.clue,
+        swap_log: swapLog,
+      }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || `Request failed (${res.status})`);
+    // Log the swap so future regens know Leanne's preferences.
+    swapLog.push({
+      answer: entry.answer,
+      rejected: entry.clue,
+      kept: data.clue,
+      when: Date.now(),
+    });
+    writeLS(CROSSWORD_SWAPLOG_KEY, swapLog.slice(-100));
+    entry.clue = data.clue;
+    entry._regenerating = false;
+    writeLS(CROSSWORD_RESULT_KEY, r);
+    render();
+    toast(`Clue updated for ${entry.answer}.`);
+  } catch (e) {
+    entry._regenerating = false;
+    render();
+    toast(`Couldn't rewrite that clue: ${e.message}`, true);
   }
 }
 
@@ -1045,14 +1113,17 @@ function generatedCrossword(r) {
   }));
   art.append(bar);
 
-  // Clue list (same renderer as examples)
+  // Clue list (with per-clue regenerate buttons on the generated puzzle)
   const clueCols = el("div", { class: "crossword-card__clues" });
-  clueCols.append(cluesList("Across", r.across), cluesList("Down", r.down));
+  clueCols.append(
+    cluesList("Across", r.across, { regenable: true }),
+    cluesList("Down", r.down, { regenable: true }),
+  );
   art.append(clueCols);
 
   // Footnote
   art.append(el("p", { class: "muted", style: "margin-top:0.75rem; font-size:0.85rem;" },
-    `Template: ${r.template}. If you don't like this one, press Generate again for a fresh puzzle — each one is unique.`));
+    `If one clue is off, click the ↻ next to it and I'll rewrite just that one. Hit Generate for a whole new puzzle if the grid itself isn't working for you.`));
 
   return art;
 }
@@ -1120,18 +1191,31 @@ function renderCrosswordSVG(cells, numbers, size, opts) {
   return svg;
 }
 
-function cluesList(heading, items) {
+function cluesList(heading, items, opts) {
+  const regenable = !!(opts && opts.regenable);
   const col = el("div", { class: "crossword-clues" });
   col.append(el("h4", {}, heading));
   const ol = el("ol");
   for (const it of items) {
-    ol.append(el("li", {},
+    const li = el("li", {});
+    li.append(
       el("span", { class: "crossword-clues__num" }, `${it.n}.`),
       " ",
-      el("span", {}, it.clue),
+      el("span", {}, it.clue || ""),
       " ",
       el("span", { class: "muted" }, `(${it.len})`),
-    ));
+    );
+    if (regenable && it.answer) {
+      const b = el("button", {
+        class: "crossword-clues__regen",
+        title: it._regenerating ? "Rewriting…" : "Rewrite this clue",
+        "aria-label": `Rewrite clue for ${it.answer}`,
+      }, it._regenerating ? "…" : "↻");
+      b.disabled = !!it._regenerating;
+      b.addEventListener("click", () => runRegenClue(it, heading));
+      li.append(" ", b);
+    }
+    ol.append(li);
   }
   col.append(ol);
   return col;
