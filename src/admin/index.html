@@ -11,8 +11,10 @@
        shows how many chases need sending this week; refreshes every 2 min. */
     .pct-chaser-floater {
       position: fixed;
-      top: 0.6rem;
-      right: 0.75rem;
+      /* bottom-right so we never cover Sveltia's Save / Delete / New buttons
+         (those live in the top-right of the editor toolbar). */
+      bottom: 1rem;
+      right: 1rem;
       z-index: 2147483647;
       display: inline-flex;
       align-items: center;
