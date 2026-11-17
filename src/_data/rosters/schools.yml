@@ -287,8 +287,8 @@ slots:
   - issue_date: '2026-11-27'
     due_date: '2026-11-19'
     contributor_key: ardmore
-    status: chased
-    notes: 'Barfoots agent: Barfoots Office'
+    status: skipped
+    notes: 'Barfoots agent: Barfoots Office; Skipped from chaser on 2026-11-17'
     chase_log:
       - at: '2026-11-17T01:57:29.724Z'
         by: PCTimes
