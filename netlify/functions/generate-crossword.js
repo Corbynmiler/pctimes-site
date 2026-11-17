@@ -217,29 +217,22 @@ function fillGrid(cells, slots, index, deadlineMs) {
 }
 
 // ─── Clue generation (Claude) ──────────────────────────────────────────
-async function generateClues(entries, apiKey) {
-  const prompt =
-`You are writing clues for a weekly quick crossword in the Pōhutukawa Coast Times, a New Zealand community newspaper read by a smart, general audience (not seniors-only, not specialist). Aunty Leanne is the editor.
+const CLUE_SYSTEM_PROMPT =
+`You are a professional crossword compiler writing for the Pōhutukawa Coast Times, a New Zealand community newspaper read by a smart, general adult audience. The editor, Leanne Chamberlin, is sharp — she will reject clues that feel childish, obvious, or culturally wrong.
 
-Write ONE clue for each ANSWER below.
+HARD RULES:
+1. ONE definition per clue. NEVER join two definitions with "or" ("Loss of footing or piece of paper" is forbidden — pick ONE). The "or" trick gives the solver two chances and makes the puzzle too easy. If you can't pick a single clean definition, use wordplay instead.
+2. New Zealand context. NZ uses metric (km/h, kilometres, metres, Celsius), NOT imperial (mph, miles, Fahrenheit). NZ spelling: colour, metre, theatre, favourite, organise. NZ English, not American. No clues that assume US geography, US sports, or US cultural references unless internationally famous.
+3. Medium difficulty. Smart adults should solve. No giveaways like "Yellow fruit" for BANANA or "Opposite of yes" for NO.
+4. No overused crossword tropes. Forbidden definitions: "Opera solo" (ARIA), "Yes vote" (AYE), "Needle hole" (EYE), "Toward shelter" (ALEE), "Sch. subj." (nope). Find fresh angles.
+5. Clues should be 2-7 words, concise.
+6. Do NOT reveal the answer length in the clue text.
+7. Formal newspaper tone. No slang, no emoji, no exclamation marks.
+8. Prefer definition + light wordplay over pure definition when possible, but keep it accessible — this is a quick crossword, not a cryptic.
 
-Rules:
-- Each clue must have the answer as its unique solution. A reasonable solver should not confuse it for another word.
-- Difficulty: medium. Smart adults should solve them. No giveaways like "Yellow fruit" for BANANA.
-- Use NZ/UK English spelling where it matters.
-- Keep clues concise: 2-8 words. End with a question mark only for genuinely ambiguous wordplay.
-- Mix definition, light wordplay, and allusion. Avoid overused crossword tropes ("Opera solo" for ARIA, "Yes vote" for AYE, "Needle hole" for EYE).
-- Do NOT reveal the answer length in the clue text.
-- Keep tone neutral/newspaper-formal. No slang, no emojis.
+If an answer is an abbreviation or awkward (e.g. SCI, AKA, FRI, MIT), clue it as such ("Day before Saturday, briefly", "'Also known as', briefly") — never pretend it's a common word.`;
 
-ANSWERS (JSON):
-${JSON.stringify(entries)}
-
-Respond with ONLY a single JSON object in this exact shape:
-{"clues": [{"answer": "...", "clue": "..."}]}
-
-Nothing before or after the JSON. No markdown fences.`;
-
+async function callClaude(prompt, apiKey) {
   const res = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
     headers: {
@@ -248,8 +241,9 @@ Nothing before or after the JSON. No markdown fences.`;
       "content-type": "application/json",
     },
     body: JSON.stringify({
-      model: "claude-haiku-4-5",
+      model: "claude-sonnet-4-5",
       max_tokens: 4000,
+      system: CLUE_SYSTEM_PROMPT,
       messages: [{ role: "user", content: prompt }],
     }),
   });
@@ -259,10 +253,61 @@ Nothing before or after the JSON. No markdown fences.`;
   }
   const json = await res.json();
   const text = (json.content || []).map((p) => p.text || "").join("").trim();
-  // Strip optional ```json fences just in case
   const cleaned = text.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "");
-  const parsed = JSON.parse(cleaned);
+  return JSON.parse(cleaned);
+}
+
+async function generateClues(entries, apiKey) {
+  const prompt =
+`Write ONE clue for each answer below. Follow the HARD RULES in the system message, especially: no "X or Y" double-definitions, no miles-per-hour or other imperial references, no overused tropes.
+
+ANSWERS (JSON):
+${JSON.stringify(entries)}
+
+Return ONLY this JSON shape, nothing else, no markdown fences:
+{"clues": [{"answer": "ASTRONOMER", "clue": "Expert on stars"}, ...]}
+
+Include every answer in your response. Order does not matter.`;
+
+  const parsed = await callClaude(prompt, apiKey);
   return parsed.clues || [];
+}
+
+// Detect the "X or Y" double-definition pattern — anything joined by " or "
+// that isn't a single phrase is forbidden.
+function looksLikeDoubleDefinition(clue) {
+  if (!clue) return false;
+  // " or " connecting what look like separate noun phrases
+  // Simple heuristic: if we see " or " and both sides are > 2 chars, flag it.
+  const m = clue.match(/^(.+?)\s+or\s+(.+)$/i);
+  if (!m) return false;
+  const left = m[1].trim(), right = m[2].trim();
+  // Exceptions: single-word "or" inside a longer phrase like "more or less"
+  const stopWords = /^(more|less|so|two|three|four|five|six|seven|eight|nine|ten)$/i;
+  if (stopWords.test(left) || stopWords.test(right)) return false;
+  // If it ends with "briefly" or "(abbr.)" the clue is likely one-sided
+  if (/briefly|abbr\.?\)?/i.test(clue)) return false;
+  return left.length >= 3 && right.length >= 3;
+}
+
+// Flag imperial-unit mentions that are wrong for NZ.
+function looksUSCentric(clue) {
+  if (!clue) return false;
+  return /\b(mph|mile|miles|fahrenheit|yards?|feet|inches?|pounds?|gallons?)\b/i.test(clue);
+}
+
+async function regenerateClue(answer, lengthOf, apiKey) {
+  const prompt =
+`The crossword clue I wrote for the answer "${answer}" (${lengthOf} letters) was rejected by the editor for violating the HARD RULES. Write a BETTER single clue that:
+- Uses ONE definition only, not two joined by "or"
+- Is NZ-appropriate (metric, NZ spelling, no US-only references)
+- Is a bit harder than obvious
+- Is 2-7 words
+
+Return ONLY this JSON, nothing else:
+{"answer": "${answer}", "clue": "..."}`;
+  const parsed = await callClaude(prompt, apiKey);
+  return parsed.clue || null;
 }
 
 // ─── Puzzle assembly ───────────────────────────────────────────────────
@@ -340,6 +385,30 @@ exports.handler = async () => {
     const clueByAnswer = Object.fromEntries(
       (clueResp || []).map((c) => [String(c.answer || "").toUpperCase(), c.clue])
     );
+
+    // Second pass: regenerate any clue that violates the HARD RULES
+    // (double-definition with " or ", imperial units, or missing entirely).
+    const needsRegen = [];
+    for (const a of answers) {
+      const c = clueByAnswer[a.answer];
+      if (!c || looksLikeDoubleDefinition(c) || looksUSCentric(c)) {
+        needsRegen.push(a);
+      }
+    }
+    // Do up to a handful of regenerations in parallel to stay within timeout.
+    if (needsRegen.length) {
+      const results = await Promise.allSettled(
+        needsRegen.slice(0, 10).map((a) => regenerateClue(a.answer, a.len, apiKey))
+      );
+      results.forEach((r, i) => {
+        if (r.status === "fulfilled" && r.value) {
+          const a = needsRegen[i];
+          if (!looksLikeDoubleDefinition(r.value) && !looksUSCentric(r.value)) {
+            clueByAnswer[a.answer] = r.value;
+          }
+        }
+      });
+    }
 
     const across = answers.filter((a) => a.direction === "across").sort((a, b) => a.number - b.number);
     const down = answers.filter((a) => a.direction === "down").sort((a, b) => a.number - b.number);
