@@ -439,6 +439,75 @@ body {
   text-align: center;
 }
 
+/* How-this-works block */
+.crossword-help {
+  margin-top: 2rem;
+}
+.crossword-help--open {
+  background: linear-gradient(180deg, var(--cream) 0%, #fff 100%);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-lg);
+  padding: 1.1rem 1.25rem 1.25rem;
+}
+.crossword-help__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.8rem;
+}
+.crossword-help__title {
+  font-family: var(--font-serif);
+  color: var(--maroon);
+  font-size: 1.15rem;
+  margin: 0;
+}
+.crossword-help__grid {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 640px) {
+  .crossword-help__grid { grid-template-columns: 1fr 1fr; }
+}
+@media (min-width: 960px) {
+  .crossword-help__grid { grid-template-columns: 1fr 1fr 1fr; }
+}
+.crossword-help__card {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.65rem;
+  padding: 0.75rem 0.85rem;
+  background: #fff;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+}
+.crossword-help__icon {
+  font-size: 1.4rem;
+  line-height: 1;
+  padding-top: 0.15rem;
+}
+.crossword-help__body strong {
+  display: block;
+  color: var(--maroon);
+  font-family: var(--font-serif);
+  font-weight: 600;
+  margin-bottom: 0.15rem;
+  font-size: 0.95rem;
+}
+.crossword-help__body p {
+  margin: 0;
+  color: var(--ink);
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+.crossword-help__foot {
+  margin: 0.9rem 0 0;
+  font-size: 0.82rem;
+  font-style: italic;
+  text-align: center;
+}
+
 /* Per-roster block (two stacked tables on the Roster tab) */
 .roster-block { margin: 1.5rem 0; }
 .roster-block__head {

@@ -18,6 +18,7 @@ const TAB_KEY = "pct-chaser-tab-v1";
 const CROSSWORD_RESULT_KEY = "pct-chaser-crossword-result-v1";
 const CROSSWORD_SWAPLOG_KEY = "pct-chaser-crossword-swaplog-v1";
 const CROSSWORD_REGEN_COUNT_KEY = "pct-chaser-crossword-regen-v1";
+const CROSSWORD_HELP_DISMISSED_KEY = "pct-chaser-crossword-help-dismissed-v1";
 const WEEKLY_REGEN_SOFT_CAP = 10;      // nudges Leanne after this many
 const WEEKLY_REGEN_HARD_CAP = 20;      // blocks after this many
 
@@ -922,6 +923,7 @@ function sectionCrossword() {
 
   if (hasResult) {
     sec.append(generatedCrossword(state.crosswordResult));
+    sec.append(crosswordHelp());
   } else {
     const banner = el("div", { class: "banner banner--info" });
     banner.innerHTML = `<strong>Preview mode</strong> — the two puzzles below are hand-written examples showing the format. Hit the Generate button above to produce a real one.`;
@@ -1071,6 +1073,86 @@ async function runRegenClue(entry, direction) {
     render();
     toast(`Couldn't rewrite that clue: ${e.message}`, true);
   }
+}
+
+// ─── Help section at the bottom of the generated-puzzle view ──────────
+function crosswordHelp() {
+  const dismissed = readLS(CROSSWORD_HELP_DISMISSED_KEY, false);
+  const wrap = el("section", { class: "crossword-help" });
+
+  if (dismissed) {
+    const toggle = btn("Show tips again", "btn btn--ghost btn--small", () => {
+      writeLS(CROSSWORD_HELP_DISMISSED_KEY, false);
+      render();
+    });
+    wrap.append(toggle);
+    return wrap;
+  }
+
+  wrap.classList.add("crossword-help--open");
+  const head = el("div", { class: "crossword-help__head" });
+  head.append(
+    el("h3", { class: "crossword-help__title" }, "How this page works"),
+    (() => {
+      const b = btn("Got it", "btn btn--ghost btn--small", () => {
+        writeLS(CROSSWORD_HELP_DISMISSED_KEY, true);
+        render();
+      });
+      return b;
+    })(),
+  );
+  wrap.append(head);
+
+  const steps = [
+    {
+      icon: "🎲",
+      title: "Generate a new puzzle",
+      body: "Fresh grid and clues each time. Takes about 7 seconds. Hit this if the whole puzzle isn't quite right — layout, theme, difficulty.",
+    },
+    {
+      icon: "↻",
+      title: "Rewrite a single clue",
+      body: "Don't love a specific clue? Click the ↻ next to it and I'll rewrite just that one in a couple of seconds. The grid and the other clues stay exactly as they are. Much quicker than a whole new puzzle.",
+    },
+    {
+      icon: "📋",
+      title: "Copy for InDesign",
+      body: "Copy clues gives you the numbered Across/Down list ready to paste into the paper. Copy answer key gives you the solution block for page 8.",
+    },
+    {
+      icon: "📐",
+      title: "80 × 80 mm grid",
+      body: "The left-hand grid prints at exactly 80 mm × 80 mm — screenshot or export to drop into InDesign at your usual size.",
+    },
+    {
+      icon: "🧠",
+      title: "Learns your taste",
+      body: "Every time you rewrite a clue, the system quietly remembers what you kept and what you rejected. Over a few weeks the clue style drifts towards what you actually like — no settings to tweak.",
+    },
+    {
+      icon: "👀",
+      title: "Preview mode",
+      body: "If you want to see the hand-written examples again (the original samples), click 'Show examples again' at the top.",
+    },
+  ];
+
+  const grid = el("div", { class: "crossword-help__grid" });
+  for (const s of steps) {
+    const card = el("div", { class: "crossword-help__card" });
+    card.append(
+      el("div", { class: "crossword-help__icon" }, s.icon),
+      el("div", { class: "crossword-help__body" },
+        el("strong", {}, s.title),
+        el("p", {}, s.body),
+      ),
+    );
+    grid.append(card);
+  }
+  wrap.append(grid);
+
+  wrap.append(el("p", { class: "crossword-help__foot muted" },
+    "Phase 1 trial: the current vendor is still in place. If the quality's not there, tell Corbyn and we'll either tune it or drop it — no change to your current workflow."));
+  return wrap;
 }
 
 // ─── Render: the generated puzzle (two grids — empty + answer key) ────
