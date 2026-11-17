@@ -3,7 +3,9 @@ subject: 'Student writing — {{organisation}} — {{issue_date_short}}'
 body: |-
   Kia ora {{display_name}},
 
-  Are you able to send me a piece of student writing for the paper by {{due_date_long}} please?
+  Are you able to send me a piece of student writing for the Pōhutukawa Coast Times by {{due_date_long}} please? Happy to include the student's name, year level and school.
 
-  fanx
-  L x
+  Many thanks,
+
+  Leanne Chamberlin
+  Editor, Pōhutukawa Coast Times

@@ -3,7 +3,9 @@ subject: 'Guest editorial — {{organisation}} — {{issue_date_short}}'
 body: |-
   Kia ora {{display_name}},
 
-  I have {{organisation}} scheduled for a guest editorial spot soon — are you able to get some words to me by {{due_date_long}} please?
+  I have {{organisation}} scheduled for a guest editorial spot in the Pōhutukawa Coast Times — are you able to get some words through to me by {{due_date_long}} please?
 
-  fanx
-  L x
+  Many thanks,
+
+  Leanne Chamberlin
+  Editor, Pōhutukawa Coast Times

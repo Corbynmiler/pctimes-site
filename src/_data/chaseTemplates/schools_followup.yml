@@ -3,7 +3,9 @@ subject: 'RE: Student writing — {{organisation}} — {{issue_date_short}}'
 body: |-
   Kia ora {{display_name}},
 
-  Just a quick nudge on the piece of student writing for {{issue_date_long}} — are you still able to send it through by {{due_date_long}}? Let me know if the timing is tight.
+  Just a quick follow-up on the piece of student writing for {{issue_date_long}} — are you still able to send it through by {{due_date_long}}? Let me know if the timing is tight and we'll work around it.
 
-  fanx
-  L x
+  Many thanks,
+
+  Leanne Chamberlin
+  Editor, Pōhutukawa Coast Times

@@ -3,7 +3,9 @@ subject: 'RE: Guest editorial — {{organisation}} — {{issue_date_short}}'
 body: |-
   Kia ora {{display_name}},
 
-  Just a quick nudge on the guest editorial for {{issue_date_long}} — are you still able to get it to me by {{due_date_long}}? Happy to shift things if that's easier.
+  Just a quick follow-up on the guest editorial for {{issue_date_long}} — are you still able to get it to me by {{due_date_long}}? Happy to shift things if the timing isn't working.
 
-  fanx
-  L x
+  Many thanks,
+
+  Leanne Chamberlin
+  Editor, Pōhutukawa Coast Times
