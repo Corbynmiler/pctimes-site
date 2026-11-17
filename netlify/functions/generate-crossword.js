@@ -52,6 +52,23 @@ for (const t of GRID_TEMPLATES) {
 let CACHED_WORDLIST = null;
 let CACHED_INDEX = null;
 
+// Words we never want appearing as answers in a NZ community paper.
+// Includes US-specific units (NZ uses metric), sensitive topics, and a few
+// grim ones. Over-filter here if in doubt — plenty of words to pick from.
+const BLOCKED_ANSWERS = new Set([
+  // US imperial units (NZ uses metric)
+  "LBS", "MPH", "YDS", "OZS", "GAL", "GALS",
+  // Sensitive / inappropriate for a community weekly
+  "AIDS", "HIV", "ISIS", "KKK", "LGBT",
+  "DIED", "DEAD", "KILL", "KILLED", "KILLING", "KILLS",
+  "MURDER", "RAPE", "RAPED", "SUICIDE",
+  "NAZI", "NAZIS", "HITLER", "TRUMP",
+  "CANCER", "TUMOR", "TUMOUR",
+  "SHIT", "FUCK", "DAMN", "HELL",
+  // Religious / theological specifics that feel loaded
+  "SATAN", "DEVIL",
+]);
+
 async function getWordlist() {
   if (CACHED_WORDLIST) return { words: CACHED_WORDLIST, index: CACHED_INDEX };
 
@@ -65,7 +82,7 @@ async function getWordlist() {
   // Skip the very top (THE, OF, AND...) — too generic as crossword answers.
   // Take a quality band of common-but-interesting words.
   const all = text.split("\n").map((w) => w.trim().toUpperCase())
-    .filter((w) => /^[A-Z]{3,13}$/.test(w));
+    .filter((w) => /^[A-Z]{3,13}$/.test(w) && !BLOCKED_ANSWERS.has(w));
   CACHED_WORDLIST = all.slice(30, 6000);
 
   // Index for fast slot lookup: key "len:pos:letter" → [words]
@@ -201,7 +218,12 @@ function shuffle(arr) {
   return arr;
 }
 
-function fillGrid(cells, slots, index, deadlineMs) {
+function fillGrid(cells, slots, index, deadlineMs, usedGlobal) {
+  // Used-word set is shared across all recursion levels so a word placed
+  // in one slot can't be reused in another (crossword convention: every
+  // answer must be unique within the puzzle).
+  if (!usedGlobal) usedGlobal = new Set();
+
   // Pick slot with fewest candidates (MRV).
   const unfilled = slots.filter((s) => slotPattern(cells, s).includes("."));
   if (unfilled.length === 0) return true;
@@ -210,7 +232,7 @@ function fillGrid(cells, slots, index, deadlineMs) {
   let best = null, bestCands = null;
   for (const s of unfilled) {
     const pat = slotPattern(cells, s);
-    const cands = candidates(pat, index);
+    const cands = candidates(pat, index).filter((w) => !usedGlobal.has(w));
     if (!best || cands.length < bestCands.length) {
       best = s; bestCands = cands;
       if (cands.length <= 1) break;
@@ -226,8 +248,10 @@ function fillGrid(cells, slots, index, deadlineMs) {
     if (usedThisSlot.has(w)) continue;
     usedThisSlot.add(w);
     placeWord(cells, best, w);
-    if (fillGrid(cells, slots, index, deadlineMs)) return true;
+    usedGlobal.add(w);
+    if (fillGrid(cells, slots, index, deadlineMs, usedGlobal)) return true;
     unplaceWord(cells, best, originalPattern);
+    usedGlobal.delete(w);
     if (Date.now() > deadlineMs) return false;
   }
   return false;
