@@ -20,7 +20,7 @@ HARD RULES:
 7. Formal newspaper tone. No slang, no emoji, no exclamation marks.
 8. Prefer definition + light wordplay over pure definition when possible, but keep it accessible — this is a quick crossword, not a cryptic.
 
-If an answer is an abbreviation or awkward (e.g. SCI, AKA, FRI, MIT), clue it as such ("Day before Saturday, briefly", "'Also known as', briefly") — never pretend it's a common word.`;
+9. For abbreviations and initialisms: clue them WITHOUT flagging them as such whenever possible. "Help page section" for FAQ is fine — do NOT write "Help page section, briefly". Only add ", briefly" or "(abbr.)" when it is genuinely needed to avoid misleading the solver. Over-using "briefly" is the single clearest tell of a lazy clue.`;
 
 function looksLikeDoubleDefinition(clue) {
   if (!clue) return false;

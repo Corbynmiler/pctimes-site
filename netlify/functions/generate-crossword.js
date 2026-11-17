@@ -12,43 +12,26 @@
 // as many times as she wants per week within the Anthropic monthly cap we set.
 
 // ─── Grid templates ────────────────────────────────────────────────────
-// Each is a 13×13 symmetric pattern — '#' is black, '.' is white.
-// Hand-designed to give ~30 entries, print well at 80×80 mm.
+// Each is a 13×13 fully-symmetric (180°) pattern — '#' is black, '.' is
+// white. Designed to bias toward meatier 4-9 letter words rather than lots
+// of 3-letter filler. ~28-32 entries each.
 const GRID_TEMPLATES = [
   {
-    name: "classic-13a",
+    name: "open-13a",
     rows: [
-      "###..........",
-      "###.#.#.#.#.#",
+      "#####........",
+      "......#......",
       ".............",
-      ".#.#.#...#.#.",
-      "....#...#....",
-      ".#...##...#.#",
-      "..#.....#..##",
-      "#.#...##...#.",
-      "....#...#....",
-      ".#.#...#.#.#.",
+      "####.....####",
       ".............",
-      "#.#.#.#.#.###",
-      "..........###",
-    ],
-  },
-  {
-    name: "classic-13b",
-    rows: [
-      "....#....#...",
-      ".#..#.#..#...",
       "....#...#....",
-      "###.#...#.###",
+      ".....#.#.....",
       "....#...#....",
-      ".#..####....#",
-      "...#.....#...",
-      "#....####..#.",
-      "....#...#....",
-      "###.#...#.###",
-      "....#...#....",
-      "...#..#.#..#.",
-      "...#....#....",
+      ".............",
+      "####.....####",
+      ".............",
+      "......#......",
+      "........#####",
     ],
   },
 ];
@@ -229,8 +212,7 @@ HARD RULES:
 6. Do NOT reveal the answer length in the clue text.
 7. Formal newspaper tone. No slang, no emoji, no exclamation marks.
 8. Prefer definition + light wordplay over pure definition when possible, but keep it accessible — this is a quick crossword, not a cryptic.
-
-If an answer is an abbreviation or awkward (e.g. SCI, AKA, FRI, MIT), clue it as such ("Day before Saturday, briefly", "'Also known as', briefly") — never pretend it's a common word.`;
+9. For abbreviations and initialisms: clue them WITHOUT flagging them as such whenever possible. "Help page section" for FAQ is fine — do NOT write "Help page section, briefly". Only add ", briefly" or "(abbr.)" when it is genuinely needed to avoid misleading the solver (e.g. if the clue would otherwise look like a full word). Over-using "briefly" is the single clearest tell of a lazy clue. AVOID using the word "briefly" in more than 2 or 3 clues per puzzle total.`;
 
 async function callClaude(prompt, apiKey) {
   const res = await fetch("https://api.anthropic.com/v1/messages", {
@@ -416,7 +398,25 @@ exports.handler = async () => {
     for (const a of down) a.clue = clueByAnswer[a.answer] || `(clue missing for ${a.answer})`;
 
     // Shape for the client: rows with letters, numbers map, clues lists.
-    const rows = filled.map((row) => row.map((c) => (c === null ? "#" : c)).join(""));
+    // Guard: if any white cell didn't get filled (shouldn't happen with a
+    // valid grid + successful fill, but belt-and-braces), surface a "?"
+    // instead of dropping the character via join("") and producing a
+    // short row.
+    let unfilledCount = 0;
+    const rows = filled.map((row) => row.map((c) => {
+      if (c === null) return "#";
+      if (!c) { unfilledCount++; return "?"; }
+      return c;
+    }).join(""));
+    // Safety: every row must be exactly the template width.
+    for (const r of rows) {
+      if (r.length !== filled.length) {
+        return json(500, { error: `Grid row length mismatch (${r.length} vs ${filled.length}). Try again.` });
+      }
+    }
+    if (unfilledCount > 0) {
+      return json(500, { error: `${unfilledCount} cell(s) could not be filled. Try again.` });
+    }
     return json(200, {
       template: templateUsed.name,
       size: filled.length,
