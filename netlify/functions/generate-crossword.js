@@ -17,21 +17,25 @@
 // of 3-letter filler. ~28-32 entries each.
 const GRID_TEMPLATES = [
   {
-    name: "open-13a",
+    // The classic one we know fills reliably within the function timeout.
+    // Yes it has several 3-letter entries — that's inherent to a 13×13.
+    // The real fight against "too many 3-letter words" is template design;
+    // deferred to a later pass once the fill engine is more robust.
+    name: "classic-13a",
     rows: [
-      "#####........",
-      "......#......",
+      "###..........",
+      "###.#.#.#.#.#",
       ".............",
-      "####.....####",
-      ".............",
+      ".#.#.#...#.#.",
       "....#...#....",
-      ".....#.#.....",
+      ".#...##...#.#",
+      "..#.....#..##",
+      "#.#...##...#.",
       "....#...#....",
+      ".#.#...#.#.#.",
       ".............",
-      "####.....####",
-      ".............",
-      "......#......",
-      "........#####",
+      "#.#.#.#.#.###",
+      "..........###",
     ],
   },
 ];
@@ -280,9 +284,10 @@ function looksUSCentric(clue) {
 
 async function regenerateClue(answer, lengthOf, apiKey) {
   const prompt =
-`The crossword clue I wrote for the answer "${answer}" (${lengthOf} letters) was rejected by the editor for violating the HARD RULES. Write a BETTER single clue that:
+`The crossword clue I wrote for the answer "${answer}" (${lengthOf} letters) was rejected by the editor. Write a BETTER single clue that:
 - Uses ONE definition only, not two joined by "or"
 - Is NZ-appropriate (metric, NZ spelling, no US-only references)
+- Does NOT contain the word "briefly" — find a different way if it's an abbreviation
 - Is a bit harder than obvious
 - Is 2-7 words
 
@@ -370,11 +375,18 @@ exports.handler = async () => {
 
     // Second pass: regenerate any clue that violates the HARD RULES
     // (double-definition with " or ", imperial units, or missing entirely).
+    // Also cap "briefly" at 2 per puzzle — any extras get rewritten.
+    let brieflyBudget = 2;
     const needsRegen = [];
     for (const a of answers) {
       const c = clueByAnswer[a.answer];
       if (!c || looksLikeDoubleDefinition(c) || looksUSCentric(c)) {
         needsRegen.push(a);
+        continue;
+      }
+      if (/\bbriefly\b/i.test(c)) {
+        if (brieflyBudget > 0) brieflyBudget--;
+        else needsRegen.push(a);
       }
     }
     // Do up to a handful of regenerations in parallel to stay within timeout.
