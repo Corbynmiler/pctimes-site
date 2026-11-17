@@ -389,6 +389,35 @@ body {
 .crossword-foot li { margin-bottom: 0.3rem; }
 .crossword-foot code { background: #fff; padding: 0.05rem 0.35rem; border-radius: 3px; font-size: 0.85em; border: 1px solid var(--rule); }
 
+.crossword-generate {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  background: #fff;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  padding: 0.75rem 0.9rem;
+  margin: 0.5rem 0 1rem;
+}
+
+.crossword-grids {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+  margin-bottom: 1rem;
+}
+@media (min-width: 720px) {
+  .crossword-grids { grid-template-columns: 1fr 1fr; }
+}
+.crossword-grid-block h4 {
+  font-family: var(--font-serif);
+  color: var(--maroon);
+  margin: 0 0 0.4rem;
+  font-size: 0.95rem;
+  text-align: center;
+}
+
 /* Per-roster block (two stacked tables on the Roster tab) */
 .roster-block { margin: 1.5rem 0; }
 .roster-block__head {

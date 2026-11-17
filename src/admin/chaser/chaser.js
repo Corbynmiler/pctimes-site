@@ -15,6 +15,7 @@ const TZ = "Pacific/Auckland";
 const EDIT_DRAFT_KEY = "pct-chaser-draft-edits-v1";
 const SHEET_FILTER_KEY = "pct-chaser-sheet-filter-v1";
 const TAB_KEY = "pct-chaser-tab-v1";
+const CROSSWORD_RESULT_KEY = "pct-chaser-crossword-result-v1";
 
 // ─── Date helpers ──────────────────────────────────────────────────────
 const monthShort = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
@@ -138,11 +139,15 @@ async function ghPut(path, { content, sha, message, token }) {
 const state = {
   auth: null,
   data: null,
-  tab: readLS(TAB_KEY, "chaser"), // chaser | roster
+  tab: readLS(TAB_KEY, "chaser"), // chaser | roster | crossword
   editedDrafts: readLS(EDIT_DRAFT_KEY, {}),
   sheetFilter: readLS(SHEET_FILTER_KEY, "upcoming"), // upcoming | all | done | missing
   sheetSearch: "",
   savingContrib: null, // key being saved, for optimistic UI
+  crosswordResult: readLS(CROSSWORD_RESULT_KEY, null),
+  crosswordBusy: false,
+  crosswordError: null,
+  showAnswers: false,
 };
 function readLS(k, fb) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : fb; } catch { return fb; } }
 function writeLS(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch { /* noop */ } }
@@ -874,16 +879,53 @@ const EXAMPLE_PUZZLES = [
 
 function sectionCrossword() {
   const sec = el("section", { class: "section" });
-  sec.append(sectionHead("Crossword — examples for you to look at", 2,
-    "Hi Aunty L. Two example puzzles below showing what your weekly crossword could look like — kept general-knowledge, not themed, with clues pitched at a smarter level (no giveaway 'blue ocean' type stuff). Have a read, look at the grid shape — would you be happy publishing something like this each week?"));
 
-  const banner = el("div", { class: "banner banner--info" });
-  banner.innerHTML = `<strong>These are preview mock-ups</strong> — nothing is live yet. Just a visual to help you decide if this direction works.`;
-  sec.append(banner);
+  const hasResult = !!state.crosswordResult;
 
-  const grid = el("div", { class: "crossword-grid" });
-  for (const p of EXAMPLE_PUZZLES) grid.append(crosswordExample(p));
-  sec.append(grid);
+  sec.append(sectionHead(
+    hasResult ? "Crossword — this week's puzzle" : "Crossword — examples + generate",
+    hasResult ? undefined : 2,
+    hasResult
+      ? "Your generated puzzle is below. Review the clues, hit 'Give me another' if you want a different one, then copy the clues into InDesign."
+      : "Hi Aunty L. Two examples at the bottom showing the format. Press the Generate button to produce a real puzzle you could actually publish."
+  ));
+
+  // Generate control bar — always visible, main entry point
+  const bar = el("div", { class: "crossword-generate" });
+  const generateBtn = btn(state.crosswordBusy ? "⏳ Generating…" : "🎲 Generate a new puzzle",
+    "btn--primary", (ev) => { ev.preventDefault(); runGenerate(); });
+  if (state.crosswordBusy) generateBtn.disabled = true;
+  bar.append(generateBtn);
+  if (hasResult) {
+    bar.append(btn("Show examples again", "btn btn--ghost", (ev) => {
+      ev.preventDefault();
+      state.crosswordResult = null;
+      writeLS(CROSSWORD_RESULT_KEY, null);
+      render();
+    }));
+  }
+  bar.append(el("span", { class: "muted", style: "margin-left:auto; font-size:0.85rem;" },
+    hasResult
+      ? `Generated ${new Date(state.crosswordResult.generated_at).toLocaleString("en-NZ")}`
+      : "Takes about 15-20 seconds the first time"));
+  sec.append(bar);
+
+  if (state.crosswordError) {
+    const errBanner = el("div", { class: "banner banner--warn" });
+    errBanner.innerHTML = `<strong>Something went wrong:</strong> ${escapeHtml(state.crosswordError)}`;
+    sec.append(errBanner);
+  }
+
+  if (hasResult) {
+    sec.append(generatedCrossword(state.crosswordResult));
+  } else {
+    const banner = el("div", { class: "banner banner--info" });
+    banner.innerHTML = `<strong>Preview mode</strong> — the two puzzles below are hand-written examples showing the format. Hit the Generate button above to produce a real one.`;
+    sec.append(banner);
+    const grid = el("div", { class: "crossword-grid" });
+    for (const p of EXAMPLE_PUZZLES) grid.append(crosswordExample(p));
+    sec.append(grid);
+  }
 
   // Next-step CTA, written for Leanne
   const foot = el("div", { class: "crossword-foot" });
@@ -937,6 +979,84 @@ function cluesToText(p) {
   return `Across\n${fmt(p.across)}\n\nDown\n${fmt(p.down)}`;
 }
 
+function answersToText(p) {
+  const fmt = (list) => list.map((c) => `${c.n}. ${c.answer || "?"}`).join("\n");
+  return `Across\n${fmt(p.across)}\n\nDown\n${fmt(p.down)}`;
+}
+
+// ─── Generate: calls the Netlify function, stores result in state ──────
+async function runGenerate() {
+  state.crosswordBusy = true;
+  state.crosswordError = null;
+  render();
+  try {
+    const res = await fetch("/.netlify/functions/generate-crossword", { cache: "no-store" });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || `Request failed (${res.status})`);
+    state.crosswordResult = data;
+    writeLS(CROSSWORD_RESULT_KEY, data);
+    state.crosswordBusy = false;
+    render();
+    toast("Fresh puzzle generated — review the clues below.");
+  } catch (e) {
+    state.crosswordBusy = false;
+    state.crosswordError = e.message;
+    render();
+  }
+}
+
+// ─── Render: the generated puzzle (two grids — empty + answer key) ────
+function generatedCrossword(r) {
+  const art = el("article", { class: "crossword-card" });
+
+  // Parse the rows (strings with letters or '#') into a cells-style structure
+  const cells = r.rows.map((row) => row.split("").map((c) => (c === "#" ? null : c)));
+  const emptyCells = cells.map((row) => row.map((c) => (c === null ? null : "")));
+
+  const gridsWrap = el("div", { class: "crossword-grids" });
+
+  // The empty grid — for the main paper layout
+  const emptyBlock = el("div", { class: "crossword-grid-block" });
+  emptyBlock.append(el("h4", {}, "Grid (for the paper — 80×80 mm)"));
+  emptyBlock.append(renderCrosswordSVG(emptyCells, r.numbers, r.size));
+  gridsWrap.append(emptyBlock);
+
+  // The filled answer-key grid — for page 8
+  const answerBlock = el("div", { class: "crossword-grid-block" });
+  answerBlock.append(el("h4", {}, "Answer key (for page 8)"));
+  answerBlock.append(renderCrosswordSVG(cells, r.numbers, r.size, { showLetters: true }));
+  gridsWrap.append(answerBlock);
+
+  art.append(gridsWrap);
+
+  // Toolbar: copy clues, copy answer key
+  const bar = el("div", { class: "crossword-card__bar" });
+  bar.append(btn("📋 Copy clues (for paper)", "btn--small btn--primary", () => {
+    navigator.clipboard.writeText(cluesToText(r)).then(
+      () => toast("Clues copied — paste into InDesign."),
+      () => toast("Couldn't copy — select the text instead.", true),
+    );
+  }));
+  bar.append(btn("📋 Copy answer key", "btn--small btn--ghost", () => {
+    navigator.clipboard.writeText(answersToText(r)).then(
+      () => toast("Answer key copied."),
+      () => toast("Couldn't copy.", true),
+    );
+  }));
+  art.append(bar);
+
+  // Clue list (same renderer as examples)
+  const clueCols = el("div", { class: "crossword-card__clues" });
+  clueCols.append(cluesList("Across", r.across), cluesList("Down", r.down));
+  art.append(clueCols);
+
+  // Footnote
+  art.append(el("p", { class: "muted", style: "margin-top:0.75rem; font-size:0.85rem;" },
+    `Template: ${r.template}. If you don't like this one, press Generate again for a fresh puzzle — each one is unique.`));
+
+  return art;
+}
+
 function computeGrid(rows) {
   const size = rows.length;
   const cells = rows.map((r) => r.split("").map((c) => c === "#" ? null : c === "." ? "" : c));
@@ -957,7 +1077,8 @@ function computeGrid(rows) {
   return { cells, numbers };
 }
 
-function renderCrosswordSVG(cells, numbers, size) {
+function renderCrosswordSVG(cells, numbers, size, opts) {
+  const showLetters = !!(opts && opts.showLetters);
   const cell = 24;
   const w = cell * size;
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
@@ -984,6 +1105,15 @@ function renderCrosswordSVG(cells, numbers, size) {
         t.setAttribute("fill", "#1A1A1A");
         t.textContent = num;
         svg.appendChild(t);
+      }
+      if (showLetters && cells[r][c]) {
+        const lt = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        lt.setAttribute("x", x + cell / 2); lt.setAttribute("y", y + cell / 2 + 5.5);
+        lt.setAttribute("font-size", "14"); lt.setAttribute("font-family", "Lora, Georgia, serif");
+        lt.setAttribute("text-anchor", "middle");
+        lt.setAttribute("fill", "#1A1A1A");
+        lt.textContent = cells[r][c];
+        svg.appendChild(lt);
       }
     }
   }
