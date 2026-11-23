@@ -401,13 +401,47 @@ body {
 .crossword-clues__regen:disabled { opacity: 0.6; cursor: wait; }
 
 .crossword-foot {
-  background: var(--cream);
-  padding: 1rem 1.1rem;
+  background: #fff;
+  border: 1px solid var(--rule);
+  border-left: 4px solid var(--red);
   border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  padding: 1.1rem 1.25rem;
+  margin-top: 1.5rem;
 }
-.crossword-foot h3 { font-family: var(--font-serif); color: var(--maroon); margin: 0 0 0.5rem; font-size: 1rem; }
-.crossword-foot ol { padding-left: 1.25rem; margin: 0 0 0.5rem; font-size: 0.9rem; }
-.crossword-foot li { margin-bottom: 0.3rem; }
+.crossword-foot h3 { font-family: var(--font-serif); color: var(--maroon); margin: 0 0 0.75rem; font-size: 1.1rem; }
+.crossword-foot ol {
+  list-style: none;
+  counter-reset: step;
+  padding: 0;
+  margin: 0 0 0.9rem;
+  display: grid;
+  gap: 0.6rem;
+  font-size: 0.92rem;
+}
+.crossword-foot li {
+  counter-increment: step;
+  display: grid;
+  grid-template-columns: 1.7rem 1fr;
+  gap: 0.65rem;
+  align-items: start;
+}
+.crossword-foot li::before {
+  content: counter(step);
+  width: 1.7rem;
+  height: 1.7rem;
+  border-radius: 999px;
+  background: var(--red);
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.82rem;
+  display: grid;
+  place-items: center;
+}
+.crossword-foot li > span { padding-top: 0.1rem; }
+.crossword-foot li strong { color: var(--maroon); }
+.crossword-foot p { margin: 0 0 0.5rem; font-size: 0.9rem; }
+.crossword-foot p:last-child { margin-bottom: 0; }
 .crossword-foot code { background: #fff; padding: 0.05rem 0.35rem; border-radius: 3px; font-size: 0.85em; border: 1px solid var(--rule); }
 
 .crossword-generate {
@@ -431,6 +465,15 @@ body {
 @media (min-width: 720px) {
   .crossword-grids { grid-template-columns: 1fr 1fr; }
 }
+.crossword-dl {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0.1rem 0 0.25rem;
+}
+.crossword-dl__note { font-size: 0.75rem; }
 .crossword-grid-block h4 {
   font-family: var(--font-serif);
   color: var(--maroon);

@@ -12,40 +12,106 @@
 // as many times as she wants per week within the Anthropic monthly cap we set.
 
 // ─── Grid templates ────────────────────────────────────────────────────
-// Each is a 13×13 fully-symmetric (180°) pattern — '#' is black, '.' is
-// white. Designed to bias toward meatier 4-9 letter words rather than lots
-// of 3-letter filler. ~28-32 entries each.
+// 13×13, 180° symmetric, British "blocked" style (every other letter is
+// checked) — the same look as a Times/Listener quick crossword.
+//
+// Leanne asked for ~30 clues max so the clue list fits her page space
+// (the old dense grid produced 41). These give 26–30 entries, mostly 5, 7
+// and 9-letter words, and only 4–6 three-letter words each.
+//
+// Picked by a search script that stress-tested each layout against the
+// real wordlist: 300/300 successful fills each, typically in under 20 ms,
+// so the fill never comes close to the function timeout.
 const GRID_TEMPLATES = [
   {
-    // The classic one we know fills reliably within the function timeout.
-    // Yes it has several 3-letter entries — that's inherent to a 13×13.
-    // The real fight against "too many 3-letter words" is template design;
-    // deferred to a later pass once the fill engine is more robust.
-    name: "classic-13a",
+    name: "blocked-26a", // 26 entries: 4×3, 8×5, 8×7, 6×9
     rows: [
-      "###..........",
-      "###.#.#.#.#.#",
-      ".............",
-      ".#.#.#...#.#.",
-      "....#...#....",
-      ".#...##...#.#",
-      "..#.....#..##",
-      "#.#...##...#.",
-      "....#...#....",
-      ".#.#...#.#.#.",
-      ".............",
-      "#.#.#.#.#.###",
-      "..........###",
+      ".......#.....",
+      ".#.#.###.#.#.",
+      "...#.........",
+      ".###.#.#.#.#.",
+      ".......#.....",
+      ".#.#.#.###.##",
+      ".#.........#.",
+      "##.###.#.#.#.",
+      ".....#.......",
+      ".#.#.#.#.###.",
+      ".........#...",
+      ".#.#.###.#.#.",
+      ".....#.......",
+    ],
+  },
+  {
+    name: "blocked-26b", // 26 entries: 4×3, 8×5, 8×7, 6×9
+    rows: [
+      ".......#.....",
+      ".#.#.###.#.#.",
+      ".....#.......",
+      ".###.#.###.#.",
+      ".......#.....",
+      "##.#.#.#.#.#.",
+      ".#.........#.",
+      ".#.#.#.#.#.##",
+      ".....#.......",
+      ".#.###.#.###.",
+      ".......#.....",
+      ".#.#.###.#.#.",
+      ".....#.......",
+    ],
+  },
+  {
+    name: "blocked-28a", // 28 entries: 6×3, 10×5, 8×7, 4×9
+    rows: [
+      ".......#.....",
+      ".#.#.###.#.#.",
+      ".....#.......",
+      "##.#.#.#.###.",
+      ".......#.....",
+      ".#.#.#.###.##",
+      ".#.........#.",
+      "##.###.#.#.#.",
+      ".....#.......",
+      ".###.#.#.#.##",
+      ".......#.....",
+      ".#.#.###.#.#.",
+      ".....#.......",
+    ],
+  },
+  {
+    name: "blocked-30a", // 30 entries: 6×3, 13×5, 10×7, 1×9
+    rows: [
+      ".....#.......",
+      ".#.#.#.#.#.#.",
+      ".......#.....",
+      ".###.###.###.",
+      ".....#.......",
+      "##.#.#.###.#.",
+      ".#.........#.",
+      ".#.###.#.#.##",
+      ".......#.....",
+      ".###.###.###.",
+      ".....#.......",
+      ".#.#.#.#.#.#.",
+      ".......#.....",
     ],
   },
 ];
+const MAX_ENTRIES = 30;
 
-// Guard: at module load, make sure every template row is 13 chars.
+// Guard: at module load, make sure every template is 13×13 and 180°
+// symmetric. (The entry-count cap is checked after slot extraction below.)
 for (const t of GRID_TEMPLATES) {
   for (const r of t.rows) {
     if (r.length !== 13) throw new Error(`Template ${t.name}: row not 13 chars: "${r}" (${r.length})`);
   }
   if (t.rows.length !== 13) throw new Error(`Template ${t.name}: not 13 rows`);
+  for (let r = 0; r < 13; r++) {
+    for (let c = 0; c < 13; c++) {
+      if ((t.rows[r][c] === "#") !== (t.rows[12 - r][12 - c] === "#")) {
+        throw new Error(`Template ${t.name}: not symmetric at ${r},${c}`);
+      }
+    }
+  }
 }
 
 // ─── Wordlist (fetched once per container cold start) ──────────────────
@@ -62,12 +128,56 @@ const BLOCKED_ANSWERS = new Set([
   "AIDS", "HIV", "ISIS", "KKK", "LGBT",
   "DIED", "DEAD", "KILL", "KILLED", "KILLING", "KILLS",
   "MURDER", "RAPE", "RAPED", "SUICIDE",
+  "TORTURE", "TORTURED", "ABUSE", "ABUSED", "TERRORISM", "TERRORIST", "TERRORISTS",
   "NAZI", "NAZIS", "HITLER", "TRUMP",
   "CANCER", "TUMOR", "TUMOUR",
   "SHIT", "FUCK", "DAMN", "HELL",
   // Religious / theological specifics that feel loaded
   "SATAN", "DEVIL",
 ]);
+
+// The wordlist is American. A clue can be NZ-flavoured but the grid locks
+// in the spelling, so an answer like REALIZE would make an NZ solver write
+// REALISE and get it "wrong". Drop US-only spellings from the answer pool.
+const NOT_US_IZE = new Set(["SIZE", "SIZED", "SIZES", "PRIZE", "PRIZES", "SEIZE", "SEIZED",
+  "MAIZE", "CAPSIZE", "DOWNSIZE", "OVERSIZED", "CITIZEN", "CITIZENS"]);
+const US_IZE = /(IZE|IZED|IZES|IZING|IZATION|IZATIONS|IZER|IZERS|YZE|YZED|YZES|YZING)$/;
+const US_OR = /^(COLOR|FAVOR|HONOR|LABOR|NEIGHBOR|HUMOR|FLAVOR|ARMOR|RUMOR|VAPOR|HARBOR|BEHAVIOR|ENDEAVOR|SAVOR|VIGOR|PARLOR|ODOR)(S|ED|ING|FUL|ITE|ITES|ABLE|HOOD|HOODS)?$/;
+const US_ER = /^(CENTER|THEATER|FIBER|LITER|CALIBER|SOMBER|SPECTER|LUSTER|MANEUVER)S?$/;
+const US_OTHER = new Set(["DEFENSE", "OFFENSE", "LICENSE", "LICENSED", "LICENSES", "LICENSING",
+  "GRAY", "PAJAMAS", "JEWELRY", "ALUMINUM", "MOM", "MOMS", "CATALOG", "CATALOGS", "ANALOG",
+  "DIALOG", "TRAVELED", "TRAVELING", "TRAVELER", "TRAVELERS", "CANCELED", "CANCELING",
+  "MODELING", "LABELED", "LABELING", "FULFILL", "ENROLLMENT", "PROGRAM", "PROGRAMS",
+  "APARTMENT", "APARTMENTS", "GASOLINE", "ENCYCLOPEDIA", "JUDGMENT", "AGING", "COUNSELOR",
+  "PLOW", "SKEPTICAL"]);
+function isUSSpelling(w) {
+  return (US_IZE.test(w) && !NOT_US_IZE.has(w)) || US_OR.test(w) || US_ER.test(w) || US_OTHER.has(w);
+}
+
+// The wordlist comes from web text, so short entries are full of junk:
+// tech acronyms (USB, PHP, MSN), first names (ROY, JIM), month/day
+// abbreviations (OCT, TUE). Three-letter answers must come from this
+// hand-checked list of real words. Longer entries just need a vowel
+// (drops HTML, BLVD, HDTV) and can't be apostrophe-less contractions.
+const THREE_LETTER_OK = new Set((
+  "MAY OUT USE ANY SEE HIS WHO WEB NOW GET HOW ITS TOP HAD DAY TWO BUY HER ADD SHE SET MAP " +
+  "WAY OFF DID CAR OWN END HIM PER BIG LAW ART OLD WHY LOW MAN JOB TOO MEN BOX AIR YES HOT " +
+  "SAY TAX GOT LET ACT RED KEY FEW AGE PAY WAR FAX YET SUN RUN NET PUT TRY LOG FUN LOT ASK " +
+  "DUE PRO AGO VIA BAD FAR OIL BIT BAY BAR DOG GAS SIX ZIP BID WIN BED SEA CUT KIT BOY SON " +
+  "BIN VAN ADS POP HIT EYE FEE AID FAT SAW SUB LED FAN TEN CAT PET GUY CUP FIT MET ICE BUS " +
+  "BAG NOR BUG MID LAB TAG MIX FIX RAY DRY SPA CON WON DOC ROW EAT AIM TIP SKI FLY HEY TEA " +
+  "SKY TOY HIP DOT DNA CAP INK PIN RAW HAT CAM WET RAM FOX ARM PUB HOP REF KID PAN SUM OAK " +
+  "VAT SIR SPY SIT WOW FIG TAB BIO SIN LEG GAP ROB ERA JET PAR MAD PEN JOY RAN ILL LAY BET " +
+  "DAD PAT EAR TIE MOD TOE DEN LIE AMP EVE PAD ROD SAD POT EGG JAM ARC APP ION FED BAN ODD " +
+  "CRY ZOO TEE CAD HUB ACE SUE FLU RAP TIN RAT COD GEL THY PAL MAT GYM TAN PIE BOW"
+).split(" "));
+const CONTRACTIONS = new Set(["THATS", "DONT", "CANT", "WONT", "ISNT", "DIDNT", "DOESNT",
+  "WASNT", "ARENT", "COULDNT", "WOULDNT", "SHOULDNT", "HAVENT", "HASNT", "HADNT", "WERENT",
+  "YOURE", "THEYRE", "YOUVE", "THEYVE", "YOULL", "THEYLL", "WHATS", "THERES", "HERES", "WHERES"]);
+function isJunk(w) {
+  if (w.length === 3) return !THREE_LETTER_OK.has(w);
+  return !/[AEIOUY]/.test(w) || CONTRACTIONS.has(w);
+}
 
 async function getWordlist() {
   if (CACHED_WORDLIST) return { words: CACHED_WORDLIST, index: CACHED_INDEX };
@@ -82,7 +192,7 @@ async function getWordlist() {
   // Skip the very top (THE, OF, AND...) — too generic as crossword answers.
   // Take a quality band of common-but-interesting words.
   const all = text.split("\n").map((w) => w.trim().toUpperCase())
-    .filter((w) => /^[A-Z]{3,13}$/.test(w) && !BLOCKED_ANSWERS.has(w));
+    .filter((w) => /^[A-Z]{3,13}$/.test(w) && !BLOCKED_ANSWERS.has(w) && !isUSSpelling(w) && !isJunk(w));
   CACHED_WORDLIST = all.slice(30, 6000);
 
   // Index for fast slot lookup: key "len:pos:letter" → [words]
@@ -401,11 +511,17 @@ exports.handler = async () => {
     // Pick a random template and try to fill it.
     let filled = null;
     let templateUsed = null;
-    for (let attempt = 0; attempt < 3; attempt++) {
+    // Fill time is heavy-tailed: ~99% finish in under 100 ms, but a rare
+    // unlucky shuffle can wander for seconds. Restarting with a fresh
+    // shuffle beats waiting, so each attempt gets a short budget.
+    for (let attempt = 0; attempt < 5; attempt++) {
       const tpl = GRID_TEMPLATES[Math.floor(Math.random() * GRID_TEMPLATES.length)];
       const { cells } = parseGrid(tpl.rows);
       const slots = extractSlots(cells);
-      const deadline = Date.now() + 6000; // leave headroom for LLM call within 10s cap
+      if (slots.length > MAX_ENTRIES) {
+        return json(500, { error: `Template ${tpl.name} has ${slots.length} entries (max ${MAX_ENTRIES}).` });
+      }
+      const deadline = Date.now() + 800;
       // Pre-fill any orphan cells (white but not in any >= 3-letter entry).
       fillOrphans(cells, slots);
       if (fillGrid(cells, slots, index, deadline)) {

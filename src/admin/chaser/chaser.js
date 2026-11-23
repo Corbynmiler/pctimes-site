@@ -891,7 +891,7 @@ function sectionCrossword() {
     hasResult ? "Crossword — this week's puzzle" : "Crossword — examples + generate",
     hasResult ? undefined : 2,
     hasResult
-      ? "Your generated puzzle is below. Review the clues, hit 'Give me another' if you want a different one, then copy the clues into InDesign."
+      ? "Review the clues, hit Generate if you'd like a different puzzle, then download the grid and copy the clues for InDesign."
       : "Hi Aunty L. Two examples at the bottom showing the format. Press the Generate button to produce a real puzzle you could actually publish."
   ));
 
@@ -936,14 +936,14 @@ function sectionCrossword() {
   // Next-step CTA, written for Leanne
   const foot = el("div", { class: "crossword-foot" });
   foot.innerHTML = `
-    <h3>How it would work each week</h3>
+    <h3>How it works each week</h3>
     <ol>
-      <li><strong>Click Generate</strong> and in a few seconds you get a fresh filled grid + numbered clue list.</li>
-      <li><strong>Read through and tweak.</strong> Don't love a clue? Click it and ask for another one, or write your own. The grid stays fixed; only the wording changes.</li>
-      <li><strong>Export</strong> — one print-ready file for the grid (sized exactly 80 mm × 80 mm to drop into your InDesign layout), plus the clue list ready to copy-paste straight out of this page, and a separate file for the answer key (page 8).</li>
+      <li><span><strong>Generate.</strong> Click the button and a fresh grid and numbered clue list appear in a few seconds.</span></li>
+      <li><span><strong>Read through and tweak.</strong> Don't love a clue? Click the ↻ next to it and just that one is rewritten. The grid stays exactly as it is.</span></li>
+      <li><span><strong>Download and copy into InDesign.</strong> Download the grid (PDF or JPG, exactly 80 × 80 mm) and copy the clues. Same again for the answer key on page 8.</span></li>
     </ol>
-    <p>About 15 minutes of your time each week. Includes a quality-check step that solves every clue against the grid before it reaches you, so you shouldn't see ambiguous or silly ones — if any slip through, you click the ↻ next to that one clue and we rewrite just that one.</p>
-    <p>Happy to run it as a free trial for a few weeks — if the quality isn't there you let me know and we tune it or drop it. Your current vendor can stay in place until you're sure.</p>
+    <p>Every clue goes through an automatic quality check before it reaches you, so you shouldn't see ambiguous or silly ones. If one slips through, the ↻ fixes it.</p>
+    <p class="muted">Happy to run it as a free trial for a few weeks. If the quality isn't there, let me know and we tune it or drop it. Your current vendor can stay in place until you're sure.</p>
   `;
   sec.append(foot);
   return sec;
@@ -1121,8 +1121,8 @@ function crosswordHelp() {
     },
     {
       icon: "📐",
-      title: "80 × 80 mm grid",
-      body: "The left-hand grid prints at exactly 80 mm × 80 mm — screenshot or export to drop into InDesign at your usual size.",
+      title: "Download the grid",
+      body: "Under each grid there's a PDF and a JPG button. Both come out at exactly 80 × 80 mm and print sharp — no screenshots needed. PDF is the best one for InDesign.",
     },
     {
       icon: "🧠",
@@ -1149,9 +1149,6 @@ function crosswordHelp() {
     grid.append(card);
   }
   wrap.append(grid);
-
-  wrap.append(el("p", { class: "crossword-help__foot muted" },
-    "Phase 1 trial: the current vendor is still in place. If the quality's not there, tell Corbyn and we'll either tune it or drop it — no change to your current workflow."));
   return wrap;
 }
 
@@ -1169,12 +1166,14 @@ function generatedCrossword(r) {
   const emptyBlock = el("div", { class: "crossword-grid-block" });
   emptyBlock.append(el("h4", {}, "Grid (for the paper — 80×80 mm)"));
   emptyBlock.append(renderCrosswordSVG(emptyCells, r.numbers, r.size));
+  emptyBlock.append(gridDownloads(emptyCells, r, false, "grid"));
   gridsWrap.append(emptyBlock);
 
   // The filled answer-key grid — for page 8
   const answerBlock = el("div", { class: "crossword-grid-block" });
   answerBlock.append(el("h4", {}, "Answer key (for page 8)"));
   answerBlock.append(renderCrosswordSVG(cells, r.numbers, r.size, { showLetters: true }));
+  answerBlock.append(gridDownloads(cells, r, true, "answers"));
   gridsWrap.append(answerBlock);
 
   art.append(gridsWrap);
@@ -1271,6 +1270,173 @@ function renderCrosswordSVG(cells, numbers, size, opts) {
     }
   }
   return svg;
+}
+
+// ─── Print downloads: PDF (vector) + JPG (600 dpi), both exactly 80×80 mm ──
+// Built entirely in the browser — nothing leaves the page.
+const PRINT_MM = 80;
+const JPG_DPI = 600;
+// Helvetica-Bold advance widths (per 1000 em) for centring answer letters.
+const HELV_BOLD_W = { A: 722, B: 722, C: 722, D: 722, E: 667, F: 611, G: 778, H: 722, I: 278,
+  J: 556, K: 722, L: 611, M: 833, N: 722, O: 778, P: 667, Q: 778, R: 722, S: 667, T: 611,
+  U: 722, V: 667, W: 944, X: 667, Y: 667, Z: 611 };
+
+// Shared geometry, in whatever unit `side` is given in (pt for PDF, px for JPG).
+function printGeometry(side, size, unitsPerPt) {
+  const outer = 1.0 * unitsPerPt;   // 1 pt outer border
+  const inner = 0.4 * unitsPerPt;   // 0.4 pt cell rules
+  const inset = outer / 2;          // keep the outer stroke inside the page
+  const grid = side - outer;
+  const cell = grid / size;
+  return { outer, inner, inset, grid, cell, numSize: cell * 0.3, letterSize: cell * 0.55 };
+}
+
+function gridToPDF(cells, numbers, size, showLetters) {
+  const W = PRINT_MM * 72 / 25.4;   // 80 mm in points
+  const g = printGeometry(W, size, 1);
+  const f = (n) => String(Math.round(n * 1000) / 1000);
+  // PDF origin is bottom-left; row 0 is at the top.
+  const cellX = (c) => g.inset + c * g.cell;
+  const cellTop = (r) => W - g.inset - r * g.cell;
+  const ops = ["0 g"];
+  for (let r = 0; r < size; r++) {
+    for (let c = 0; c < size; c++) {
+      if (cells[r][c] === null) ops.push(`${f(cellX(c))} ${f(cellTop(r) - g.cell)} ${f(g.cell)} ${f(g.cell)} re`);
+    }
+  }
+  ops.push("f", `0 G ${f(g.inner)} w`);
+  for (let i = 1; i < size; i++) {
+    const x = cellX(i), y = cellTop(i);
+    ops.push(`${f(x)} ${f(g.inset)} m ${f(x)} ${f(W - g.inset)} l`);
+    ops.push(`${f(g.inset)} ${f(y)} m ${f(W - g.inset)} ${f(y)} l`);
+  }
+  ops.push("S", `${f(g.outer)} w ${f(g.inset)} ${f(g.inset)} ${f(g.grid)} ${f(g.grid)} re S`);
+  ops.push("BT", `/F1 ${f(g.numSize)} Tf`);
+  for (const [key, num] of Object.entries(numbers)) {
+    const [r, c] = key.split(",").map(Number);
+    const x = cellX(c) + g.cell * 0.07;
+    const y = cellTop(r) - g.cell * 0.06 - g.numSize * 0.72;
+    ops.push(`1 0 0 1 ${f(x)} ${f(y)} Tm (${num}) Tj`);
+  }
+  ops.push("ET");
+  if (showLetters) {
+    ops.push("BT", `/F2 ${f(g.letterSize)} Tf`);
+    for (let r = 0; r < size; r++) {
+      for (let c = 0; c < size; c++) {
+        const ch = cells[r][c];
+        if (!ch || !HELV_BOLD_W[ch]) continue;
+        const w = HELV_BOLD_W[ch] / 1000 * g.letterSize;
+        const x = cellX(c) + g.cell / 2 - w / 2;
+        const y = cellTop(r) - g.cell / 2 - g.letterSize * 0.718 / 2 - g.cell * 0.06;
+        ops.push(`1 0 0 1 ${f(x)} ${f(y)} Tm (${ch}) Tj`);
+      }
+    }
+    ops.push("ET");
+  }
+  const content = ops.join("\n");
+  const objs = [
+    "<< /Type /Catalog /Pages 2 0 R >>",
+    "<< /Type /Pages /Kids [3 0 R] /Count 1 >>",
+    `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${f(W)} ${f(W)}] ` +
+      "/Resources << /Font << /F1 5 0 R /F2 6 0 R >> >> /Contents 4 0 R >>",
+    `<< /Length ${content.length} >>\nstream\n${content}\nendstream`,
+    "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>",
+    "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>",
+  ];
+  // Everything is ASCII, so string length == byte offset.
+  let out = "%PDF-1.4\n";
+  const offsets = [];
+  objs.forEach((o, i) => { offsets.push(out.length); out += `${i + 1} 0 obj\n${o}\nendobj\n`; });
+  const xref = out.length;
+  out += `xref\n0 ${objs.length + 1}\n0000000000 65535 f \n` +
+    offsets.map((n) => `${String(n).padStart(10, "0")} 00000 n \n`).join("") +
+    `trailer\n<< /Size ${objs.length + 1} /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF\n`;
+  return new Blob([out], { type: "application/pdf" });
+}
+
+async function gridToJPG(cells, numbers, size, showLetters) {
+  const px = Math.round(PRINT_MM / 25.4 * JPG_DPI);
+  const g = printGeometry(px, size, JPG_DPI / 72);
+  const canvas = document.createElement("canvas");
+  canvas.width = canvas.height = px;
+  const ctx = canvas.getContext("2d");
+  ctx.fillStyle = "#fff";
+  ctx.fillRect(0, 0, px, px);
+  ctx.fillStyle = "#000";
+  for (let r = 0; r < size; r++) {
+    for (let c = 0; c < size; c++) {
+      if (cells[r][c] === null) ctx.fillRect(g.inset + c * g.cell, g.inset + r * g.cell, g.cell, g.cell);
+    }
+  }
+  ctx.strokeStyle = "#000";
+  ctx.lineWidth = g.inner;
+  ctx.beginPath();
+  for (let i = 1; i < size; i++) {
+    const p = g.inset + i * g.cell;
+    ctx.moveTo(p, g.inset); ctx.lineTo(p, px - g.inset);
+    ctx.moveTo(g.inset, p); ctx.lineTo(px - g.inset, p);
+  }
+  ctx.stroke();
+  ctx.lineWidth = g.outer;
+  ctx.strokeRect(g.inset, g.inset, g.grid, g.grid);
+  ctx.font = `${g.numSize}px Helvetica, Arial, sans-serif`;
+  ctx.textAlign = "left";
+  ctx.textBaseline = "alphabetic";
+  for (const [key, num] of Object.entries(numbers)) {
+    const [r, c] = key.split(",").map(Number);
+    ctx.fillText(String(num), g.inset + c * g.cell + g.cell * 0.07,
+      g.inset + r * g.cell + g.cell * 0.06 + g.numSize * 0.72);
+  }
+  if (showLetters) {
+    ctx.font = `bold ${g.letterSize}px Helvetica, Arial, sans-serif`;
+    ctx.textAlign = "center";
+    for (let r = 0; r < size; r++) {
+      for (let c = 0; c < size; c++) {
+        const ch = cells[r][c];
+        if (!ch) continue;
+        ctx.fillText(ch, g.inset + c * g.cell + g.cell / 2,
+          g.inset + r * g.cell + g.cell / 2 + g.letterSize * 0.718 / 2 + g.cell * 0.06);
+      }
+    }
+  }
+  const blob = await new Promise((res) => canvas.toBlob(res, "image/jpeg", 0.95));
+  // Stamp 600 dpi into the JFIF header so InDesign places it at 80 mm, not
+  // at 72 dpi (which would come in ~667 mm wide).
+  const bytes = new Uint8Array(await blob.arrayBuffer());
+  const isJFIF = bytes[2] === 0xFF && bytes[3] === 0xE0 &&
+    String.fromCharCode(bytes[6], bytes[7], bytes[8], bytes[9]) === "JFIF";
+  if (isJFIF) {
+    bytes[13] = 1; // units: dots per inch
+    bytes[14] = JPG_DPI >> 8; bytes[15] = JPG_DPI & 255;
+    bytes[16] = JPG_DPI >> 8; bytes[17] = JPG_DPI & 255;
+  }
+  return new Blob([bytes], { type: "image/jpeg" });
+}
+
+function downloadBlob(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const a = el("a", { href: url, download: filename });
+  document.body.append(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+}
+
+function gridDownloads(cells, r, showLetters, kind) {
+  const wrap = el("div", { class: "crossword-dl" });
+  const base = `pct-crossword-${kind}-${todayISONZ()}`;
+  wrap.append(btn("⬇ PDF", "btn--small btn--ghost", () => {
+    downloadBlob(gridToPDF(cells, r.numbers, r.size, showLetters), `${base}.pdf`);
+  }));
+  wrap.append(btn("⬇ JPG", "btn--small btn--ghost", async () => {
+    try {
+      downloadBlob(await gridToJPG(cells, r.numbers, r.size, showLetters), `${base}.jpg`);
+    } catch (e) {
+      toast(`Couldn't make the JPG: ${e.message}`, true);
+    }
+  }));
+  wrap.append(el("span", { class: "muted crossword-dl__note" }, "80 × 80 mm, print quality"));
+  return wrap;
 }
 
 function cluesList(heading, items, opts) {
