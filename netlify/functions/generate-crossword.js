@@ -142,6 +142,7 @@ const BLOCKED_ANSWERS = new Set([
   "BUTTS", "SCREW", "CASINO", "CASINOS", "POKER", "GAMBLING", "BETTING", "CRAPS",
   "CIGARETTE", "CIGARETTES", "COLORED", "ORIENTAL", "WARCRAFT",
   "RANDY", "HORNY", "SEXY", "SEX", "NUDE", "NUDITY", "STRIPPER",
+  "NIGER", // a real country, but one letter from a slur; not worth printing
   // Religious / theological specifics that feel loaded
   "SATAN", "DEVIL",
 ]);
