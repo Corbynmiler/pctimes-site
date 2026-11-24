@@ -17,7 +17,6 @@ const SHEET_FILTER_KEY = "pct-chaser-sheet-filter-v1";
 const TAB_KEY = "pct-chaser-tab-v1";
 const CROSSWORD_RESULT_KEY = "pct-chaser-crossword-result-v1";
 const CROSSWORD_SWAPLOG_KEY = "pct-chaser-crossword-swaplog-v1";
-const CROSSWORD_REGEN_COUNT_KEY = "pct-chaser-crossword-regen-v1";
 const CROSSWORD_HELP_DISMISSED_KEY = "pct-chaser-crossword-help-dismissed-v1";
 const CROSSWORD_DIFFICULTY_KEY = "pct-chaser-crossword-difficulty-v1";
 const CLUE_BATCH_SIZE = 4;             // answers per write-clues call (run in parallel)
@@ -26,8 +25,6 @@ const DIFFICULTIES = [
   { key: "challenging", label: "Challenging", hint: "Broadsheet level: most clues make you stop and think." },
   { key: "fiendish", label: "Fiendish", hint: "As hard as a non-cryptic gets. Expect to need crossing letters." },
 ];
-const WEEKLY_REGEN_SOFT_CAP = 10;      // nudges Leanne after this many
-const WEEKLY_REGEN_HARD_CAP = 20;      // blocks after this many
 
 // ─── Date helpers ──────────────────────────────────────────────────────
 const monthShort = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
@@ -161,6 +158,8 @@ const state = {
   crosswordError: null,
   crosswordProgress: null, // { stage: "grid" } | { stage: "clues", done, total }
   crosswordDifficulty: readLS(CROSSWORD_DIFFICULTY_KEY, "challenging"),
+  crosswordQuota: null,    // this week's allowance, from the server
+  crosswordQuotaTried: false,
   showAnswers: false,
 };
 function readLS(k, fb) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : fb; } catch { return fb; } }
@@ -909,9 +908,13 @@ function sectionCrossword() {
   const p = state.crosswordProgress;
   const busyLabel = !p || p.stage === "grid" ? "⏳ Building the grid…"
     : `⏳ Writing clues… ${p.done} of ${p.total} batches`;
-  const generateBtn = btn(state.crosswordBusy ? busyLabel : "🎲 Generate a new puzzle",
+  loadQuota();
+  const outOfPuzzles = puzzlesLeft() === 0;
+  const idleLabel = !state.auth ? "🔒 Sign in to the CMS first"
+    : outOfPuzzles ? "Weekly puzzle limit reached" : "🎲 Generate a new puzzle";
+  const generateBtn = btn(state.crosswordBusy ? busyLabel : idleLabel,
     "btn--primary", (ev) => { ev.preventDefault(); runGenerate(); });
-  if (state.crosswordBusy) generateBtn.disabled = true;
+  if (state.crosswordBusy || !state.auth || outOfPuzzles) generateBtn.disabled = true;
   bar.append(generateBtn, difficultyPicker());
   if (hasResult && !state.crosswordBusy) {
     bar.append(btn("Show examples again", "btn btn--ghost", (ev) => {
@@ -930,6 +933,8 @@ function sectionCrossword() {
         ? `Generated ${new Date(r.generated_at).toLocaleString("en-NZ")}${r.difficulty ? ` · ${levelName(r.difficulty)}` : ""}`
         : "Takes about half a minute"));
   sec.append(bar);
+  const allowance = quotaLine();
+  if (allowance) sec.append(el("p", { class: "crossword-quota muted" }, allowance));
 
   if (state.crosswordError) {
     const errBanner = el("div", { class: "banner banner--warn" });
@@ -1005,30 +1010,51 @@ function answersToText(p) {
   return `Across\n${fmt(p.across)}\n\nDown\n${fmt(p.down)}`;
 }
 
-// ─── Generate: calls the Netlify function, stores result in state ──────
-function regenStats() {
-  // Weekly rolling count of full regenerations, kept in localStorage.
-  const raw = readLS(CROSSWORD_REGEN_COUNT_KEY, { weekStart: 0, count: 0 });
-  const now = Date.now();
-  const weekMs = 7 * 24 * 60 * 60 * 1000;
-  if (!raw.weekStart || now - raw.weekStart > weekMs) {
-    return { weekStart: now, count: 0 };
-  }
-  return raw;
+// ─── Weekly allowance (enforced by the server; shown here) ─────────────
+// Crossword calls need the CMS sign-in, and each new puzzle / clue rewrite
+// comes out of a weekly allowance kept on the server, so it can't be
+// bypassed from the browser. See netlify/crossword/guard.mjs.
+function crosswordHeaders() {
+  const h = { "content-type": "application/json" };
+  if (state.auth) h.authorization = `Bearer ${state.auth.token}`;
+  return h;
 }
-function bumpRegenCount() {
-  const s = regenStats();
-  s.count++;
-  writeLS(CROSSWORD_REGEN_COUNT_KEY, s);
-  return s;
+function puzzlesLeft() {
+  const q = state.crosswordQuota;
+  return !q || q.exempt ? Infinity : Math.max(0, q.puzzles_limit - q.puzzles_used);
+}
+function rewritesLeft() {
+  const q = state.crosswordQuota;
+  return !q || q.exempt ? Infinity : Math.max(0, q.rewrites_limit - q.rewrites_used);
+}
+function quotaLine() {
+  const q = state.crosswordQuota;
+  if (!state.auth) return "Crosswords need your CMS sign-in. Open the CMS, sign in, then come back.";
+  if (!q) return "";
+  if (q.exempt) return "Owner account: what you make here isn't counted against Leanne's weekly allowance.";
+  return `${puzzlesLeft()} of ${q.puzzles_limit} new puzzles left this week · ` +
+    `${rewritesLeft()} of ${q.rewrites_limit} clue rewrites left · resets ${q.resets}`;
+}
+async function loadQuota() {
+  if (!state.auth || state.crosswordQuotaTried) return;
+  state.crosswordQuotaTried = true;
+  try {
+    const res = await fetch("/.netlify/functions/crossword-quota", { headers: crosswordHeaders(), cache: "no-store" });
+    const data = await res.json().catch(() => ({}));
+    if (res.ok) { state.crosswordQuota = data; render(); }
+  } catch { /* the server still enforces the allowance */ }
 }
 
+// ─── Generate: calls the Netlify function, stores result in state ──────
 async function runGenerate() {
-  const stats = regenStats();
-  if (stats.count >= WEEKLY_REGEN_HARD_CAP) {
-    if (!confirm(`You've generated ${stats.count} full puzzles this week. Do you really want another? (If one clue is bothering you, use the ↻ next to that single clue — it's much cheaper.)`)) return;
-  } else if (stats.count >= WEEKLY_REGEN_SOFT_CAP) {
-    if (!confirm(`You've already generated ${stats.count} full puzzles this week. For small tweaks, use the ↻ next to a single clue instead. Generate anyway?`)) return;
+  if (!state.auth) { toast("Sign in to the CMS first, then come back.", true); return; }
+  const left = puzzlesLeft();
+  if (state.crosswordResult && left !== Infinity) {
+    const ok = confirm(
+      (left === 1 ? "This uses your last new puzzle for this week.\n\n" : `This uses 1 of your ${left} new puzzles left this week.\n\n`) +
+      "If it's just a few clues you don't like, the ↻ next to each one rewrites that clue on its own.\n\n" +
+      "Make a brand new puzzle?");
+    if (!ok) return;
   }
 
   state.crosswordBusy = true;
@@ -1037,8 +1063,9 @@ async function runGenerate() {
   render();
   try {
     // Step 1: the grid and its answers (instant, no AI).
-    const res = await fetch("/.netlify/functions/generate-crossword", { cache: "no-store" });
-    const grid = await res.json();
+    const res = await fetch("/.netlify/functions/generate-crossword", { headers: crosswordHeaders(), cache: "no-store" });
+    const grid = await res.json().catch(() => ({}));
+    if (grid.quota) state.crosswordQuota = grid.quota;
     if (!res.ok) throw new Error(grid.error || `Request failed (${res.status})`);
 
     // Step 2: clues, written and fact-checked in small parallel batches so
@@ -1058,7 +1085,7 @@ async function runGenerate() {
     let failedBatches = 0;
     await Promise.all(batches.map(async (batch) => {
       try {
-        const data = await writeClueBatch(batch, difficulty, swapLog);
+        const data = await writeClueBatch(grid.puzzle_id, batch, difficulty, swapLog);
         for (const c of data.clues || []) clueBy[c.answer] = c.clue;
         if (!data.checked) batch.forEach((a) => unchecked.add(a));
       } catch (e) {
@@ -1068,7 +1095,16 @@ async function runGenerate() {
       progress.done++;
       render();
     }));
-    if (failedBatches === batches.length) throw new Error("Couldn't write the clues just now. Please try again.");
+    if (failedBatches === batches.length) {
+      // Hand the puzzle back so a failed attempt doesn't use up the week's allowance.
+      try {
+        const rel = await fetch("/.netlify/functions/crossword-quota", {
+          method: "POST", headers: crosswordHeaders(), body: JSON.stringify({ release: grid.puzzle_id }),
+        });
+        if (rel.ok) state.crosswordQuota = await rel.json();
+      } catch { /* refunded automatically when the next puzzle is made */ }
+      throw new Error("Couldn't write the clues just now, so this attempt hasn't used up a puzzle. Please try again in a minute.");
+    }
 
     for (const e of entries) {
       e.clue = clueBy[e.answer] || "";
@@ -1077,7 +1113,6 @@ async function runGenerate() {
     grid.difficulty = difficulty;
     state.crosswordResult = grid;
     writeLS(CROSSWORD_RESULT_KEY, grid);
-    bumpRegenCount();
     const missing = entries.filter((e) => !e.clue).length;
     toast(missing
       ? `Puzzle ready, but ${missing} clue${missing === 1 ? "" : "s"} need${missing === 1 ? "s" : ""} writing. Press the ↻ next to ${missing === 1 ? "it" : "each"}.`
@@ -1093,16 +1128,22 @@ async function runGenerate() {
 
 // One batch of answers → clues. Retries once, because a single slow or
 // failed request shouldn't cost Leanne the whole puzzle.
-async function writeClueBatch(answers, difficulty, swapLog) {
+async function writeClueBatch(puzzleId, answers, difficulty, swapLog) {
   let lastErr;
   for (let attempt = 0; attempt < 2; attempt++) {
     try {
       const res = await fetch("/.netlify/functions/write-clues", {
         method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ answers, difficulty, swap_log: swapLog }),
+        headers: crosswordHeaders(),
+        body: JSON.stringify({ puzzle_id: puzzleId, answers, difficulty, swap_log: swapLog }),
       });
       const data = await res.json().catch(() => ({}));
+      // Sign-in, expired-puzzle and limit errors won't change on a retry.
+      if ([400, 401, 403, 429].includes(res.status)) {
+        const err = new Error(data.error || `Request failed (${res.status})`);
+        err.final = true;
+        throw err;
+      }
       // Clue functions stream, so a failure can arrive as {error} with a 200.
       if (!res.ok || data.error || !Array.isArray(data.clues)) {
         throw new Error(data.error || `Request failed (${res.status})`);
@@ -1110,6 +1151,7 @@ async function writeClueBatch(answers, difficulty, swapLog) {
       return data;
     } catch (e) {
       lastErr = e;
+      if (e.final) break;
     }
   }
   throw lastErr;
@@ -1142,13 +1184,15 @@ function difficultyPicker() {
 async function runRegenClue(entry, direction) {
   const r = state.crosswordResult;
   if (!r) return;
+  if (!state.auth) { toast("Sign in to the CMS first, then come back.", true); return; }
+  if (rewritesLeft() === 0) { toast("This week's clue rewrites are used up. They reset on Monday.", true); return; }
   entry._regenerating = true;
   render();
   try {
     const swapLog = readLS(CROSSWORD_SWAPLOG_KEY, []);
     const res = await fetch("/.netlify/functions/regenerate-clue", {
       method: "POST",
-      headers: { "content-type": "application/json" },
+      headers: crosswordHeaders(),
       body: JSON.stringify({
         answer: entry.answer,
         rejected_clue: entry.clue,
@@ -1157,6 +1201,7 @@ async function runRegenClue(entry, direction) {
       }),
     });
     const data = await res.json().catch(() => ({}));
+    if (data.quota) state.crosswordQuota = data.quota;
     if (!res.ok || data.error || !data.clue) throw new Error(data.error || `Request failed (${res.status})`);
     // Log the swap so future clues lean towards Leanne's taste. A blank
     // clue being filled in isn't a rejection, so it isn't logged.
@@ -1210,16 +1255,19 @@ function crosswordHelp() {
   );
   wrap.append(head);
 
+  const q = state.crosswordQuota;
+  const puzzleLimit = q ? q.puzzles_limit : 2;
+  const rewriteLimit = q ? q.rewrites_limit : 20;
   const steps = [
     {
       icon: "🎲",
       title: "Generate a new puzzle",
-      body: "Fresh grid and clues each time. Takes about half a minute: every clue is written, then checked by a separate editor for accuracy and fairness before you see it.",
+      body: `Fresh grid and clues, in about half a minute. Every clue is written, then checked by a separate editor for accuracy and fairness. You get ${puzzleLimit} new puzzles a week (resets Monday), so if it's only a few clues, rewrite those instead.`,
     },
     {
       icon: "↻",
       title: "Rewrite a single clue",
-      body: "Don't love a specific clue? Click the ↻ next to it and just that one is rewritten (and checked) in about 15 seconds. The grid and the other clues stay exactly as they are.",
+      body: `Don't love a clue? Click the ↻ next to it and just that one is rewritten and checked, in about 15 seconds. Up to ${rewriteLimit} a week. The grid and the other clues stay as they are.`,
     },
     {
       icon: "📋",
@@ -1574,7 +1622,9 @@ function cluesList(heading, items, opts) {
         title: it._regenerating ? "Rewriting…" : "Rewrite this clue",
         "aria-label": `Rewrite clue for ${it.answer}`,
       }, it._regenerating ? "…" : "↻");
-      b.disabled = !!it._regenerating;
+      const noneLeft = rewritesLeft() === 0;
+      b.disabled = !!it._regenerating || noneLeft;
+      if (noneLeft) b.title = "This week's clue rewrites are used up. They reset on Monday.";
       b.addEventListener("click", () => runRegenClue(it, heading));
       li.append(" ", b);
     }

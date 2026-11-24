@@ -466,6 +466,7 @@ body {
   .crossword-grids { grid-template-columns: 1fr 1fr; }
 }
 .crossword-generate__status { margin-left: auto; font-size: 0.85rem; }
+.crossword-quota { margin: -0.5rem 0 1rem 0.2rem; font-size: 0.85rem; }
 
 /* Difficulty: a small segmented control next to Generate */
 .crossword-difficulty {

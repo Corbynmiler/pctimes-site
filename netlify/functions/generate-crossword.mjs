@@ -11,6 +11,9 @@
 //   2. Load the bundled, dictionary-checked wordlist (netlify/crossword/).
 //   3. Backtracking fill the grid with real words.
 
+import WORDLIST from "../crossword/wordlist.mjs";
+import { requireEditor, claimPuzzle, jsonResponse } from "../crossword/guard.mjs";
+
 // ─── Grid templates ────────────────────────────────────────────────────
 // 13×13, 180° symmetric, British "blocked" style (every other letter is
 // checked) — the same look as a Times/Listener quick crossword.
@@ -115,7 +118,6 @@ for (const t of GRID_TEMPLATES) {
 }
 
 // ─── Wordlist (bundled; built by scripts/build-crossword-wordlist.js) ──
-const WORDLIST = require("../crossword/wordlist.js");
 let CACHED_WORDLIST = null;
 let CACHED_INDEX = null;
 
@@ -408,7 +410,7 @@ function buildAnswers(cells, slots, numbers) {
 }
 
 // ─── Handler ───────────────────────────────────────────────────────────
-exports.handler = async () => {
+export async function buildPuzzle() {
   try {
     const { index } = await getWordlist();
 
@@ -475,12 +477,33 @@ exports.handler = async () => {
   } catch (err) {
     return json(500, { error: String(err && err.message ? err.message : err) });
   }
-};
-
-function json(statusCode, body) {
-  return {
-    statusCode,
-    headers: { "content-type": "application/json", "cache-control": "no-store" },
-    body: JSON.stringify(body),
-  };
 }
+
+function json(status, body) {
+  return { status, body };
+}
+
+// The endpoint: signed-in editors only, and each new puzzle comes out of
+// the weekly allowance (see netlify/crossword/guard.mjs).
+export default async (req) => {
+  const auth = await requireEditor(req);
+  if (auth.response) return auth.response;
+  try {
+    const built = await buildPuzzle();
+    if (built.status !== 200) return jsonResponse(built.status, built.body);
+    const puzzleId = crypto.randomUUID();
+    const answers = [...new Set([...built.body.across, ...built.body.down].map((e) => e.answer))];
+    const claim = await claimPuzzle(auth.editor, puzzleId, answers);
+    if (!claim.allowed) {
+      return jsonResponse(429, {
+        error: `You've made this week's ${claim.quota.puzzles_limit} new puzzles. Your allowance resets on Monday. You can still rewrite single clues with the ↻ buttons.`,
+        code: "limit",
+        quota: claim.quota,
+      });
+    }
+    return jsonResponse(200, { ...built.body, puzzle_id: puzzleId, quota: claim.quota });
+  } catch (err) {
+    console.error("generate-crossword failed:", err);
+    return jsonResponse(500, { error: String(err && err.message ? err.message : err) });
+  }
+};

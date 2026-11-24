@@ -14,6 +14,7 @@
     "markdown-it": "^14.1.1"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^1.13.0"
+    "@anthropic-ai/sdk": "^1.13.0",
+    "@netlify/blobs": "10.7.13"
   }
 }
