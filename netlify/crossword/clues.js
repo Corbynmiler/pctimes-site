@@ -244,4 +244,39 @@ async function writeBatch({ answers, difficulty, swapLog, rejectedClue }) {
   return { clues, checked, level, ms: Date.now() - started, usage };
 }
 
-module.exports = { writeBatch, DIFFICULTY, DEFAULT_DIFFICULTY, clueProblem };
+// Netlify's edge drops a request that sends nothing for ~30 s, and a
+// careful clue batch can take longer than that. So the clue functions
+// stream: a space every few seconds while Claude works, then the JSON.
+// Leading whitespace is valid JSON, so the page just calls res.json().
+// Failures arrive as {"error": "..."} in the body (the 200 status is
+// already sent by then).
+function streamJson(work) {
+  const encoder = new TextEncoder();
+  const body = new ReadableStream({
+    async start(controller) {
+      controller.enqueue(encoder.encode(" "));
+      const beat = setInterval(() => controller.enqueue(encoder.encode(" ")), 5_000);
+      try {
+        controller.enqueue(encoder.encode(JSON.stringify(await work())));
+      } catch (err) {
+        console.error("clue request failed:", err);
+        controller.enqueue(encoder.encode(JSON.stringify({ error: String(err && err.message ? err.message : err) })));
+      } finally {
+        clearInterval(beat);
+        controller.close();
+      }
+    },
+  });
+  return new Response(body, {
+    headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" },
+  });
+}
+
+function jsonResponse(status, data) {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" },
+  });
+}
+
+module.exports = { writeBatch, streamJson, jsonResponse, DIFFICULTY, DEFAULT_DIFFICULTY, clueProblem };

@@ -141,6 +141,7 @@ const BLOCKED_ANSWERS = new Set([
   "BREASTS", "LINGERIE", "THONG", "THONGS", "BRA", "BRAS", "FETISH", "EROTICA", "ESCORTS",
   "BUTTS", "SCREW", "CASINO", "CASINOS", "POKER", "GAMBLING", "BETTING", "CRAPS",
   "CIGARETTE", "CIGARETTES", "COLORED", "ORIENTAL", "WARCRAFT",
+  "RANDY", "HORNY", "SEXY", "SEX", "NUDE", "NUDITY", "STRIPPER",
   // Religious / theological specifics that feel loaded
   "SATAN", "DEVIL",
 ]);

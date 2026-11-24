@@ -20,7 +20,7 @@ const CROSSWORD_SWAPLOG_KEY = "pct-chaser-crossword-swaplog-v1";
 const CROSSWORD_REGEN_COUNT_KEY = "pct-chaser-crossword-regen-v1";
 const CROSSWORD_HELP_DISMISSED_KEY = "pct-chaser-crossword-help-dismissed-v1";
 const CROSSWORD_DIFFICULTY_KEY = "pct-chaser-crossword-difficulty-v1";
-const CLUE_BATCH_SIZE = 6;             // answers per write-clues call (run in parallel)
+const CLUE_BATCH_SIZE = 4;             // answers per write-clues call (run in parallel)
 const DIFFICULTIES = [
   { key: "standard", label: "Standard", hint: "Clean, precise clues with the odd twist." },
   { key: "challenging", label: "Challenging", hint: "Broadsheet level: most clues make you stop and think." },
@@ -1103,7 +1103,10 @@ async function writeClueBatch(answers, difficulty, swapLog) {
         body: JSON.stringify({ answers, difficulty, swap_log: swapLog }),
       });
       const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data.error || `Request failed (${res.status})`);
+      // Clue functions stream, so a failure can arrive as {error} with a 200.
+      if (!res.ok || data.error || !Array.isArray(data.clues)) {
+        throw new Error(data.error || `Request failed (${res.status})`);
+      }
       return data;
     } catch (e) {
       lastErr = e;
@@ -1154,7 +1157,7 @@ async function runRegenClue(entry, direction) {
       }),
     });
     const data = await res.json().catch(() => ({}));
-    if (!res.ok) throw new Error(data.error || `Request failed (${res.status})`);
+    if (!res.ok || data.error || !data.clue) throw new Error(data.error || `Request failed (${res.status})`);
     // Log the swap so future clues lean towards Leanne's taste. A blank
     // clue being filled in isn't a rejection, so it isn't logged.
     if (entry.clue) {
