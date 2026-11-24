@@ -19,6 +19,13 @@ const CROSSWORD_RESULT_KEY = "pct-chaser-crossword-result-v1";
 const CROSSWORD_SWAPLOG_KEY = "pct-chaser-crossword-swaplog-v1";
 const CROSSWORD_REGEN_COUNT_KEY = "pct-chaser-crossword-regen-v1";
 const CROSSWORD_HELP_DISMISSED_KEY = "pct-chaser-crossword-help-dismissed-v1";
+const CROSSWORD_DIFFICULTY_KEY = "pct-chaser-crossword-difficulty-v1";
+const CLUE_BATCH_SIZE = 6;             // answers per write-clues call (run in parallel)
+const DIFFICULTIES = [
+  { key: "standard", label: "Standard", hint: "Clean, precise clues with the odd twist." },
+  { key: "challenging", label: "Challenging", hint: "Broadsheet level: most clues make you stop and think." },
+  { key: "fiendish", label: "Fiendish", hint: "As hard as a non-cryptic gets. Expect to need crossing letters." },
+];
 const WEEKLY_REGEN_SOFT_CAP = 10;      // nudges Leanne after this many
 const WEEKLY_REGEN_HARD_CAP = 20;      // blocks after this many
 
@@ -152,6 +159,8 @@ const state = {
   crosswordResult: readLS(CROSSWORD_RESULT_KEY, null),
   crosswordBusy: false,
   crosswordError: null,
+  crosswordProgress: null, // { stage: "grid" } | { stage: "clues", done, total }
+  crosswordDifficulty: readLS(CROSSWORD_DIFFICULTY_KEY, "challenging"),
   showAnswers: false,
 };
 function readLS(k, fb) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : fb; } catch { return fb; } }
@@ -897,11 +906,14 @@ function sectionCrossword() {
 
   // Generate control bar — always visible, main entry point
   const bar = el("div", { class: "crossword-generate" });
-  const generateBtn = btn(state.crosswordBusy ? "⏳ Generating…" : "🎲 Generate a new puzzle",
+  const p = state.crosswordProgress;
+  const busyLabel = !p || p.stage === "grid" ? "⏳ Building the grid…"
+    : `⏳ Writing clues… ${p.done} of ${p.total} batches`;
+  const generateBtn = btn(state.crosswordBusy ? busyLabel : "🎲 Generate a new puzzle",
     "btn--primary", (ev) => { ev.preventDefault(); runGenerate(); });
   if (state.crosswordBusy) generateBtn.disabled = true;
-  bar.append(generateBtn);
-  if (hasResult) {
+  bar.append(generateBtn, difficultyPicker());
+  if (hasResult && !state.crosswordBusy) {
     bar.append(btn("Show examples again", "btn btn--ghost", (ev) => {
       ev.preventDefault();
       state.crosswordResult = null;
@@ -909,10 +921,14 @@ function sectionCrossword() {
       render();
     }));
   }
-  bar.append(el("span", { class: "muted", style: "margin-left:auto; font-size:0.85rem;" },
-    hasResult
-      ? `Generated ${new Date(state.crosswordResult.generated_at).toLocaleString("en-NZ")}`
-      : "Takes about 15-20 seconds the first time"));
+  const r = state.crosswordResult;
+  const levelName = (key) => (DIFFICULTIES.find((d) => d.key === key) || {}).label;
+  bar.append(el("span", { class: "muted crossword-generate__status" },
+    state.crosswordBusy
+      ? "Each clue is written, then fact-checked. About half a minute."
+      : hasResult
+        ? `Generated ${new Date(r.generated_at).toLocaleString("en-NZ")}${r.difficulty ? ` · ${levelName(r.difficulty)}` : ""}`
+        : "Takes about half a minute"));
   sec.append(bar);
 
   if (state.crosswordError) {
@@ -938,11 +954,11 @@ function sectionCrossword() {
   foot.innerHTML = `
     <h3>How it works each week</h3>
     <ol>
-      <li><span><strong>Generate.</strong> Click the button and a fresh grid and numbered clue list appear in a few seconds.</span></li>
+      <li><span><strong>Generate.</strong> Pick a difficulty and click the button. A fresh grid and numbered clue list appear in about half a minute.</span></li>
       <li><span><strong>Read through and tweak.</strong> Don't love a clue? Click the ↻ next to it and just that one is rewritten. The grid stays exactly as it is.</span></li>
       <li><span><strong>Download and copy into InDesign.</strong> Download the grid (PDF or JPG, exactly 80 × 80 mm) and copy the clues. Same again for the answer key on page 8.</span></li>
     </ol>
-    <p>Every clue goes through an automatic quality check before it reaches you, so you shouldn't see ambiguous or silly ones. If one slips through, the ↻ fixes it.</p>
+    <p>Every clue is checked by a separate editor pass for accuracy, fairness and NZ English before it reaches you, so you shouldn't see wrong or ambiguous ones. If one slips through, the ↻ fixes it.</p>
     <p class="muted">Happy to run it as a free trial for a few weeks. If the quality isn't there, let me know and we tune it or drop it. Your current vendor can stay in place until you're sure.</p>
   `;
   sec.append(foot);
@@ -1017,22 +1033,106 @@ async function runGenerate() {
 
   state.crosswordBusy = true;
   state.crosswordError = null;
+  state.crosswordProgress = { stage: "grid" };
   render();
   try {
+    // Step 1: the grid and its answers (instant, no AI).
     const res = await fetch("/.netlify/functions/generate-crossword", { cache: "no-store" });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || `Request failed (${res.status})`);
-    state.crosswordResult = data;
-    writeLS(CROSSWORD_RESULT_KEY, data);
-    bumpRegenCount();
-    state.crosswordBusy = false;
+    const grid = await res.json();
+    if (!res.ok) throw new Error(grid.error || `Request failed (${res.status})`);
+
+    // Step 2: clues, written and fact-checked in small parallel batches so
+    // no single request gets near the server's time limit.
+    const difficulty = state.crosswordDifficulty;
+    const entries = [...grid.across, ...grid.down];
+    const answers = [...new Set(entries.map((e) => e.answer))];
+    const batches = [];
+    for (let i = 0; i < answers.length; i += CLUE_BATCH_SIZE) batches.push(answers.slice(i, i + CLUE_BATCH_SIZE));
+    const progress = { stage: "clues", done: 0, total: batches.length };
+    state.crosswordProgress = progress;
     render();
-    toast("Fresh puzzle generated — review the clues below.");
+
+    const swapLog = readLS(CROSSWORD_SWAPLOG_KEY, []).slice(-10);
+    const clueBy = {};
+    const unchecked = new Set();
+    let failedBatches = 0;
+    await Promise.all(batches.map(async (batch) => {
+      try {
+        const data = await writeClueBatch(batch, difficulty, swapLog);
+        for (const c of data.clues || []) clueBy[c.answer] = c.clue;
+        if (!data.checked) batch.forEach((a) => unchecked.add(a));
+      } catch (e) {
+        failedBatches++;
+        console.warn("clue batch failed:", e);
+      }
+      progress.done++;
+      render();
+    }));
+    if (failedBatches === batches.length) throw new Error("Couldn't write the clues just now. Please try again.");
+
+    for (const e of entries) {
+      e.clue = clueBy[e.answer] || "";
+      if (e.clue && unchecked.has(e.answer)) e._unchecked = true;
+    }
+    grid.difficulty = difficulty;
+    state.crosswordResult = grid;
+    writeLS(CROSSWORD_RESULT_KEY, grid);
+    bumpRegenCount();
+    const missing = entries.filter((e) => !e.clue).length;
+    toast(missing
+      ? `Puzzle ready, but ${missing} clue${missing === 1 ? "" : "s"} need${missing === 1 ? "s" : ""} writing. Press the ↻ next to ${missing === 1 ? "it" : "each"}.`
+      : "Fresh puzzle ready — review the clues below.", !!missing);
   } catch (e) {
-    state.crosswordBusy = false;
     state.crosswordError = e.message;
+  } finally {
+    state.crosswordBusy = false;
+    state.crosswordProgress = null;
     render();
   }
+}
+
+// One batch of answers → clues. Retries once, because a single slow or
+// failed request shouldn't cost Leanne the whole puzzle.
+async function writeClueBatch(answers, difficulty, swapLog) {
+  let lastErr;
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      const res = await fetch("/.netlify/functions/write-clues", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ answers, difficulty, swap_log: swapLog }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || `Request failed (${res.status})`);
+      return data;
+    } catch (e) {
+      lastErr = e;
+    }
+  }
+  throw lastErr;
+}
+
+function difficultyPicker() {
+  const wrap = el("div", { class: "crossword-difficulty", role: "group", "aria-label": "Difficulty" });
+  wrap.append(el("span", { class: "crossword-difficulty__label" }, "Difficulty"));
+  for (const d of DIFFICULTIES) {
+    const b = el("button", {
+      class: "crossword-difficulty__opt",
+      type: "button",
+      title: d.hint,
+      "aria-pressed": state.crosswordDifficulty === d.key ? "true" : "false",
+    }, d.label);
+    b.disabled = state.crosswordBusy;
+    b.addEventListener("click", () => {
+      state.crosswordDifficulty = d.key;
+      writeLS(CROSSWORD_DIFFICULTY_KEY, d.key);
+      render();
+    });
+    wrap.append(b);
+  }
+  const current = DIFFICULTIES.find((d) => d.key === state.crosswordDifficulty) || DIFFICULTIES[1];
+  wrap.append(el("span", { class: "crossword-difficulty__hint muted" }, current.hint));
+  return wrap;
 }
 
 // ─── Single-clue regen: replaces one clue without touching the grid ────
@@ -1048,22 +1148,26 @@ async function runRegenClue(entry, direction) {
       headers: { "content-type": "application/json" },
       body: JSON.stringify({
         answer: entry.answer,
-        length: entry.len,
         rejected_clue: entry.clue,
-        swap_log: swapLog,
+        difficulty: r.difficulty || state.crosswordDifficulty,
+        swap_log: swapLog.slice(-10),
       }),
     });
-    const data = await res.json();
+    const data = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(data.error || `Request failed (${res.status})`);
-    // Log the swap so future regens know Leanne's preferences.
-    swapLog.push({
-      answer: entry.answer,
-      rejected: entry.clue,
-      kept: data.clue,
-      when: Date.now(),
-    });
-    writeLS(CROSSWORD_SWAPLOG_KEY, swapLog.slice(-100));
+    // Log the swap so future clues lean towards Leanne's taste. A blank
+    // clue being filled in isn't a rejection, so it isn't logged.
+    if (entry.clue) {
+      swapLog.push({
+        answer: entry.answer,
+        rejected: entry.clue,
+        kept: data.clue,
+        when: Date.now(),
+      });
+      writeLS(CROSSWORD_SWAPLOG_KEY, swapLog.slice(-100));
+    }
     entry.clue = data.clue;
+    entry._unchecked = data.checked === false;
     entry._regenerating = false;
     writeLS(CROSSWORD_RESULT_KEY, r);
     render();
@@ -1107,12 +1211,12 @@ function crosswordHelp() {
     {
       icon: "🎲",
       title: "Generate a new puzzle",
-      body: "Fresh grid and clues each time. Takes about 7 seconds. Hit this if the whole puzzle isn't quite right — layout, theme, difficulty.",
+      body: "Fresh grid and clues each time. Takes about half a minute: every clue is written, then checked by a separate editor for accuracy and fairness before you see it.",
     },
     {
       icon: "↻",
       title: "Rewrite a single clue",
-      body: "Don't love a specific clue? Click the ↻ next to it and I'll rewrite just that one in a couple of seconds. The grid and the other clues stay exactly as they are. Much quicker than a whole new puzzle.",
+      body: "Don't love a specific clue? Click the ↻ next to it and just that one is rewritten (and checked) in about 15 seconds. The grid and the other clues stay exactly as they are.",
     },
     {
       icon: "📋",
@@ -1130,9 +1234,9 @@ function crosswordHelp() {
       body: "Every time you rewrite a clue, the system quietly remembers what you kept and what you rejected. Over a few weeks the clue style drifts towards what you actually like — no settings to tweak.",
     },
     {
-      icon: "👀",
-      title: "Preview mode",
-      body: "If you want to see the hand-written examples again (the original samples), click 'Show examples again' at the top.",
+      icon: "🎚",
+      title: "Difficulty",
+      body: "Standard, Challenging or Fiendish, next to the Generate button. Challenging is the default. Too hard one week? Step down a level and generate again.",
     },
   ];
 
@@ -1449,10 +1553,18 @@ function cluesList(heading, items, opts) {
     li.append(
       el("span", { class: "crossword-clues__num" }, `${it.n}.`),
       " ",
-      el("span", {}, it.clue || ""),
+      it.clue
+        ? el("span", {}, it.clue)
+        : el("span", { class: "crossword-clues__missing" }, "No clue yet. Press ↻ to write one"),
       " ",
       el("span", { class: "muted" }, `(${it.len})`),
     );
+    if (it.clue && it._unchecked) {
+      li.append(" ", el("span", {
+        class: "crossword-clues__flag",
+        title: "The fact-check step ran out of time for this one. Give it a quick read, or press ↻.",
+      }, "not fact-checked"));
+    }
     if (regenable && it.answer) {
       const b = el("button", {
         class: "crossword-clues__regen",
