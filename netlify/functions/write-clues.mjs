@@ -1,15 +1,13 @@
 // Step 2 of 2: write and fact-check clues for a batch of crossword answers.
 // The page splits each puzzle's answers into small batches and calls this
 // once per batch, in parallel. The response streams (see streamJson in
-// netlify/crossword/clues.js) so a slow batch isn't cut off as idle.
+// netlify/crossword/clues.mjs) so a slow batch isn't cut off as idle.
 //
 // POST body: { answers: ["PRIVILEGE", ...], difficulty?, swap_log? }
 // Returns:   { clues: [{answer, clue}], checked, level, ms, usage }
 //            or { error } on failure.
 
-import clues from "../crossword/clues.js";
-
-const { writeBatch, streamJson, jsonResponse } = clues;
+import { writeBatch, streamJson, jsonResponse } from "../crossword/clues.mjs";
 const MAX_BATCH = 10;
 
 export default async (req) => {

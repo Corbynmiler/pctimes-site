@@ -2,7 +2,7 @@
 //
 // Step 1 of 2. This function fills the grid and returns the answers — no
 // AI involved, and it answers in well under a second. The page then sends
-// the answers in small batches to write-clues.js, which has Claude write
+// the answers in small batches to write-clues.mjs, which has Claude write
 // and fact-check the clues. Splitting it keeps every call far inside
 // Netlify's 60-second function limit and lets the page show progress.
 //
@@ -466,7 +466,7 @@ exports.handler = async () => {
       size: filled.length,
       rows,
       numbers,
-      // Clues are filled in by the page via write-clues.js.
+      // Clues are filled in by the page via write-clues.mjs.
       across: across.map(({ number, len, answer }) => ({ n: number, clue: "", len, answer })),
       down: down.map(({ number, len, answer }) => ({ n: number, clue: "", len, answer })),
       generated_at: new Date().toISOString(),

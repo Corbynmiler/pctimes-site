@@ -1,5 +1,5 @@
 // Clue writing for the Pōhutukawa Coast Times crossword.
-// Shared by write-clues.js (a batch of answers) and regenerate-clue.js
+// Shared by write-clues.mjs (a batch of answers) and regenerate-clue.mjs
 // (one answer Leanne wants rewritten).
 //
 // Two passes, both on Claude Opus 5.5:
@@ -14,16 +14,19 @@
 // The API key lives only in Netlify's environment variables and is read
 // here, server-side. It never reaches the browser.
 
-const Anthropic = require("@anthropic-ai/sdk");
+// ES module with a static import: Netlify's bundler only ships the SDK
+// with a function when it can see the import statically.
+import Anthropic from "@anthropic-ai/sdk";
 
 const MODEL = "claude-opus-5-5";
-const AnthropicClient = Anthropic.default || Anthropic;
 let client = null;
 function getClient() {
   if (!process.env.ANTHROPIC_API_KEY) throw new Error("ANTHROPIC_API_KEY not set. Add it in Netlify env vars.");
-  if (!client) client = new AnthropicClient({ apiKey: process.env.ANTHROPIC_API_KEY, maxRetries: 1 });
+  if (!client) client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY, maxRetries: 1 });
   return client;
 }
+// Local tests swap in a fake client so they never call the real API.
+export function setClientForTests(fake) { client = fake; }
 
 const SYSTEM = `You compile the crossword for the Pōhutukawa Coast Times, a weekly community newspaper on the Pōhutukawa Coast, east of Auckland, New Zealand. Its readers are sharp, well-read adults; many have done the paper's crossword for years and want to be stretched. The editor, Leanne Chamberlin, throws out clues that are flat, obvious, inaccurate or culturally off.
 
@@ -279,4 +282,4 @@ function jsonResponse(status, data) {
   });
 }
 
-module.exports = { writeBatch, streamJson, jsonResponse, DIFFICULTY, DEFAULT_DIFFICULTY, clueProblem };
+export { writeBatch, streamJson, jsonResponse, DIFFICULTY, DEFAULT_DIFFICULTY, clueProblem };

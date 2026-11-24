@@ -1,15 +1,13 @@
 // Regenerate ONE clue — called when Leanne clicks the ↻ next to a clue she
 // doesn't like (or one that came back blank). Same compiler + editor passes
-// as the full puzzle (see netlify/crossword/clues.js), told what she
+// as the full puzzle (see netlify/crossword/clues.mjs), told what she
 // rejected and shown her recent rewrites so it moves towards her taste.
 // Streams, like write-clues, so a slow rewrite isn't cut off as idle.
 //
 // POST body: { answer, rejected_clue?, difficulty?, swap_log? }
 // Returns:   { answer, clue, checked } or { error }.
 
-import clues from "../crossword/clues.js";
-
-const { writeBatch, streamJson, jsonResponse } = clues;
+import { writeBatch, streamJson, jsonResponse } from "../crossword/clues.mjs";
 
 export default async (req) => {
   if (req.method !== "POST") return jsonResponse(405, { error: "POST only" });
