@@ -7,7 +7,7 @@
   functions = "netlify/functions"
 
 [build.environment]
-  NODE_VERSION = "20"
+  NODE_VERSION = "22"
 
 # Functions directory for the roster feature. Phase 1 ships a stub only
 # (netlify/functions/send-chase.js) — no credentials, no real sending.
