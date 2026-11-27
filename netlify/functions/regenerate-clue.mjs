@@ -6,7 +6,7 @@
 // and a failed one is refunded (see netlify/crossword/guard.mjs).
 // Streams, like write-clues, so a slow rewrite isn't cut off as idle.
 //
-// POST body: { answer, rejected_clue?, difficulty?, swap_log? }
+// POST body: { answer, rejected_clue?, swap_log? }
 // Returns:   { answer, clue, checked, quota } or { error, quota? }.
 
 import { writeBatch, streamJson } from "../crossword/clues.mjs";
@@ -41,7 +41,6 @@ export default async (req) => {
     try {
       const result = await writeBatch({
         answers: [{ answer }],
-        difficulty: String(body.difficulty || ""),
         swapLog: body.swap_log,
         rejectedClue: rejected,
       });
