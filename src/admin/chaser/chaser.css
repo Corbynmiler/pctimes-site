@@ -321,16 +321,8 @@ body {
 .tab-panel { display: none; }
 .tab-panel.is-active { display: block; }
 
-/* Crossword examples */
+/* Crossword */
 .banner--info { background: #FFF8EC; border-color: #F0E1BE; color: #78541A; }
-.crossword-grid {
-  display: grid;
-  gap: 1.25rem;
-  grid-template-columns: 1fr;
-  margin: 1rem 0 1.5rem;
-}
-@media (min-width: 820px) { .crossword-grid { grid-template-columns: 1fr 1fr; } }
-
 .crossword-card {
   background: #fff;
   border: 1px solid var(--rule);
@@ -338,13 +330,6 @@ body {
   padding: 1rem 1.1rem 1.1rem;
   box-shadow: var(--shadow-sm);
 }
-.crossword-card__title {
-  font-family: var(--font-serif);
-  color: var(--maroon);
-  margin: 0 0 0.3rem;
-  font-size: 1.05rem;
-}
-.crossword-card__subtitle { font-size: 0.85rem; margin: 0 0 0.9rem; }
 .crossword-svg {
   width: 100%;
   max-width: 320px;

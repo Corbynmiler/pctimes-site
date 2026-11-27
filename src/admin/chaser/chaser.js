@@ -773,135 +773,17 @@ async function updateContributorEmail(rosterKey, contributorKey, newEmail) {
   });
 }
 
-// ─── Section: Crossword examples (scaffold for AI generation pipeline) ─
-// Two hand-crafted example puzzles so Leanne can judge the format before
-// we wire up the real pipeline (classical grid filler + LLM clues, see
-// research notes). Everything here is static today — no generation yet.
-const EXAMPLE_PUZZLES = [
-  {
-    key: "classic",
-    title: "Example 1 — general knowledge",
-    subtitle: "Standard 13×13 'quick' crossword. This uses the exact clue set from the Team Brie / Ray White puzzle Aunty L sent — just to show what the AI would output in your current style.",
-    size: 13,
-    // Symmetric (180°) grid. '#' = black, '.' = white.
-    rows: [
-      "###..........",
-      "###.#.#.#.#.#",
-      ".............",
-      ".#.#.#...#.#.",
-      "....#...#....",
-      ".#...##...#.#",
-      "..#.....#..##",
-      "#.#...##...#.",
-      "....#...#....",
-      ".#.#...#.#.#.",
-      ".............",
-      "#.#.#.#.#.###",
-      "..........###",
-    ],
-    across: [
-      { n: 1, clue: "Star watcher", len: 10 },
-      { n: 8, clue: "Follow orders", len: 4 },
-      { n: 9, clue: "Mixed collection", len: 10 },
-      { n: 10, clue: "Eager and attentive", len: 4 },
-      { n: 11, clue: "Thin layer", len: 6 },
-      { n: 13, clue: "Arab ruler", len: 4 },
-      { n: 14, clue: "Proof", len: 8 },
-      { n: 18, clue: "Short musical drama", len: 8 },
-      { n: 23, clue: "Without", len: 4 },
-      { n: 25, clue: "Verse", len: 6 },
-      { n: 26, clue: "Musical symbol", len: 4 },
-      { n: 27, clue: "Play down", len: 10 },
-      { n: 28, clue: "Boast", len: 4 },
-      { n: 29, clue: "In all places", len: 10 },
-    ],
-    down: [
-      { n: 2, clue: "Method", len: 6 },
-      { n: 3, clue: "Person involved in rowdy disturbance", len: 6 },
-      { n: 4, clue: "Character", len: 6 },
-      { n: 5, clue: "Breakfast food", len: 6 },
-      { n: 6, clue: "Turn", len: 6 },
-      { n: 7, clue: "Valiant", len: 6 },
-      { n: 11, clue: "Blocking vote", len: 4 },
-      { n: 12, clue: "Pleasing", len: 4 },
-      { n: 15, clue: "Tank", len: 3 },
-      { n: 16, clue: "Leavened Indian bread", len: 4 },
-      { n: 17, clue: "Compass point", len: 4 },
-      { n: 19, clue: "Meagre (amount)", len: 6 },
-      { n: 20, clue: "Place of safety", len: 6 },
-      { n: 21, clue: "Walk unsteadily", len: 6 },
-      { n: 22, clue: "Off the correct path", len: 6 },
-      { n: 23, clue: "Inform", len: 6 },
-      { n: 24, clue: "Castrate", len: 6 },
-    ],
-  },
-  {
-    key: "standard",
-    title: "Example 2 — standard quick crossword",
-    subtitle: "A plain non-themed 13×13 — this is the sort of thing you'd see every week, no gimmicks. Mix of easy and medium clues.",
-    size: 13,
-    rows: [
-      ".....#.......",
-      ".#.#.#.#.#.#.",
-      ".............",
-      ".#.#.#...#.#.",
-      "....#.....#..",
-      ".#...#.#.....",
-      "...#.......#.",
-      ".....#.#...#.",
-      "..#.....#....",
-      ".#.#...#.#.#.",
-      ".............",
-      ".#.#.#.#.#.#.",
-      ".......#.....",
-    ],
-    across: [
-      { n: 1, clue: "Soldier's room at the barracks", len: 5 },
-      { n: 5, clue: "Opposite of west", len: 7 },
-      { n: 10, clue: "Heavy book", len: 4 },
-      { n: 11, clue: "Second-hand", len: 4 },
-      { n: 12, clue: "Walked briskly", len: 8 },
-      { n: 14, clue: "Trumpeting ocean mammal", len: 8 },
-      { n: 15, clue: "What a sail catches", len: 4 },
-      { n: 17, clue: "Alternative to coffee", len: 3 },
-      { n: 18, clue: "Freshwater fish, often smoked", len: 6 },
-      { n: 20, clue: "Common house pet", len: 3 },
-      { n: 23, clue: "Oven for drying hops", len: 4 },
-      { n: 25, clue: "Of the stars (adj.)", len: 7 },
-      { n: 27, clue: "Garden tool for levelling soil", len: 4 },
-      { n: 28, clue: "Hidden treasure, as from pirates", len: 5 },
-    ],
-    down: [
-      { n: 1, clue: "Light meal between main meals", len: 5 },
-      { n: 2, clue: "French for 'yes'", len: 3 },
-      { n: 3, clue: "Flat-topped Spanish hat", len: 7 },
-      { n: 4, clue: "Hole punched in a belt", len: 6 },
-      { n: 6, clue: "At this moment", len: 3 },
-      { n: 7, clue: "Formal dance", len: 4 },
-      { n: 8, clue: "Yearly", len: 6 },
-      { n: 9, clue: "Opera solo", len: 4 },
-      { n: 13, clue: "Opposite of empty", len: 4 },
-      { n: 16, clue: "Not often found", len: 4 },
-      { n: 19, clue: "Mountain in Greek myth, home of the gods", len: 7 },
-      { n: 21, clue: "Make amends", len: 5 },
-      { n: 22, clue: "Pitched tent camp", len: 6 },
-      { n: 24, clue: "Needle hole", len: 3 },
-      { n: 26, clue: "Baby's bed", len: 3 },
-    ],
-  },
-];
-
 function sectionCrossword() {
   const sec = el("section", { class: "section" });
 
   const hasResult = !!state.crosswordResult;
 
   sec.append(sectionHead(
-    hasResult ? "Crossword — this week's puzzle" : "Crossword — examples + generate",
-    hasResult ? undefined : 2,
+    hasResult ? "Crossword — this week's puzzle" : "Crossword",
+    undefined,
     hasResult
       ? "Review the clues, hit Generate if you'd like a different puzzle, then download the grid and copy the clues for InDesign."
-      : "Hi Aunty L. Two examples at the bottom showing the format. Press the Generate button to produce a real puzzle you could actually publish."
+      : "Pick a difficulty and press Generate to make this week's puzzle."
   ));
 
   // Generate control bar — always visible, main entry point
@@ -917,14 +799,6 @@ function sectionCrossword() {
     "btn--primary", (ev) => { ev.preventDefault(); runGenerate(); });
   if (state.crosswordBusy || !state.auth || outOfPuzzles) generateBtn.disabled = true;
   bar.append(generateBtn, difficultyPicker());
-  if (hasResult && !state.crosswordBusy) {
-    bar.append(btn("Show examples again", "btn btn--ghost", (ev) => {
-      ev.preventDefault();
-      state.crosswordResult = null;
-      writeLS(CROSSWORD_RESULT_KEY, null);
-      render();
-    }));
-  }
   const r = state.crosswordResult;
   const levelName = (key) => (DIFFICULTIES.find((d) => d.key === key) || {}).label;
   bar.append(el("span", { class: "muted crossword-generate__status" },
@@ -946,13 +820,9 @@ function sectionCrossword() {
   if (hasResult) {
     sec.append(generatedCrossword(state.crosswordResult));
     sec.append(crosswordHelp());
-  } else {
-    const banner = el("div", { class: "banner banner--info" });
-    banner.innerHTML = `<strong>Preview mode</strong> — the two puzzles below are hand-written examples showing the format. Hit the Generate button above to produce a real one.`;
-    sec.append(banner);
-    const grid = el("div", { class: "crossword-grid" });
-    for (const p of EXAMPLE_PUZZLES) grid.append(crosswordExample(p));
-    sec.append(grid);
+  } else if (!state.crosswordBusy) {
+    sec.append(el("div", { class: "banner banner--info" },
+      "No puzzle yet. Pick a difficulty above and press Generate."));
   }
 
   // Next-step CTA, written for Leanne
@@ -969,36 +839,6 @@ function sectionCrossword() {
   `;
   sec.append(foot);
   return sec;
-}
-
-function crosswordExample(p) {
-  const art = el("article", { class: "crossword-card" });
-  art.append(
-    el("h3", { class: "crossword-card__title" }, p.title),
-    el("p", { class: "crossword-card__subtitle muted" }, p.subtitle),
-  );
-
-  // Build grid + compute numbers
-  const { cells, numbers } = computeGrid(p.rows);
-  const svg = renderCrosswordSVG(cells, numbers, p.size);
-  art.append(svg);
-
-  // Toolbar: copy clues to clipboard in the format Leanne already uses
-  const bar = el("div", { class: "crossword-card__bar" });
-  bar.append(btn("📋 Copy clues", "btn--small btn--ghost", () => {
-    const text = cluesToText(p);
-    navigator.clipboard.writeText(text).then(
-      () => toast("Clues copied — paste straight into InDesign."),
-      () => toast("Couldn't copy — select the text below instead.", true),
-    );
-  }));
-  art.append(bar);
-
-  const clueCols = el("div", { class: "crossword-card__clues" });
-  clueCols.append(cluesList("Across", p.across), cluesList("Down", p.down));
-  art.append(clueCols);
-
-  return art;
 }
 
 function cluesToText(p) {
@@ -1363,26 +1203,6 @@ function generatedCrossword(r) {
     `If one clue is off, click the ↻ next to it and I'll rewrite just that one. Hit Generate for a whole new puzzle if the grid itself isn't working for you.`));
 
   return art;
-}
-
-function computeGrid(rows) {
-  const size = rows.length;
-  const cells = rows.map((r) => r.split("").map((c) => c === "#" ? null : c === "." ? "" : c));
-  const numbers = {};
-  let n = 1;
-  for (let r = 0; r < size; r++) {
-    for (let c = 0; c < size; c++) {
-      if (cells[r][c] === null) continue;
-      const startsAcross = (c === 0 || cells[r][c - 1] === null) &&
-        (c + 1 < size && cells[r][c + 1] !== null);
-      const startsDown = (r === 0 || cells[r - 1][c] === null) &&
-        (r + 1 < size && cells[r + 1][c] !== null);
-      if (startsAcross || startsDown) {
-        numbers[`${r},${c}`] = n++;
-      }
-    }
-  }
-  return { cells, numbers };
 }
 
 function renderCrosswordSVG(cells, numbers, size, opts) {
