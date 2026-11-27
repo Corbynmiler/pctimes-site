@@ -5,8 +5,8 @@
 // netlify/crossword/guard.mjs). The response streams (see streamJson in
 // netlify/crossword/clues.mjs) so a slow batch isn't cut off as idle.
 //
-// POST body: { puzzle_id, answers: ["PRIVILEGE", ...], difficulty?, swap_log? }
-// Returns:   { clues: [{answer, clue}], checked, level, ms, usage }
+// POST body: { puzzle_id, answers: ["PRIVILEGE", ...], swap_log? }
+// Returns:   { clues: [{answer, clue}], checked, ms, usage }
 //            or { error } on failure.
 
 import { writeBatch, streamJson } from "../crossword/clues.mjs";
@@ -38,7 +38,6 @@ export default async (req) => {
   return streamJson(async () => {
     const result = await writeBatch({
       answers: answers.map((answer) => ({ answer })),
-      difficulty: String(body.difficulty || ""),
       swapLog: body.swap_log,
     });
     if (result.clues.some((c) => c.clue)) await markPuzzleOk(body.puzzle_id);

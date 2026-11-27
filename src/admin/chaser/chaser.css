@@ -453,42 +453,6 @@ body {
 .crossword-generate__status { margin-left: auto; font-size: 0.85rem; }
 .crossword-quota { margin: -0.5rem 0 1rem 0.2rem; font-size: 0.85rem; }
 
-/* Difficulty: a small segmented control next to Generate */
-.crossword-difficulty {
-  display: inline-flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 0.35rem;
-}
-.crossword-difficulty__label {
-  font-size: 0.78rem;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--muted);
-  margin-left: 0.4rem;
-}
-.crossword-difficulty__opt {
-  font: inherit;
-  font-size: 0.85rem;
-  padding: 0.3rem 0.7rem;
-  border: 1px solid var(--rule);
-  background: #fff;
-  color: var(--ink);
-  border-radius: 999px;
-  cursor: pointer;
-  transition: background 100ms ease, border-color 100ms ease, color 100ms ease;
-}
-.crossword-difficulty__opt:hover:not(:disabled) { border-color: var(--maroon); }
-.crossword-difficulty__opt[aria-pressed="true"] {
-  background: var(--maroon);
-  border-color: var(--maroon);
-  color: #fff;
-}
-.crossword-difficulty__opt:focus-visible { outline: 2px solid var(--red); outline-offset: 1px; }
-.crossword-difficulty__opt:disabled { opacity: 0.6; cursor: not-allowed; }
-.crossword-difficulty__hint { font-size: 0.8rem; flex-basis: 100%; margin-left: 0.4rem; }
-
 .crossword-clues__missing { color: var(--red-dark); font-style: italic; }
 .crossword-clues__flag {
   display: inline-block;

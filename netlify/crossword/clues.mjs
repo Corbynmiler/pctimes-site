@@ -14,7 +14,8 @@
 // years (27 issues studied): short plain clues, half of them one word,
 // with the challenge in the answers - words readers know but rarely use
 // (the grid generator now favours those). "Hard" means clever, never
-// obscure: no Latin, jargon or thesaurus swaps.
+// obscure: no Latin, jargon or thesaurus swaps. Every puzzle uses this one
+// style, so the crossword feels the same from week to week.
 //
 // The API key lives only in Netlify's environment variables and is read
 // here, server-side. It never reaches the browser.
@@ -51,14 +52,12 @@ TECHNIQUES THAT WORK (the editor's favourites: learn the style, don't reuse thes
 - A familiar word's other everyday meaning. SMART: "Sting". DRAW: "One-all, say".
 - Misdirection by part of speech. TOTAL: "Utter" (it reads as a verb; it's the adjective).
 - An example of the thing, with "for one" or "perhaps". OPERA: "Carmen, for one".
-- A playful definition, flagged with a question mark. BIRTHDAY: "Present day?". SOCKS: "Wash-day escape artists?".
 - A crisp, exact definition, when it's a good one. Not every clue needs a trick.
 
 WHAT GETS THROWN OUT (real clues the editor rejected)
 - Specialist knowledge. OPERA: "Works, to a Latin scholar" needs Latin. MOMENTS: "Mean and variance, to a statistician" needs statistics. No Latin or foreign-language senses, no technical, legal, medical, scientific or academic jargon, no "to a [specialist]" clues, no rare or archaic senses of words.
 - Clues harder than their answers. GREATER: "More eminent". Using a rarer word than the answer isn't clever, it's a vocabulary test.
 - Clumsy descriptions. SOCKS: "Knitted garments with heels". Technically true, but dull, and it describes the thing the way no one would.
-- Giveaways (at Challenging and Fiendish). DAY: "Twenty-four hour period". PHYSICIAN: "Medical doctor". TOTAL: "Sum".
 
 RULES FOR EVERY CLUE
 - Accurate. Every fact, definition, part of speech, tense and number must be right. If you're not certain something is true, don't use it.
@@ -70,15 +69,10 @@ RULES FOR EVERY CLUE
 - Short: one to three words is the house style. A clue with a twist can run to six. Newspaper tone, no exclamation marks. Don't state the answer's length; the paper prints it.
 - The puzzle is a non-cryptic ("quick") crossword in a British-style blocked grid. Only about half of each answer's letters are crossed, so every clue has to stand on its own.`;
 
-const DIFFICULTY = {
-  standard:
-    "STANDARD - the paper's classic house style. Nearly every clue is a short, plain, exact definition of one to three words, in familiar words, that a regular solver can get from the clue alone. Choose the clearest everyday sense; the answer's vocabulary supplies the challenge. Perhaps one clue in five can be a short everyday-life or general-knowledge clue for variety. No '?' clues, no trickery.",
-  challenging:
-    "CHALLENGING - the house style with a twist. About half the clues stay short, plain definitions, but choose a less obvious everyday meaning where one exists (SMART: 'Sting'). The rest need a moment of lateral thought: an everyday hook, misdirection, an example, or well-known general knowledge approached sideways. Every clue must still land with an 'of course!' for an ordinary sharp reader, never a 'how was I meant to know that?'. At most one '?' clue in this batch.",
-  fiendish:
-    "FIENDISH - a real workout that stays fair and fun. Nearly every clue twists: heavier misdirection, less obvious (but everyday) meanings, playful '?' definitions, and general knowledge can be more specific, the kind that comes up at a quiz night. Solvers should often need a crossing letter or two. Still no specialist knowledge, and never trade accuracy or fairness for difficulty. Up to two '?' clues in this batch.",
-};
-const DEFAULT_DIFFICULTY = "standard";
+// The one style every puzzle uses (it was the "Standard" level when there
+// were three to choose from).
+const STYLE =
+  "The paper's classic house style. Nearly every clue is a short, plain, exact definition of one to three words, in familiar words, that a regular solver can get from the clue alone. Choose the clearest everyday sense; the answer's vocabulary supplies the challenge. Perhaps one clue in five can be a short everyday-life or general-knowledge clue for variety. No '?' clues, no trickery.";
 
 const DRAFTS_SCHEMA = {
   type: "object",
@@ -182,8 +176,8 @@ function cleanSwapLog(swapLog) {
     }));
 }
 
-function writerPrompt(answers, level, swaps, rejected) {
-  let p = `Draft clues for each answer below.\n\nDifficulty: ${DIFFICULTY[level]}\n\nAnswers:\n` +
+function writerPrompt(answers, swaps, rejected) {
+  let p = `Draft clues for each answer below.\n\nStyle: ${STYLE}\n\nAnswers:\n` +
     answers.map((a) => `- ${a.answer} (${a.answer.length})`).join("\n");
   if (rejected) {
     p += `\n\nLeanne rejected this clue for ${answers[0].answer}: "${rejected}". Every draft must take a clearly different angle, not reword it.`;
@@ -192,25 +186,23 @@ function writerPrompt(answers, level, swaps, rejected) {
     p += "\n\nLeanne's recent rewrites (what she rejected, and the clue she kept). Learn her taste from them; don't reuse them:\n" +
       swaps.map((s) => `- ${s.answer}: rejected "${s.rejected}" -> kept "${s.kept}"`).join("\n");
   }
-  p += level === "standard"
-    ? "\n\nFor each answer, draft three finished, print-ready clues in the house style: short, plain definitions, each a different wording or a different everyday sense. Put your best first. Every draft must follow every rule; the editor will choose between them. Return every answer exactly as given."
-    : "\n\nFor each answer, draft three finished, print-ready clues that take genuinely different angles (for example a short plain definition, a less obvious meaning, an everyday hook, general knowledge approached sideways, an example, a playful '?'). Put your best first. Every draft must pass the quiz-night test and follow every rule; the editor will choose between them. Vary the techniques across the batch. Return every answer exactly as given.";
+  p += "\n\nFor each answer, draft three finished, print-ready clues in the house style: short, plain definitions, each a different wording or a different everyday sense. Put your best first. Every draft must follow every rule; the editor will choose between them. Return every answer exactly as given.";
   return p;
 }
 
-function editorPrompt(items, level, rejected) {
-  let p = `You're the puzzle editor. The compiler has drafted clues for each answer below. For each answer, choose the clue that gives an ordinary sharp reader of the paper the most enjoyable fair challenge at this level. You may tighten its wording, or write a better clue yourself if none of the drafts is good enough.
+function editorPrompt(items, rejected) {
+  let p = `You're the puzzle editor. The compiler has drafted clues for each answer below. For each answer, choose the clue that gives an ordinary sharp reader of the paper the most enjoyable fair challenge. You may tighten its wording, or write a better clue yourself if none of the drafts is good enough.
 
-Level for this puzzle: ${DIFFICULTY[level]}
+Style: ${STYLE}
 
 A clue may go to print only if it is:
 1. Accurate - every fact, meaning, part of speech, tense and number is correct. If you aren't confident a fact is true, it fails.
 2. Fair - a solver who has the answer agrees it fits exactly, and no other common word of the same length fits as well.
 3. Gettable - no specialist knowledge: no Latin or foreign-language senses, no technical, legal, medical, scientific or academic jargon, no "to a [specialist]" clues, no rare or archaic senses. It passes the quiz-night test.
-4. Well pitched - the clue's words are plainer than the answer, never rarer (GREATER: "More eminent" fails); not a clumsy description; short in the house style; and at Challenging or Fiendish not a dictionary-first giveaway.
+4. Well pitched - the clue's words are plainer than the answer, never rarer (GREATER: "More eminent" fails); not a clumsy description; short in the house style.
 5. House rules - one definition only (no "X or Y"), no part of the answer or a word from its root, NZ English with no US-only references, respectful, concise.
 
-${level === "standard" ? "Prefer the shortest clue that is exact and clear." : "Prefer the clue with the best \"of course!\" moment. Don't let two clues in the batch lean on the same trick."}`;
+Prefer the shortest clue that is exact and clear.`;
   if (rejected) p += `\n\nLeanne rejected "${rejected}" for ${items[0].answer}. Don't print that clue or anything close to it.`;
   p += "\n\nDrafts:\n" + items.map((c) =>
     `- ${c.answer} (${c.answer.length}):\n` + c.drafts.map((d, i) => `  ${i + 1}. ${d}`).join("\n")).join("\n");
@@ -223,10 +215,9 @@ ${level === "standard" ? "Prefer the shortest clue that is exact and clear." : "
 // well inside Netlify's 60 s limit: if the editor pass can't fit in the
 // time left, the compiler's first clean draft is used instead of failing
 // the whole batch.
-async function writeBatch({ answers, difficulty, swapLog, rejectedClue }) {
+async function writeBatch({ answers, swapLog, rejectedClue }) {
   const started = Date.now();
   const deadline = started + 55_000;
-  const level = DIFFICULTY[difficulty] ? difficulty : DEFAULT_DIFFICULTY;
   const swaps = cleanSwapLog(swapLog);
   const usage = [];
   const want = new Set(answers.map((a) => a.answer));
@@ -235,7 +226,7 @@ async function writeBatch({ answers, difficulty, swapLog, rejectedClue }) {
 
   // Pass 1: compiler drafts.
   const w = await ask({
-    prompt: writerPrompt(answers, level, swaps, rejectedClue),
+    prompt: writerPrompt(answers, swaps, rejectedClue),
     schema: DRAFTS_SCHEMA, effort: "high", timeoutMs: 40_000,
   });
   usage.push({ pass: "write", ...w.usage });
@@ -258,7 +249,7 @@ async function writeBatch({ answers, difficulty, swapLog, rejectedClue }) {
   if (toPick.length && timeLeft > 12_000) {
     try {
       const e = await ask({
-        prompt: editorPrompt(toPick, level, rejectedClue),
+        prompt: editorPrompt(toPick, rejectedClue),
         schema: PICKS_SCHEMA, effort: "medium", timeoutMs: timeLeft - 2_000,
       });
       usage.push({ pass: "edit", ...e.usage });
@@ -278,7 +269,7 @@ async function writeBatch({ answers, difficulty, swapLog, rejectedClue }) {
   // Anything still breaking a hard rule is blanked so the page shows it
   // for a one-click rewrite rather than printing it.
   const clues = answers.map((a) => ({ answer: a.answer, clue: usable(clueBy[a.answer], a.answer) ? clueBy[a.answer] : "" }));
-  return { clues, checked, level, ms: Date.now() - started, usage, drafts, notes };
+  return { clues, checked, ms: Date.now() - started, usage, drafts, notes };
 }
 
 // Netlify's edge drops a request that sends nothing for ~30 s, and a
@@ -316,4 +307,4 @@ function jsonResponse(status, data) {
   });
 }
 
-export { writeBatch, streamJson, jsonResponse, DIFFICULTY, DEFAULT_DIFFICULTY, clueProblem };
+export { writeBatch, streamJson, jsonResponse, clueProblem };

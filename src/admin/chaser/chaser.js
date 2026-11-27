@@ -18,14 +18,7 @@ const TAB_KEY = "pct-chaser-tab-v1";
 const CROSSWORD_RESULT_KEY = "pct-chaser-crossword-result-v1";
 const CROSSWORD_SWAPLOG_KEY = "pct-chaser-crossword-swaplog-v1";
 const CROSSWORD_HELP_DISMISSED_KEY = "pct-chaser-crossword-help-dismissed-v1";
-// v2: the levels were redefined (Standard now matches the paper's usual puzzle), so earlier picks reset.
-const CROSSWORD_DIFFICULTY_KEY = "pct-chaser-crossword-difficulty-v2";
 const CLUE_BATCH_SIZE = 3;             // answers per write-clues call (run in parallel); small batches keep each call well inside the time limit
-const DIFFICULTIES = [
-  { key: "standard", label: "Standard", hint: "Like the paper's usual crossword: short, plain clues, interesting answers." },
-  { key: "challenging", label: "Challenging", hint: "Same style, but about half the clues have a twist. No specialist knowledge needed." },
-  { key: "fiendish", label: "Fiendish", hint: "Lots of misdirection. Expect to need a crossing letter or two." },
-];
 
 // ─── Date helpers ──────────────────────────────────────────────────────
 const monthShort = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
@@ -158,7 +151,6 @@ const state = {
   crosswordBusy: false,
   crosswordError: null,
   crosswordProgress: null, // { stage: "grid" } | { stage: "clues", done, total }
-  crosswordDifficulty: readLS(CROSSWORD_DIFFICULTY_KEY, "standard"),
   crosswordQuota: null,    // this week's allowance, from the server
   crosswordQuotaTried: false,
   showAnswers: false,
@@ -783,7 +775,7 @@ function sectionCrossword() {
     undefined,
     hasResult
       ? "Review the clues, hit Generate if you'd like a different puzzle, then download the grid and copy the clues for InDesign."
-      : "Pick a difficulty and press Generate to make this week's puzzle."
+      : "Press Generate to make this week's puzzle."
   ));
 
   // Generate control bar — always visible, main entry point
@@ -798,14 +790,13 @@ function sectionCrossword() {
   const generateBtn = btn(state.crosswordBusy ? busyLabel : idleLabel,
     "btn--primary", (ev) => { ev.preventDefault(); runGenerate(); });
   if (state.crosswordBusy || !state.auth || outOfPuzzles) generateBtn.disabled = true;
-  bar.append(generateBtn, difficultyPicker());
+  bar.append(generateBtn);
   const r = state.crosswordResult;
-  const levelName = (key) => (DIFFICULTIES.find((d) => d.key === key) || {}).label;
   bar.append(el("span", { class: "muted crossword-generate__status" },
     state.crosswordBusy
       ? "Each clue is written, then fact-checked. About half a minute."
       : hasResult
-        ? `Generated ${new Date(r.generated_at).toLocaleString("en-NZ")}${r.difficulty ? ` · ${levelName(r.difficulty)}` : ""}`
+        ? `Generated ${new Date(r.generated_at).toLocaleString("en-NZ")}`
         : "Takes about half a minute"));
   sec.append(bar);
   const allowance = quotaLine();
@@ -822,7 +813,7 @@ function sectionCrossword() {
     sec.append(crosswordHelp());
   } else if (!state.crosswordBusy) {
     sec.append(el("div", { class: "banner banner--info" },
-      "No puzzle yet. Pick a difficulty above and press Generate."));
+      "No puzzle yet. Press Generate above to make one."));
   }
 
   // Next-step CTA, written for Leanne
@@ -830,7 +821,7 @@ function sectionCrossword() {
   foot.innerHTML = `
     <h3>How it works each week</h3>
     <ol>
-      <li><span><strong>Generate.</strong> Pick a difficulty and click the button. A fresh grid and numbered clue list appear in about half a minute.</span></li>
+      <li><span><strong>Generate.</strong> Click the button. A fresh grid and numbered clue list appear in about half a minute.</span></li>
       <li><span><strong>Read through and tweak.</strong> Don't love a clue? Click the ↻ next to it and just that one is rewritten. The grid stays exactly as it is.</span></li>
       <li><span><strong>Download and copy into InDesign.</strong> Download the grid (PDF or JPG, exactly 80 × 80 mm) and copy the clues. Same again for the answer key on page 8.</span></li>
     </ol>
@@ -911,7 +902,6 @@ async function runGenerate() {
 
     // Step 2: clues, written and fact-checked in small parallel batches so
     // no single request gets near the server's time limit.
-    const difficulty = state.crosswordDifficulty;
     const entries = [...grid.across, ...grid.down];
     const answers = [...new Set(entries.map((e) => e.answer))];
     const batches = [];
@@ -926,7 +916,7 @@ async function runGenerate() {
     let failedBatches = 0;
     await Promise.all(batches.map(async (batch) => {
       try {
-        const data = await writeClueBatch(grid.puzzle_id, batch, difficulty, swapLog);
+        const data = await writeClueBatch(grid.puzzle_id, batch, swapLog);
         for (const c of data.clues || []) clueBy[c.answer] = c.clue;
         if (!data.checked) batch.forEach((a) => unchecked.add(a));
       } catch (e) {
@@ -951,7 +941,6 @@ async function runGenerate() {
       e.clue = clueBy[e.answer] || "";
       if (e.clue && unchecked.has(e.answer)) e._unchecked = true;
     }
-    grid.difficulty = difficulty;
     state.crosswordResult = grid;
     writeLS(CROSSWORD_RESULT_KEY, grid);
     const missing = entries.filter((e) => !e.clue).length;
@@ -969,14 +958,14 @@ async function runGenerate() {
 
 // One batch of answers → clues. Retries once, because a single slow or
 // failed request shouldn't cost Leanne the whole puzzle.
-async function writeClueBatch(puzzleId, answers, difficulty, swapLog) {
+async function writeClueBatch(puzzleId, answers, swapLog) {
   let lastErr;
   for (let attempt = 0; attempt < 2; attempt++) {
     try {
       const res = await fetch("/.netlify/functions/write-clues", {
         method: "POST",
         headers: crosswordHeaders(),
-        body: JSON.stringify({ puzzle_id: puzzleId, answers, difficulty, swap_log: swapLog }),
+        body: JSON.stringify({ puzzle_id: puzzleId, answers, swap_log: swapLog }),
       });
       const data = await res.json().catch(() => ({}));
       // Sign-in, expired-puzzle and limit errors won't change on a retry.
@@ -998,29 +987,6 @@ async function writeClueBatch(puzzleId, answers, difficulty, swapLog) {
   throw lastErr;
 }
 
-function difficultyPicker() {
-  const wrap = el("div", { class: "crossword-difficulty", role: "group", "aria-label": "Difficulty" });
-  wrap.append(el("span", { class: "crossword-difficulty__label" }, "Difficulty"));
-  for (const d of DIFFICULTIES) {
-    const b = el("button", {
-      class: "crossword-difficulty__opt",
-      type: "button",
-      title: d.hint,
-      "aria-pressed": state.crosswordDifficulty === d.key ? "true" : "false",
-    }, d.label);
-    b.disabled = state.crosswordBusy;
-    b.addEventListener("click", () => {
-      state.crosswordDifficulty = d.key;
-      writeLS(CROSSWORD_DIFFICULTY_KEY, d.key);
-      render();
-    });
-    wrap.append(b);
-  }
-  const current = DIFFICULTIES.find((d) => d.key === state.crosswordDifficulty) || DIFFICULTIES[0];
-  wrap.append(el("span", { class: "crossword-difficulty__hint muted" }, current.hint));
-  return wrap;
-}
-
 // ─── Single-clue regen: replaces one clue without touching the grid ────
 async function runRegenClue(entry, direction) {
   const r = state.crosswordResult;
@@ -1037,7 +1003,6 @@ async function runRegenClue(entry, direction) {
       body: JSON.stringify({
         answer: entry.answer,
         rejected_clue: entry.clue,
-        difficulty: r.difficulty || state.crosswordDifficulty,
         swap_log: swapLog.slice(-10),
       }),
     });
@@ -1126,9 +1091,9 @@ function crosswordHelp() {
       body: "Every time you rewrite a clue, the system quietly remembers what you kept and what you rejected. Over a few weeks the clue style drifts towards what you actually like — no settings to tweak.",
     },
     {
-      icon: "🎚",
-      title: "Difficulty",
-      body: "Standard, Challenging or Fiendish, next to the Generate button. Standard is like the paper's usual crossword: short, plain clues with interesting answers. Challenging gives about half the clues a twist; Fiendish twists almost all of them. Pick the level before you generate.",
+      icon: "✏️",
+      title: "One style, every week",
+      body: "Every puzzle is written like the paper's usual crossword: short, plain clues for interesting answers, with the odd one that makes you think. Tough enough to make you work, never obscure.",
     },
   ];
 
