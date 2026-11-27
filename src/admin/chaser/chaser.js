@@ -21,9 +21,9 @@ const CROSSWORD_HELP_DISMISSED_KEY = "pct-chaser-crossword-help-dismissed-v1";
 const CROSSWORD_DIFFICULTY_KEY = "pct-chaser-crossword-difficulty-v1";
 const CLUE_BATCH_SIZE = 4;             // answers per write-clues call (run in parallel)
 const DIFFICULTIES = [
-  { key: "standard", label: "Standard", hint: "Clean, precise clues with the odd twist." },
-  { key: "challenging", label: "Challenging", hint: "Broadsheet level: most clues make you stop and think." },
-  { key: "fiendish", label: "Fiendish", hint: "As hard as a non-cryptic gets. Expect to need crossing letters." },
+  { key: "standard", label: "Standard", hint: "Friendly, clear clues with the odd twist." },
+  { key: "challenging", label: "Challenging", hint: "Clues with a twist that make you think. No specialist knowledge needed." },
+  { key: "fiendish", label: "Fiendish", hint: "Lots of misdirection. Expect to need a crossing letter or two." },
 ];
 
 // ─── Date helpers ──────────────────────────────────────────────────────
