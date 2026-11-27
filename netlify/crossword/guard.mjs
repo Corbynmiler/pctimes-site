@@ -193,7 +193,7 @@ export async function claimPuzzle(editor, puzzleId, answers) {
 }
 
 // Check a clue batch belongs to a live puzzle, and cap batches per puzzle
-// (the page sends ~4 answers per batch and retries a failed one once).
+// (the page sends 3 answers per batch and retries a failed one once).
 export async function checkBatch(puzzleId, answers) {
   if (!/^[a-f0-9-]{36}$/.test(String(puzzleId || ""))) {
     return { error: "This puzzle has expired. Generate a new one.", status: 400 };
@@ -205,7 +205,7 @@ export async function checkBatch(puzzleId, answers) {
   }
   const known = new Set(puzzle.answers);
   if (!answers.every((a) => known.has(a))) return { error: "Those answers aren't in this puzzle.", status: 400 };
-  const maxCalls = Math.ceil(puzzle.answers.length / 4) * 2 + 2;
+  const maxCalls = Math.ceil(puzzle.answers.length / 3) * 2 + 2;
   const calls = await update(`puzzle/${puzzleId}/calls`, (n) => (n || 0) + 1);
   if (calls > maxCalls) return { error: "This puzzle has already had its clues written.", status: 429 };
   return { ok: true };

@@ -20,7 +20,7 @@ const CROSSWORD_SWAPLOG_KEY = "pct-chaser-crossword-swaplog-v1";
 const CROSSWORD_HELP_DISMISSED_KEY = "pct-chaser-crossword-help-dismissed-v1";
 // v2: the levels were redefined (Standard now matches the paper's usual puzzle), so earlier picks reset.
 const CROSSWORD_DIFFICULTY_KEY = "pct-chaser-crossword-difficulty-v2";
-const CLUE_BATCH_SIZE = 4;             // answers per write-clues call (run in parallel)
+const CLUE_BATCH_SIZE = 3;             // answers per write-clues call (run in parallel); small batches keep each call well inside the time limit
 const DIFFICULTIES = [
   { key: "standard", label: "Standard", hint: "Like the paper's usual crossword: short, plain clues, interesting answers." },
   { key: "challenging", label: "Challenging", hint: "Same style, but about half the clues have a twist. No specialist knowledge needed." },
