@@ -8,10 +8,15 @@
 //
 // Pipeline:
 //   1. Pick one of a few symmetric 13×13 grid templates.
-//   2. Load the bundled, dictionary-checked wordlist (netlify/crossword/).
-//   3. Backtracking fill the grid with real words.
+//   2. Load the bundled word lists (netlify/crossword/): everyday words,
+//      plus a hand-picked "rich" list of words readers know but rarely use
+//      (QUALM, TENET, BRUSQUE).
+//   3. Backtracking fill the grid with real words, trying rich words first
+//      most of the time. That's where a classic quick crossword gets its
+//      challenge: a plain clue, an interesting answer.
 
 import WORDLIST from "../crossword/wordlist.mjs";
+import RICH_WORDLIST from "../crossword/wordlist-rich.mjs";
 import { requireEditor, claimPuzzle, jsonResponse } from "../crossword/guard.mjs";
 
 // ─── Grid templates ────────────────────────────────────────────────────
@@ -120,10 +125,14 @@ for (const t of GRID_TEMPLATES) {
 // ─── Wordlist (bundled; built by scripts/build-crossword-wordlist.js) ──
 let CACHED_WORDLIST = null;
 let CACHED_INDEX = null;
+const RICH = new Set(RICH_WORDLIST.split(" "));
 
 // Words we never want appearing as answers in a NZ community paper.
 // Includes US-specific units (NZ uses metric), sensitive topics, and a few
 // grim ones. Over-filter here if in doubt — plenty of words to pick from.
+// Names and places that slipped into the web-derived everyday list.
+const NOT_WORDS = new Set(["JAMES", "OLIVER", "ROGERS", "STEVENS", "BEVERLY", "HANS", "DANS", "PARIS",
+  "LOS", "ORLEANS", "LEEDS", "LEWIS", "ACER", "POS"]);
 const BLOCKED_ANSWERS = new Set([
   // US imperial units (NZ uses metric)
   "LBS", "MPH", "YDS", "OZS", "GAL", "GALS",
@@ -197,8 +206,11 @@ async function getWordlist() {
 
   // Dictionary-checked everyday English (the build script drops names,
   // places, brands and web jargon). Filter again here for anything unsuitable.
-  CACHED_WORDLIST = WORDLIST.split(" ")
-    .filter((w) => /^[A-Z]{3,13}$/.test(w) && !BLOCKED_ANSWERS.has(w) && !isUSSpelling(w) && !isJunk(w));
+  // The rich list is hand-checked, so its three-letter words skip the
+  // three-letter allowlist that guards the web-derived everyday list.
+  CACHED_WORDLIST = [...new Set([...WORDLIST.split(" "), ...RICH])]
+    .filter((w) => /^[A-Z]{3,13}$/.test(w) && !BLOCKED_ANSWERS.has(w) && !NOT_WORDS.has(w) && !isUSSpelling(w) &&
+      (RICH.has(w) ? /[AEIOUY]/.test(w) : !isJunk(w)));
 
   // Index for fast slot lookup: key "len:pos:letter" → [words]
   // Also a bare by-length index for unconstrained slots.
@@ -324,13 +336,16 @@ function candidates(pattern, index) {
 }
 
 // ─── Backtracking fill ─────────────────────────────────────────────────
-function shuffle(arr) {
-  // Fisher-Yates. Mutates in place.
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
-  }
-  return arr;
+// Candidate order: random, but rich words get a head start, so they come
+// first most of the time without being forced (a slot still falls back to
+// an everyday word when no rich word lets the grid finish). 0.7 gives
+// grids that are about three-quarters rich words, close to the mix in the
+// paper's long-running paid puzzle.
+const RICH_BOOST = 0.7;
+function orderCandidates(arr) {
+  const keyed = arr.map((w) => [Math.random() + (RICH.has(w) ? RICH_BOOST : 0), w]);
+  keyed.sort((a, b) => b[0] - a[0]);
+  return keyed.map((k) => k[1]);
 }
 
 function fillGrid(cells, slots, index, deadlineMs, usedGlobal) {
@@ -354,7 +369,7 @@ function fillGrid(cells, slots, index, deadlineMs, usedGlobal) {
     }
   }
   if (!bestCands || bestCands.length === 0) return false;
-  shuffle(bestCands);
+  bestCands = orderCandidates(bestCands);
 
   const originalPattern = slotPattern(cells, best);
   const usedThisSlot = new Set();
@@ -410,6 +425,7 @@ function buildAnswers(cells, slots, numbers) {
 }
 
 // ─── Handler ───────────────────────────────────────────────────────────
+export { RICH };
 export async function buildPuzzle() {
   try {
     const { index } = await getWordlist();

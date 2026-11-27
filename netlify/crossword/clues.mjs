@@ -10,8 +10,11 @@
 //      are accurate, fair, gettable without specialist knowledge, and not
 //      flat. Picking from several drafts beats patching a single one.
 //
-// "Hard" here means clever, never obscure: Leanne wants clues that make
-// readers think and then grin, not ones that need Latin or statistics.
+// House style comes from the crossword the paper has paid for over the
+// years (27 issues studied): short plain clues, half of them one word,
+// with the challenge in the answers - words readers know but rarely use
+// (the grid generator now favours those). "Hard" means clever, never
+// obscure: no Latin, jargon or thesaurus swaps.
 //
 // The API key lives only in Netlify's environment variables and is read
 // here, server-side. It never reaches the browser.
@@ -34,6 +37,9 @@ const SYSTEM = `You write the clues for the weekly crossword in the Pōhutukawa 
 
 The editor, Leanne, has said two things: the clues used to be too easy, and they must never feel like an exam. Hard means clever, not obscure.
 
+HOUSE STYLE
+The crossword readers know from this paper uses short, plain clues: half are a single word and nearly all are one to three words. The challenge lives in the answers, which are often words people know but rarely use. The clue is the plain, familiar word; the answer is the interesting one. TENET: "Principle". BRUSQUE: "Abrupt in manner". ALOOF: "Standoffish". GAFFE: "Embarrassing slip". Never the other way round: a clue harder than its answer (GREATER: "More eminent") is a vocabulary test, not a clue.
+
 THE AIM
 A great clue makes the solver stop, think, and then grin when the answer lands: "Oh, of course!" Everything needed to solve it is something a sharp, ordinary New Zealander already knows. The difficulty comes from approaching a familiar thing from an unexpected side, never from knowledge most readers don't have.
 
@@ -50,7 +56,7 @@ TECHNIQUES THAT WORK (the editor's favourites: learn the style, don't reuse thes
 
 WHAT GETS THROWN OUT (real clues the editor rejected)
 - Specialist knowledge. OPERA: "Works, to a Latin scholar" needs Latin. MOMENTS: "Mean and variance, to a statistician" needs statistics. No Latin or foreign-language senses, no technical, legal, medical, scientific or academic jargon, no "to a [specialist]" clues, no rare or archaic senses of words.
-- Thesaurus swaps. GREATER: "More eminent". Swapping in a rarely used synonym isn't clever, it's a vocabulary test.
+- Clues harder than their answers. GREATER: "More eminent". Using a rarer word than the answer isn't clever, it's a vocabulary test.
 - Clumsy descriptions. SOCKS: "Knitted garments with heels". Technically true, but dull, and it describes the thing the way no one would.
 - Giveaways (at Challenging and Fiendish). DAY: "Twenty-four hour period". PHYSICIAN: "Medical doctor". TOTAL: "Sum".
 
@@ -61,18 +67,18 @@ RULES FOR EVERY CLUE
 - Free of the answer: no part of the answer, no word from the same root.
 - New Zealand English: NZ spelling (colour, organise, centre, programme, metre), metric units, NZ dollars. References may be New Zealand or international, never US-only (US sports, TV, towns, politics) or obscure British trivia. NZ flavour is welcome in some clues, not forced into all.
 - Respectful. No dated or loaded terms, nothing about death, violence, illness, sex or politics that would jar in a community paper, nothing that pokes fun at age, weight or background.
-- Concise: usually two to six words, newspaper tone, no exclamation marks. Don't state the answer's length; the paper prints it.
+- Short: one to three words is the house style. A clue with a twist can run to six. Newspaper tone, no exclamation marks. Don't state the answer's length; the paper prints it.
 - The puzzle is a non-cryptic ("quick") crossword in a British-style blocked grid. Only about half of each answer's letters are crossed, so every clue has to stand on its own.`;
 
 const DIFFICULTY = {
   standard:
-    "STANDARD - friendly and satisfying. Most clues are crisp, exact definitions or everyday hooks that a regular solver gets on a first or second look; about one in four has a light twist. Skip the very first dictionary sense where a livelier one is just as clear.",
+    "STANDARD - the paper's classic house style. Nearly every clue is a short, plain, exact definition of one to three words, in familiar words, that a regular solver can get from the clue alone. Choose the clearest everyday sense; the answer's vocabulary supplies the challenge. Perhaps one clue in five can be a short everyday-life or general-knowledge clue for variety. No '?' clues, no trickery.",
   challenging:
-    "CHALLENGING - makes the solver think. Most clues need a moment of lateral thought: an everyday hook, a familiar word's other meaning, misdirection, an example, or well-known general knowledge approached sideways. Every clue must still land with an 'of course!' for an ordinary sharp reader, never a 'how was I meant to know that?'. A few can be crisp straight definitions, but none flat and none a giveaway. At most one '?' clue in this batch.",
+    "CHALLENGING - the house style with a twist. About half the clues stay short, plain definitions, but choose a less obvious everyday meaning where one exists (SMART: 'Sting'). The rest need a moment of lateral thought: an everyday hook, misdirection, an example, or well-known general knowledge approached sideways. Every clue must still land with an 'of course!' for an ordinary sharp reader, never a 'how was I meant to know that?'. At most one '?' clue in this batch.",
   fiendish:
-    "FIENDISH - a real workout that stays fair and fun. Nearly every clue twists: heavier misdirection, playful '?' definitions, less obvious (but everyday) meanings, and general knowledge can be more specific, the kind that comes up at a quiz night. Solvers should often need a crossing letter or two. Still no specialist knowledge, and never trade accuracy or fairness for difficulty. Up to two '?' clues in this batch.",
+    "FIENDISH - a real workout that stays fair and fun. Nearly every clue twists: heavier misdirection, less obvious (but everyday) meanings, playful '?' definitions, and general knowledge can be more specific, the kind that comes up at a quiz night. Solvers should often need a crossing letter or two. Still no specialist knowledge, and never trade accuracy or fairness for difficulty. Up to two '?' clues in this batch.",
 };
-const DEFAULT_DIFFICULTY = "challenging";
+const DEFAULT_DIFFICULTY = "standard";
 
 const DRAFTS_SCHEMA = {
   type: "object",
@@ -186,7 +192,9 @@ function writerPrompt(answers, level, swaps, rejected) {
     p += "\n\nLeanne's recent rewrites (what she rejected, and the clue she kept). Learn her taste from them; don't reuse them:\n" +
       swaps.map((s) => `- ${s.answer}: rejected "${s.rejected}" -> kept "${s.kept}"`).join("\n");
   }
-  p += "\n\nFor each answer, draft three finished, print-ready clues that take genuinely different angles (for example an everyday hook, a different meaning, general knowledge approached sideways, an example, a playful '?'). Put your best first. Every draft must pass the quiz-night test and follow every rule; the editor will choose between them. Vary the techniques across the batch. Return every answer exactly as given.";
+  p += level === "standard"
+    ? "\n\nFor each answer, draft three finished, print-ready clues in the house style: short, plain definitions, each a different wording or a different everyday sense. Put your best first. Every draft must follow every rule; the editor will choose between them. Return every answer exactly as given."
+    : "\n\nFor each answer, draft three finished, print-ready clues that take genuinely different angles (for example a short plain definition, a less obvious meaning, an everyday hook, general knowledge approached sideways, an example, a playful '?'). Put your best first. Every draft must pass the quiz-night test and follow every rule; the editor will choose between them. Vary the techniques across the batch. Return every answer exactly as given.";
   return p;
 }
 
@@ -199,10 +207,10 @@ A clue may go to print only if it is:
 1. Accurate - every fact, meaning, part of speech, tense and number is correct. If you aren't confident a fact is true, it fails.
 2. Fair - a solver who has the answer agrees it fits exactly, and no other common word of the same length fits as well.
 3. Gettable - no specialist knowledge: no Latin or foreign-language senses, no technical, legal, medical, scientific or academic jargon, no "to a [specialist]" clues, no rare or archaic senses. It passes the quiz-night test.
-4. Alive - not a thesaurus swap, not a clumsy description, and (at Challenging or Fiendish) not a dictionary-first giveaway.
+4. Well pitched - the clue's words are plainer than the answer, never rarer (GREATER: "More eminent" fails); not a clumsy description; short in the house style; and at Challenging or Fiendish not a dictionary-first giveaway.
 5. House rules - one definition only (no "X or Y"), no part of the answer or a word from its root, NZ English with no US-only references, respectful, concise.
 
-Prefer the clue with the best "of course!" moment. Don't let two clues in the batch lean on the same trick.`;
+${level === "standard" ? "Prefer the shortest clue that is exact and clear." : "Prefer the clue with the best \"of course!\" moment. Don't let two clues in the batch lean on the same trick."}`;
   if (rejected) p += `\n\nLeanne rejected "${rejected}" for ${items[0].answer}. Don't print that clue or anything close to it.`;
   p += "\n\nDrafts:\n" + items.map((c) =>
     `- ${c.answer} (${c.answer.length}):\n` + c.drafts.map((d, i) => `  ${i + 1}. ${d}`).join("\n")).join("\n");

@@ -18,11 +18,12 @@ const TAB_KEY = "pct-chaser-tab-v1";
 const CROSSWORD_RESULT_KEY = "pct-chaser-crossword-result-v1";
 const CROSSWORD_SWAPLOG_KEY = "pct-chaser-crossword-swaplog-v1";
 const CROSSWORD_HELP_DISMISSED_KEY = "pct-chaser-crossword-help-dismissed-v1";
-const CROSSWORD_DIFFICULTY_KEY = "pct-chaser-crossword-difficulty-v1";
+// v2: the levels were redefined (Standard now matches the paper's usual puzzle), so earlier picks reset.
+const CROSSWORD_DIFFICULTY_KEY = "pct-chaser-crossword-difficulty-v2";
 const CLUE_BATCH_SIZE = 4;             // answers per write-clues call (run in parallel)
 const DIFFICULTIES = [
-  { key: "standard", label: "Standard", hint: "Friendly, clear clues with the odd twist." },
-  { key: "challenging", label: "Challenging", hint: "Clues with a twist that make you think. No specialist knowledge needed." },
+  { key: "standard", label: "Standard", hint: "Like the paper's usual crossword: short, plain clues, interesting answers." },
+  { key: "challenging", label: "Challenging", hint: "Same style, but about half the clues have a twist. No specialist knowledge needed." },
   { key: "fiendish", label: "Fiendish", hint: "Lots of misdirection. Expect to need a crossing letter or two." },
 ];
 
@@ -157,7 +158,7 @@ const state = {
   crosswordBusy: false,
   crosswordError: null,
   crosswordProgress: null, // { stage: "grid" } | { stage: "clues", done, total }
-  crosswordDifficulty: readLS(CROSSWORD_DIFFICULTY_KEY, "challenging"),
+  crosswordDifficulty: readLS(CROSSWORD_DIFFICULTY_KEY, "standard"),
   crosswordQuota: null,    // this week's allowance, from the server
   crosswordQuotaTried: false,
   showAnswers: false,
@@ -1175,7 +1176,7 @@ function difficultyPicker() {
     });
     wrap.append(b);
   }
-  const current = DIFFICULTIES.find((d) => d.key === state.crosswordDifficulty) || DIFFICULTIES[1];
+  const current = DIFFICULTIES.find((d) => d.key === state.crosswordDifficulty) || DIFFICULTIES[0];
   wrap.append(el("span", { class: "crossword-difficulty__hint muted" }, current.hint));
   return wrap;
 }
@@ -1287,7 +1288,7 @@ function crosswordHelp() {
     {
       icon: "🎚",
       title: "Difficulty",
-      body: "Standard, Challenging or Fiendish, next to the Generate button. Challenging is the default. Too hard one week? Step down a level and generate again.",
+      body: "Standard, Challenging or Fiendish, next to the Generate button. Standard is like the paper's usual crossword: short, plain clues with interesting answers. Challenging gives about half the clues a twist; Fiendish twists almost all of them. Pick the level before you generate.",
     },
   ];
 
